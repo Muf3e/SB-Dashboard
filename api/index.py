@@ -10,8 +10,4 @@ sys.path.insert(0, str(ROOT_DIR / "dashboard"))
 sys.path.insert(0, str(ROOT_DIR / "corporate-governance"))
 sys.path.insert(0, str(ROOT_DIR / "scripts"))
 
-from dashboard.server import SBGroupRequestHandler
-
-# Vercel serverless entrypoint exports
-handler = SBGroupRequestHandler
-app = SBGroupRequestHandler
+from server import app, handler, application

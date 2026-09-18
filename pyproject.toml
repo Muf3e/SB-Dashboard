@@ -1,5 +1,5 @@
 [tool.vercel]
-entrypoint = "server.py"
+entrypoint = "server:app"
 
 [project]
 name = "sb-dashboard"
