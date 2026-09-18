@@ -1,0 +1,19 @@
+﻿{
+  "id": "SUB-02",
+  "name": "Global AI Media & Content Agency",
+  "focus": "Broadcast-Quality Deterministic Video, AI Avatars, & Multimodal Campaigns",
+  "status": "Operational",
+  "managing_director": "Managing Director - Creative & Motion Intelligence",
+  "core_stack": ["HyperFrames", "GSAP", "HeyGen CLI v0.8.1", "ComfyUI", "FFmpeg"],
+  "key_assets": [
+    "TITAN Product Intelligence Launch Reveal (1080p 60fps MP4)",
+    "HeyGen Autonomous Avatar Workflow",
+    "OpenClaw Video Generation Provider",
+    "Automated Multilingual Dubbing Pipeline"
+  ],
+  "target_kpis": [
+    "Deterministic rendering throughput > 60fps",
+    "Zero visual artifacting",
+    "Sub-hour turnarounds on product reveal campaigns"
+  ]
+}

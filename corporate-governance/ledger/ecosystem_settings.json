@@ -1,0 +1,304 @@
+{
+  "version": "1.0-SOVEREIGN",
+  "last_updated": "2026-09-11 01:30:14",
+  "emergency_killswitch": false,
+  "account": {
+    "full_name": "Mustafa",
+    "executive_title": "Chairperson & Supreme Commander",
+    "organization": "Saifee Burhani Group of Companies (SB Group)",
+    "email": "mustafa@sbgroup.corp",
+    "timezone": "Asia/Kolkata (IST, UTC+05:30)",
+    "primary_currency": "INR (\u20b9)",
+    "secondary_currency": "USD ($)",
+    "subsidiaries": [
+      "SB Fragrance",
+      "TITAN Labs",
+      "Alfann Art Studio",
+      "AdWell Media",
+      "Apex Viral Media",
+      "CORTEX AI Shorts Studio"
+    ]
+  },
+  "privacy": {
+    "offline_sovereign_inference": true,
+    "zero_telemetry_enforced": true,
+    "anonymize_affiliate_fingerprints": true,
+    "local_storage_strict": true,
+    "auto_purge_temp_media_days": 7
+  },
+  "security": {
+    "webhook_hmac_sha256_enforced": true,
+    "require_session_pin": false,
+    "emergency_killswitch_active": false,
+    "localhost_origin_lockdown": true,
+    "cors_restricted": true
+  },
+  "swarm": {
+    "default_llm_model": "qwen2.5-coder:7b-instruct",
+    "ollama_base_url": "http://localhost:11434",
+    "autopilot_readiness_threshold": 90,
+    "council_debate_rigor": "standard_3_rounds",
+    "strict_agent_roles_enforced": true
+  },
+  "ui": {
+    "theme": "obsidian_dark",
+    "brand_logo": "sb_group_crest",
+    "executive_audio_chimes": true,
+    "telemetry_refresh_sec": 5
+  },
+  "api_keys": [
+    {
+      "id": "gemini_api_key",
+      "name": "Google Gemini API Key",
+      "env_var": "GEMINI_API_KEY",
+      "category": "AI & LLM",
+      "value": "",
+      "description": "Multimodal reasoning, Gemini 1.5 Pro/Flash, Google AI Studio",
+      "status": "NOT SET",
+      "is_custom": false,
+      "created_at": "2026-09-11"
+    },
+    {
+      "id": "openai_api_key",
+      "name": "OpenAI API Key",
+      "env_var": "OPENAI_API_KEY",
+      "category": "AI & LLM",
+      "value": "",
+      "description": "GPT-4o, o1, o3-mini reasoning, embeddings",
+      "status": "NOT SET",
+      "is_custom": false,
+      "created_at": "2026-09-11"
+    },
+    {
+      "id": "anthropic_api_key",
+      "name": "Anthropic Claude API Key",
+      "env_var": "ANTHROPIC_API_KEY",
+      "category": "AI & LLM",
+      "value": "",
+      "description": "Claude 3.5 Sonnet, Claude Opus enterprise intelligence",
+      "status": "NOT SET",
+      "is_custom": false,
+      "created_at": "2026-09-11"
+    },
+    {
+      "id": "groq_api_key",
+      "name": "Groq LPU Cloud API Key",
+      "env_var": "GROQ_API_KEY",
+      "category": "AI & LLM",
+      "value": "",
+      "description": "Sub-100ms ultra-fast inference for real-time agent hand-offs",
+      "status": "NOT SET",
+      "is_custom": false,
+      "created_at": "2026-09-11"
+    },
+    {
+      "id": "deepseek_api_key",
+      "name": "DeepSeek API Key",
+      "env_var": "DEEPSEEK_API_KEY",
+      "category": "AI & LLM",
+      "value": "",
+      "description": "DeepSeek-R1 / V3 cost-effective reasoning token engine",
+      "status": "NOT SET",
+      "is_custom": false,
+      "created_at": "2026-09-11"
+    },
+    {
+      "id": "perplexity_api_key",
+      "name": "Perplexity Search API Key",
+      "env_var": "PERPLEXITY_API_KEY",
+      "category": "AI & LLM",
+      "value": "",
+      "description": "Online live web grounding & real-time citation searches",
+      "status": "NOT SET",
+      "is_custom": false,
+      "created_at": "2026-09-11"
+    },
+    {
+      "id": "ollama_host",
+      "name": "Local Ollama Endpoint",
+      "env_var": "OLLAMA_HOST",
+      "category": "AI & LLM",
+      "value": "http://localhost:11434",
+      "description": "100% sovereign offline inference runtime on Windows",
+      "status": "CONFIGURED",
+      "is_custom": false,
+      "created_at": "2026-09-11"
+    },
+    {
+      "id": "razorpay_key_id",
+      "name": "Razorpay Key ID",
+      "env_var": "RAZORPAY_KEY_ID",
+      "category": "Payments & Treasury",
+      "value": "",
+      "description": "Public Key ID for India UPI, NetBanking, and Card checkout",
+      "status": "NOT SET",
+      "is_custom": false,
+      "created_at": "2026-09-11"
+    },
+    {
+      "id": "razorpay_key_secret",
+      "name": "Razorpay Key Secret",
+      "env_var": "RAZORPAY_KEY_SECRET",
+      "category": "Payments & Treasury",
+      "value": "",
+      "description": "Confidential merchant secret for payment link creation & settlement",
+      "status": "NOT SET",
+      "is_custom": false,
+      "created_at": "2026-09-11"
+    },
+    {
+      "id": "razorpay_webhook_secret",
+      "name": "Razorpay Webhook Secret",
+      "env_var": "RAZORPAY_WEBHOOK_SECRET",
+      "category": "Payments & Treasury",
+      "value": "",
+      "description": "HMAC-SHA256 signature verification for instant payment webhooks",
+      "status": "NOT SET",
+      "is_custom": false,
+      "created_at": "2026-09-11"
+    },
+    {
+      "id": "paypal_client_id",
+      "name": "PayPal Client ID",
+      "env_var": "PAYPAL_CLIENT_ID",
+      "category": "Payments & Treasury",
+      "value": "",
+      "description": "Global multi-currency merchant ID for international card checkout",
+      "status": "NOT SET",
+      "is_custom": false,
+      "created_at": "2026-09-11"
+    },
+    {
+      "id": "paypal_client_secret",
+      "name": "PayPal Client Secret",
+      "env_var": "PAYPAL_CLIENT_SECRET",
+      "category": "Payments & Treasury",
+      "value": "",
+      "description": "OAuth 2.0 client secret for PayPal Orders v2 API capture",
+      "status": "NOT SET",
+      "is_custom": false,
+      "created_at": "2026-09-11"
+    },
+    {
+      "id": "gumroad_access_token",
+      "name": "Gumroad API Access Token",
+      "env_var": "GUMROAD_ACCESS_TOKEN",
+      "category": "Payments & Treasury",
+      "value": "",
+      "description": "Digital product sales, Tayy\u0101r Sticker storefront sync",
+      "status": "NOT SET",
+      "is_custom": false,
+      "created_at": "2026-09-11"
+    },
+    {
+      "id": "youtube_api_key",
+      "name": "YouTube Data API v3 Key",
+      "env_var": "YOUTUBE_API_KEY",
+      "category": "Social & Publishing",
+      "value": "",
+      "description": "Automated YouTube Shorts uploads, descriptions, tags, metadata",
+      "status": "NOT SET",
+      "is_custom": false,
+      "created_at": "2026-09-11"
+    },
+    {
+      "id": "x_api_key",
+      "name": "X.com (Twitter) API v2 Bearer Token",
+      "env_var": "X_API_KEY",
+      "category": "Social & Publishing",
+      "value": "",
+      "description": "Video tweets, threaded affiliate funnels, creator monetization",
+      "status": "NOT SET",
+      "is_custom": false,
+      "created_at": "2026-09-11"
+    },
+    {
+      "id": "tiktok_client_key",
+      "name": "TikTok Content Posting Client Key",
+      "env_var": "TIKTOK_CLIENT_KEY",
+      "category": "Social & Publishing",
+      "value": "",
+      "description": "Direct-to-TikTok video posting, sound attribution, hashtags",
+      "status": "NOT SET",
+      "is_custom": false,
+      "created_at": "2026-09-11"
+    },
+    {
+      "id": "instagram_access_token",
+      "name": "Instagram Graph API Token",
+      "env_var": "INSTAGRAM_ACCESS_TOKEN",
+      "category": "Social & Publishing",
+      "value": "",
+      "description": "Instagram Reels video publishing and caption container dispatch",
+      "status": "NOT SET",
+      "is_custom": false,
+      "created_at": "2026-09-11"
+    },
+    {
+      "id": "amazon_associate_tag",
+      "name": "Amazon Associates Tracking Tag",
+      "env_var": "AMAZON_ASSOCIATE_TAG",
+      "category": "Affiliate & Sourcing",
+      "value": "mufee-21",
+      "description": "Automated referral tag injected into all TITAN Labs electronics recommendations",
+      "status": "CONFIGURED",
+      "is_custom": false,
+      "created_at": "2026-09-11"
+    },
+    {
+      "id": "flipkart_affiliate_id",
+      "name": "Flipkart Affiliate ID",
+      "env_var": "FLIPKART_AFFILIATE_ID",
+      "category": "Affiliate & Sourcing",
+      "value": "",
+      "description": "Secondary e-commerce affiliate tracking for India consumer electronics",
+      "status": "NOT SET",
+      "is_custom": false,
+      "created_at": "2026-09-11"
+    },
+    {
+      "id": "rapidapi_key",
+      "name": "RapidAPI Pricing Crawler Key",
+      "env_var": "RAPIDAPI_KEY",
+      "category": "Affiliate & Sourcing",
+      "value": "",
+      "description": "Multi-retailer price scraper gateway for Amazon/Flipkart/Croma comparisons",
+      "status": "NOT SET",
+      "is_custom": false,
+      "created_at": "2026-09-11"
+    },
+    {
+      "id": "telegram_bot_token",
+      "name": "Telegram Bot Token",
+      "env_var": "TELEGRAM_BOT_TOKEN",
+      "category": "Communication & Alerts",
+      "value": "",
+      "description": "Instant executive phone alerts for sales conversions and council deadlocks",
+      "status": "NOT SET",
+      "is_custom": false,
+      "created_at": "2026-09-11"
+    },
+    {
+      "id": "discord_webhook_url",
+      "name": "Discord Alert Webhook URL",
+      "env_var": "DISCORD_WEBHOOK_URL",
+      "category": "Communication & Alerts",
+      "value": "",
+      "description": "Broadcasts agent actions, new video renders, and financial settlements",
+      "status": "NOT SET",
+      "is_custom": false,
+      "created_at": "2026-09-11"
+    },
+    {
+      "id": "elevenlabs_api_key",
+      "name": "ElevenLabs Ultra-Realistic Voice API",
+      "env_var": "ELEVENLABS_API_KEY",
+      "category": "Media & Voice",
+      "value": "sk_live_elevenlabs_test_987654321",
+      "description": "Voice cloning and hyper-realistic narration for Remotion AI Shorts",
+      "status": "CONFIGURED",
+      "is_custom": true,
+      "created_at": "2026-09-11"
+    }
+  ]
+}

@@ -1,0 +1,475 @@
+{
+  "version": "1.0",
+  "last_updated": "2026-09-11 01:32:43",
+  "active_tasks": [
+    {
+      "task_id": "TASK-1789067433-LYR2KAE",
+      "timestamp": "2026-09-11 00:40:33",
+      "sender": {
+        "key": "lyra_vance",
+        "name": "Lyra Vance",
+        "title": "Lead AI Trend Radar & Sourcing Scout",
+        "avatar": "/assets/avatars/lyra_vance.jpg"
+      },
+      "recipient": {
+        "key": "kaelen_cross",
+        "name": "Kaelen Cross",
+        "title": "Lead Viral Hook & Audio Clipper",
+        "avatar": "/assets/avatars/kaelen_cross.jpg"
+      },
+      "task_type": "DISCOVER_TRENDING_AI_CLIP",
+      "payload": {
+        "candidate": {
+          "speaker": "Demis Hassabis",
+          "title": "Demis Hassabis: 'AlphaProof Solved Olympiad Math in 4 Minutes'",
+          "hook_headline": "AI Solved The World's Hardest Math",
+          "hook_style": "Mindblowing Revelation",
+          "podcast_name": "Google DeepMind Keynote / Hard Fork",
+          "source_url": "https://www.youtube.com/watch?v=4D5E6F7G8H",
+          "duration_sec": 45,
+          "wpm": 168,
+          "topics": [
+            "Synthetic Reasoning & Logic",
+            "AGI Timelines & Singularity"
+          ],
+          "captions_sample": "For decades, mathematicians believed intuitive creativity was purely human. When AlphaProof proved the Olympiad geometry problem in minutes, everything changed."
+        },
+        "clip_id": "CLIP-HASSABIS-433"
+      },
+      "status": "IN_PROGRESS",
+      "message": "Kaelen, our trend radar detected a breakout velocity spike on Demis Hassabis in 'Google DeepMind Keynote / Hard Fork'. Predicted virality 95+. Please download audio, transcribe, and lock the 0-5s retention hook."
+    },
+    {
+      "task_id": "TASK-1789067433-KAE2ZUR",
+      "timestamp": "2026-09-11 00:40:33",
+      "sender": {
+        "key": "kaelen_cross",
+        "name": "Kaelen Cross",
+        "title": "Lead Viral Hook & Audio Clipper",
+        "avatar": "/assets/avatars/kaelen_cross.jpg"
+      },
+      "recipient": {
+        "key": "zuri_chen",
+        "name": "Zuri Chen",
+        "title": "Kinetic Subtitler & Visual Stylist",
+        "avatar": "/assets/avatars/zuri_chen.jpg"
+      },
+      "task_type": "EXTRACT_RETENTION_HOOK",
+      "payload": {
+        "clip_id": "CLIP-HASSABIS-433",
+        "hook_headline": "AI Solved The World's Hardest Math",
+        "duration": 45,
+        "wpm": 168
+      },
+      "status": "IN_PROGRESS",
+      "message": "Zuri, I locked the 0-5s scroll-stopping hook: 'AI Solved The World's Hardest Math'. Extracted clean 45s audio/video cut at 168 WPM. Please apply 9:16 vertical crop, kinetic neon subtitles, and audio visualizer wave."
+    },
+    {
+      "task_id": "TASK-1789067433-ZUR2ORI",
+      "timestamp": "2026-09-11 00:40:33",
+      "sender": {
+        "key": "zuri_chen",
+        "name": "Zuri Chen",
+        "title": "Kinetic Subtitler & Visual Stylist",
+        "avatar": "/assets/avatars/zuri_chen.jpg"
+      },
+      "recipient": {
+        "key": "orion_stark",
+        "name": "Orion Stark",
+        "title": "RLHF Preference Learner & Quality Guardian",
+        "avatar": "/assets/avatars/orion_stark.jpg"
+      },
+      "task_type": "RENDER_VERTICAL_916",
+      "payload": {
+        "clip_id": "CLIP-HASSABIS-433",
+        "layout": "vertical_916",
+        "resolution": "1080x1920",
+        "fps": 60,
+        "caption_style": "active_word_neon_pop"
+      },
+      "status": "IN_PROGRESS",
+      "message": "Orion, Remotion 9:16 short rendered (CLIP-HASSABIS-433.mp4). Subtitles dynamically highlighted with active neon yellow bounces. Please score against the virality matrix and stage in Mustafa's Approval Queue."
+    },
+    {
+      "task_id": "TASK-1789067433-ORI2MAY",
+      "timestamp": "2026-09-11 00:40:33",
+      "sender": {
+        "key": "orion_stark",
+        "name": "Orion Stark",
+        "title": "RLHF Preference Learner & Quality Guardian",
+        "avatar": "/assets/avatars/orion_stark.jpg"
+      },
+      "recipient": {
+        "key": "maya_lin",
+        "name": "Maya Lin",
+        "title": "Omni-Channel Distribution & Monetization Director",
+        "avatar": "/assets/avatars/maya_lin.jpg"
+      },
+      "task_type": "NOTIFY_APPROVAL_QUEUE",
+      "payload": {
+        "clip_id": "CLIP-HASSABIS-433",
+        "score": 94.5
+      },
+      "status": "IN_PROGRESS",
+      "message": "Maya, newly generated clip 'Demis Hassabis: 'AlphaProof Solved Olympiad Math in 4 Minutes'' scored 94.5/100. Staged in Chairperson Mustafa's Executive Dashboard Approval Queue. Distribution pipelines on standby."
+    },
+    {
+      "task_id": "TASK-1789068183-ORI2KAE",
+      "timestamp": "2026-09-11 00:53:03",
+      "sender": {
+        "key": "orion_stark",
+        "name": "Orion Stark",
+        "title": "RLHF Preference Learner & Quality Guardian",
+        "avatar": "/assets/avatars/orion_stark.jpg"
+      },
+      "recipient": {
+        "key": "kaelen_cross",
+        "name": "Kaelen Cross",
+        "title": "Lead Viral Hook & Audio Clipper",
+        "avatar": "/assets/avatars/kaelen_cross.jpg"
+      },
+      "task_type": "FEEDBACK_REJECTION_ADAPTATION",
+      "payload": {
+        "clip_id": "CLIP-KARPATHY-03",
+        "reasons": [
+          "hook_too_weak",
+          "pacing_too_slow"
+        ],
+        "notes": "Hook was too abstract. We need punchier opening lines in the first 2 seconds and faster cuts."
+      },
+      "status": "IN_PROGRESS",
+      "message": "Kaelen, Chairperson Mustafa rejected 'Andrej Karpathy Explains How Autonomous Agent Swarms Actually Work' citing [hook_too_weak, pacing_too_slow]. Adjusted feature weights downwards. For future cuts, prioritize higher hook intensity and tighter pacing."
+    },
+    {
+      "task_id": "TASK-1789068191-ORI2MAY",
+      "timestamp": "2026-09-11 00:53:11",
+      "sender": {
+        "key": "orion_stark",
+        "name": "Orion Stark",
+        "title": "RLHF Preference Learner & Quality Guardian",
+        "avatar": "/assets/avatars/orion_stark.jpg"
+      },
+      "recipient": {
+        "key": "maya_lin",
+        "name": "Maya Lin",
+        "title": "Omni-Channel Distribution & Monetization Director",
+        "avatar": "/assets/avatars/maya_lin.jpg"
+      },
+      "task_type": "SCHEDULE_DISTRIBUTION",
+      "payload": {
+        "clip_id": "CLIP-ILYA-01",
+        "title": "Why Ilya REALLY Left OpenAI (The Superintelligence Truth)",
+        "platforms": [
+          "YouTube Shorts",
+          "X.com Video",
+          "TikTok",
+          "Instagram Reels"
+        ],
+        "pinned_affiliate": "\u26a1 Build autonomous agents with 0 cloud cost: https://sbgroup.corp/titan-pro"
+      },
+      "status": "IN_PROGRESS",
+      "message": "Maya, Chairperson Mustafa APPROVED 'Why Ilya REALLY Left OpenAI (The Superintelligence Truth)'. Feature weights boosted. Please queue for distribution across YouTube Shorts, X.com, TikTok, and IG Reels with monetization link attached."
+    },
+    {
+      "task_id": "TASK-1789070501-ORI2KAE",
+      "timestamp": "2026-09-11 01:31:41",
+      "sender": {
+        "key": "orion_stark",
+        "name": "Orion Stark",
+        "title": "RLHF Preference Learner & Quality Guardian",
+        "avatar": "/assets/avatars/orion_stark.jpg"
+      },
+      "recipient": {
+        "key": "kaelen_cross",
+        "name": "Kaelen Cross",
+        "title": "Lead Viral Hook & Audio Clipper",
+        "avatar": "/assets/avatars/kaelen_cross.jpg"
+      },
+      "task_type": "FEEDBACK_REJECTION_ADAPTATION",
+      "payload": {
+        "clip_id": "CLIP-JENSEN-02",
+        "reasons": [
+          "hook_too_weak",
+          "speaker_uninteresting",
+          "pacing_too_slow",
+          "topic_irrelevant",
+          "pacing_too_fast",
+          "monologue_without_hook"
+        ],
+        "notes": "there is nothing in it no audio no video nothing"
+      },
+      "status": "IN_PROGRESS",
+      "message": "Kaelen, Chairperson Mustafa rejected 'Jensen Huang: 'Every Software Engineer Needs To Hear This Now'' citing [hook_too_weak, speaker_uninteresting, pacing_too_slow, topic_irrelevant, pacing_too_fast, monologue_without_hook]. Adjusted feature weights downwards. For future cuts, prioritize higher hook intensity and tighter pacing."
+    },
+    {
+      "task_id": "TASK-1789070563-ORI2KAE",
+      "timestamp": "2026-09-11 01:32:43",
+      "sender": {
+        "key": "orion_stark",
+        "name": "Orion Stark",
+        "title": "RLHF Preference Learner & Quality Guardian",
+        "avatar": "/assets/avatars/orion_stark.jpg"
+      },
+      "recipient": {
+        "key": "kaelen_cross",
+        "name": "Kaelen Cross",
+        "title": "Lead Viral Hook & Audio Clipper",
+        "avatar": "/assets/avatars/kaelen_cross.jpg"
+      },
+      "task_type": "FEEDBACK_REJECTION_ADAPTATION",
+      "payload": {
+        "clip_id": "CLIP-HASSABIS-433",
+        "reasons": [
+          "hook_too_weak",
+          "speaker_uninteresting",
+          "pacing_too_slow",
+          "topic_irrelevant",
+          "pacing_too_fast",
+          "monologue_without_hook"
+        ],
+        "notes": "the video is good but there is less content and it is way to short all the shorts should be minimum of 30s duration "
+      },
+      "status": "IN_PROGRESS",
+      "message": "Kaelen, Chairperson Mustafa rejected 'Demis Hassabis: 'AlphaProof Solved Olympiad Math in 4 Minutes'' citing [hook_too_weak, speaker_uninteresting, pacing_too_slow, topic_irrelevant, pacing_too_fast, monologue_without_hook]. Adjusted feature weights downwards. For future cuts, prioritize higher hook intensity and tighter pacing."
+    }
+  ],
+  "completed_tasks": [
+    {
+      "task_id": "TASK-1789067371-LYR2KAE",
+      "timestamp": "2026-09-11 00:39:31",
+      "sender": {
+        "key": "lyra_vance",
+        "name": "Lyra Vance",
+        "title": "Lead AI Trend Radar & Sourcing Scout",
+        "avatar": "/assets/avatars/lyra_vance.jpg"
+      },
+      "recipient": {
+        "key": "kaelen_cross",
+        "name": "Kaelen Cross",
+        "title": "Lead Viral Hook & Audio Clipper",
+        "avatar": "/assets/avatars/kaelen_cross.jpg"
+      },
+      "task_type": "REQUEST_CLIP_EXTRACTION",
+      "payload": {
+        "source_url": "https://www.youtube.com/watch?v=1A2B3C4D5E",
+        "podcast": "Dwarkesh Patel Podcast",
+        "episode_title": "Ilya Sutskever on Safe Superintelligence (SSI), Consciousness & Reasoning",
+        "speaker": "Ilya Sutskever",
+        "target_window": "00:14:10 - 00:15:05"
+      },
+      "status": "COMPLETED",
+      "message": "Kaelen, our trend radar flagged a viral spike on Ilya's explanation of why scaling compute isn't enough without synthetic reasoning. Retention velocity is 9.8/10. Please pull the audio stream, transcribe, and find the 45-second retention sweet spot.",
+      "completed_at": "2026-09-11 00:39:31",
+      "completion_message": "Got it, Lyra. Stream downloaded via yt-dlp. I analyzed the speech curve and locked the hook: 'Why Ilya Sutskever left OpenAI to build SSI'. Extracted clean 48-second cut [14:12 - 15:00] with word-level timestamps."
+    },
+    {
+      "task_id": "TASK-1789067371-KAE2ZUR",
+      "timestamp": "2026-09-11 00:39:31",
+      "sender": {
+        "key": "kaelen_cross",
+        "name": "Kaelen Cross",
+        "title": "Lead Viral Hook & Audio Clipper",
+        "avatar": "/assets/avatars/kaelen_cross.jpg"
+      },
+      "recipient": {
+        "key": "zuri_chen",
+        "name": "Zuri Chen",
+        "title": "Kinetic Subtitler & Visual Stylist",
+        "avatar": "/assets/avatars/zuri_chen.jpg"
+      },
+      "task_type": "REQUEST_KINETIC_RENDER",
+      "payload": {
+        "clip_id": "CLIP-ILYA-SSI-01",
+        "hook": "Why Ilya REALLY Left OpenAI",
+        "speaker": "Ilya Sutskever",
+        "duration": 48
+      },
+      "status": "COMPLETED",
+      "message": "Zuri, raw cut and word-level JSON timings are ready. Please apply 9:16 vertical split-screen centering on Ilya, animate word-by-word kinetic pop-in subtitles with neon yellow emphasis on keywords, and add the bottom visualizer wave.",
+      "completed_at": "2026-09-11 00:39:31",
+      "completion_message": "Render complete, Kaelen! Remotion output generated in 1080x1920 60fps (`short_ilya_ssi_01.mp4`). Active word bounces and bold emojis synced perfectly to his voice cadence."
+    },
+    {
+      "task_id": "TASK-1789067371-ZUR2ORI",
+      "timestamp": "2026-09-11 00:39:31",
+      "sender": {
+        "key": "zuri_chen",
+        "name": "Zuri Chen",
+        "title": "Kinetic Subtitler & Visual Stylist",
+        "avatar": "/assets/avatars/zuri_chen.jpg"
+      },
+      "recipient": {
+        "key": "orion_stark",
+        "name": "Orion Stark",
+        "title": "RLHF Preference Learner & Quality Guardian",
+        "avatar": "/assets/avatars/orion_stark.jpg"
+      },
+      "task_type": "SUBMIT_FOR_QUALITY_AND_APPROVAL",
+      "payload": {
+        "clip_id": "CLIP-ILYA-SSI-01",
+        "file": "short_ilya_ssi_01.mp4",
+        "predicted_virality": 94
+      },
+      "status": "COMPLETED",
+      "message": "Orion, finalized 9:16 MP4 is staged in output. Please evaluate against the virality matrix, calculate RLHF feature weights, and queue for Chairperson Mustafa's approval.",
+      "completed_at": "2026-09-11 00:39:31",
+      "completion_message": "Evaluated, Zuri. Hook Score: 95/100, Speaker Retention: 98/100, Pacing: 162 WPM. Total Virality Index: 96/100. Staged in Mustafa's Executive Approval Queue with live preview."
+    }
+  ],
+  "dialogues": [
+    {
+      "id": "MSG-1789067371371",
+      "timestamp": "2026-09-11 00:39:31",
+      "from": "Lyra Vance",
+      "from_avatar": "/assets/avatars/lyra_vance.jpg",
+      "to": "Kaelen Cross",
+      "to_avatar": "/assets/avatars/kaelen_cross.jpg",
+      "task_id": "TASK-1789067371-LYR2KAE",
+      "content": "Kaelen, our trend radar flagged a viral spike on Ilya's explanation of why scaling compute isn't enough without synthetic reasoning. Retention velocity is 9.8/10. Please pull the audio stream, transcribe, and find the 45-second retention sweet spot.",
+      "task_type": "REQUEST_CLIP_EXTRACTION"
+    },
+    {
+      "id": "MSG-1789067371372",
+      "timestamp": "2026-09-11 00:39:31",
+      "from": "Kaelen Cross",
+      "from_avatar": "/assets/avatars/kaelen_cross.jpg",
+      "to": "Lyra Vance",
+      "to_avatar": "/assets/avatars/lyra_vance.jpg",
+      "task_id": "TASK-1789067371-LYR2KAE",
+      "content": "Got it, Lyra. Stream downloaded via yt-dlp. I analyzed the speech curve and locked the hook: 'Why Ilya Sutskever left OpenAI to build SSI'. Extracted clean 48-second cut [14:12 - 15:00] with word-level timestamps.",
+      "task_type": "REPLY_REQUEST_CLIP_EXTRACTION"
+    },
+    {
+      "id": "MSG-1789067371372",
+      "timestamp": "2026-09-11 00:39:31",
+      "from": "Kaelen Cross",
+      "from_avatar": "/assets/avatars/kaelen_cross.jpg",
+      "to": "Zuri Chen",
+      "to_avatar": "/assets/avatars/zuri_chen.jpg",
+      "task_id": "TASK-1789067371-KAE2ZUR",
+      "content": "Zuri, raw cut and word-level JSON timings are ready. Please apply 9:16 vertical split-screen centering on Ilya, animate word-by-word kinetic pop-in subtitles with neon yellow emphasis on keywords, and add the bottom visualizer wave.",
+      "task_type": "REQUEST_KINETIC_RENDER"
+    },
+    {
+      "id": "MSG-1789067371373",
+      "timestamp": "2026-09-11 00:39:31",
+      "from": "Zuri Chen",
+      "from_avatar": "/assets/avatars/zuri_chen.jpg",
+      "to": "Kaelen Cross",
+      "to_avatar": "/assets/avatars/kaelen_cross.jpg",
+      "task_id": "TASK-1789067371-KAE2ZUR",
+      "content": "Render complete, Kaelen! Remotion output generated in 1080x1920 60fps (`short_ilya_ssi_01.mp4`). Active word bounces and bold emojis synced perfectly to his voice cadence.",
+      "task_type": "REPLY_REQUEST_KINETIC_RENDER"
+    },
+    {
+      "id": "MSG-1789067371373",
+      "timestamp": "2026-09-11 00:39:31",
+      "from": "Zuri Chen",
+      "from_avatar": "/assets/avatars/zuri_chen.jpg",
+      "to": "Orion Stark",
+      "to_avatar": "/assets/avatars/orion_stark.jpg",
+      "task_id": "TASK-1789067371-ZUR2ORI",
+      "content": "Orion, finalized 9:16 MP4 is staged in output. Please evaluate against the virality matrix, calculate RLHF feature weights, and queue for Chairperson Mustafa's approval.",
+      "task_type": "SUBMIT_FOR_QUALITY_AND_APPROVAL"
+    },
+    {
+      "id": "MSG-1789067371374",
+      "timestamp": "2026-09-11 00:39:31",
+      "from": "Orion Stark",
+      "from_avatar": "/assets/avatars/orion_stark.jpg",
+      "to": "Zuri Chen",
+      "to_avatar": "/assets/avatars/zuri_chen.jpg",
+      "task_id": "TASK-1789067371-ZUR2ORI",
+      "content": "Evaluated, Zuri. Hook Score: 95/100, Speaker Retention: 98/100, Pacing: 162 WPM. Total Virality Index: 96/100. Staged in Mustafa's Executive Approval Queue with live preview.",
+      "task_type": "REPLY_SUBMIT_FOR_QUALITY_AND_APPROVAL"
+    },
+    {
+      "id": "MSG-1789067433973",
+      "timestamp": "2026-09-11 00:40:33",
+      "from": "Lyra Vance",
+      "from_avatar": "/assets/avatars/lyra_vance.jpg",
+      "to": "Kaelen Cross",
+      "to_avatar": "/assets/avatars/kaelen_cross.jpg",
+      "task_id": "TASK-1789067433-LYR2KAE",
+      "content": "Kaelen, our trend radar detected a breakout velocity spike on Demis Hassabis in 'Google DeepMind Keynote / Hard Fork'. Predicted virality 95+. Please download audio, transcribe, and lock the 0-5s retention hook.",
+      "task_type": "DISCOVER_TRENDING_AI_CLIP"
+    },
+    {
+      "id": "MSG-1789067433974",
+      "timestamp": "2026-09-11 00:40:33",
+      "from": "Kaelen Cross",
+      "from_avatar": "/assets/avatars/kaelen_cross.jpg",
+      "to": "Zuri Chen",
+      "to_avatar": "/assets/avatars/zuri_chen.jpg",
+      "task_id": "TASK-1789067433-KAE2ZUR",
+      "content": "Zuri, I locked the 0-5s scroll-stopping hook: 'AI Solved The World's Hardest Math'. Extracted clean 45s audio/video cut at 168 WPM. Please apply 9:16 vertical crop, kinetic neon subtitles, and audio visualizer wave.",
+      "task_type": "EXTRACT_RETENTION_HOOK"
+    },
+    {
+      "id": "MSG-1789067433974",
+      "timestamp": "2026-09-11 00:40:33",
+      "from": "Zuri Chen",
+      "from_avatar": "/assets/avatars/zuri_chen.jpg",
+      "to": "Orion Stark",
+      "to_avatar": "/assets/avatars/orion_stark.jpg",
+      "task_id": "TASK-1789067433-ZUR2ORI",
+      "content": "Orion, Remotion 9:16 short rendered (CLIP-HASSABIS-433.mp4). Subtitles dynamically highlighted with active neon yellow bounces. Please score against the virality matrix and stage in Mustafa's Approval Queue.",
+      "task_type": "RENDER_VERTICAL_916"
+    },
+    {
+      "id": "MSG-1789067433976",
+      "timestamp": "2026-09-11 00:40:33",
+      "from": "Orion Stark",
+      "from_avatar": "/assets/avatars/orion_stark.jpg",
+      "to": "Maya Lin",
+      "to_avatar": "/assets/avatars/maya_lin.jpg",
+      "task_id": "TASK-1789067433-ORI2MAY",
+      "content": "Maya, newly generated clip 'Demis Hassabis: 'AlphaProof Solved Olympiad Math in 4 Minutes'' scored 94.5/100. Staged in Chairperson Mustafa's Executive Dashboard Approval Queue. Distribution pipelines on standby.",
+      "task_type": "NOTIFY_APPROVAL_QUEUE"
+    },
+    {
+      "id": "MSG-1789068183366",
+      "timestamp": "2026-09-11 00:53:03",
+      "from": "Orion Stark",
+      "from_avatar": "/assets/avatars/orion_stark.jpg",
+      "to": "Kaelen Cross",
+      "to_avatar": "/assets/avatars/kaelen_cross.jpg",
+      "task_id": "TASK-1789068183-ORI2KAE",
+      "content": "Kaelen, Chairperson Mustafa rejected 'Andrej Karpathy Explains How Autonomous Agent Swarms Actually Work' citing [hook_too_weak, pacing_too_slow]. Adjusted feature weights downwards. For future cuts, prioritize higher hook intensity and tighter pacing.",
+      "task_type": "FEEDBACK_REJECTION_ADAPTATION"
+    },
+    {
+      "id": "MSG-1789068191398",
+      "timestamp": "2026-09-11 00:53:11",
+      "from": "Orion Stark",
+      "from_avatar": "/assets/avatars/orion_stark.jpg",
+      "to": "Maya Lin",
+      "to_avatar": "/assets/avatars/maya_lin.jpg",
+      "task_id": "TASK-1789068191-ORI2MAY",
+      "content": "Maya, Chairperson Mustafa APPROVED 'Why Ilya REALLY Left OpenAI (The Superintelligence Truth)'. Feature weights boosted. Please queue for distribution across YouTube Shorts, X.com, TikTok, and IG Reels with monetization link attached.",
+      "task_type": "SCHEDULE_DISTRIBUTION"
+    },
+    {
+      "id": "MSG-1789070501107",
+      "timestamp": "2026-09-11 01:31:41",
+      "from": "Orion Stark",
+      "from_avatar": "/assets/avatars/orion_stark.jpg",
+      "to": "Kaelen Cross",
+      "to_avatar": "/assets/avatars/kaelen_cross.jpg",
+      "task_id": "TASK-1789070501-ORI2KAE",
+      "content": "Kaelen, Chairperson Mustafa rejected 'Jensen Huang: 'Every Software Engineer Needs To Hear This Now'' citing [hook_too_weak, speaker_uninteresting, pacing_too_slow, topic_irrelevant, pacing_too_fast, monologue_without_hook]. Adjusted feature weights downwards. For future cuts, prioritize higher hook intensity and tighter pacing.",
+      "task_type": "FEEDBACK_REJECTION_ADAPTATION"
+    },
+    {
+      "id": "MSG-1789070563592",
+      "timestamp": "2026-09-11 01:32:43",
+      "from": "Orion Stark",
+      "from_avatar": "/assets/avatars/orion_stark.jpg",
+      "to": "Kaelen Cross",
+      "to_avatar": "/assets/avatars/kaelen_cross.jpg",
+      "task_id": "TASK-1789070563-ORI2KAE",
+      "content": "Kaelen, Chairperson Mustafa rejected 'Demis Hassabis: 'AlphaProof Solved Olympiad Math in 4 Minutes'' citing [hook_too_weak, speaker_uninteresting, pacing_too_slow, topic_irrelevant, pacing_too_fast, monologue_without_hook]. Adjusted feature weights downwards. For future cuts, prioritize higher hook intensity and tighter pacing.",
+      "task_type": "FEEDBACK_REJECTION_ADAPTATION"
+    }
+  ]
+}

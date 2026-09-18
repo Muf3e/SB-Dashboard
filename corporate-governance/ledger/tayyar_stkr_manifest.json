@@ -1,0 +1,23 @@
+{
+  "status": "READY_FOR_PUBLISH",
+  "product_id": "prod_tayyar_stickers_v1",
+  "title": "Name It! \u2013 Multilingual Name Sticker Pack (Vol. 1)",
+  "pricing": {
+    "usd": 3.99,
+    "inr": 299,
+    "net_margin": "91.5%"
+  },
+  "digital_asset": "C:\\Users\\Mustafa\\OneDrive\\Documents\\Businesses\\Stkr\\Tayyar_Sticker_Pack_Vol1_Bundle.zip",
+  "asset_size_mb": 6.06,
+  "tags": [
+    "stickers",
+    "printable",
+    "name-stickers",
+    "digital-download",
+    "stationery",
+    "crafts",
+    "tayyar-designs"
+  ],
+  "quick_setup_url": "https://gumroad.com/products/new?name=Name%20It%21%20%E2%80%93%20Multilingual%20Name%20Sticker%20Pack%20%28Vol.%201%29&price=399",
+  "prepared_at": "2026-09-10T03:23:09.648747"
+}

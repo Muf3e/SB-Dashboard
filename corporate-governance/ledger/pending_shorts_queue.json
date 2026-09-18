@@ -1,0 +1,119 @@
+[
+  {
+    "id": "CLIP-HASSABIS-433",
+    "title": "Demis Hassabis: 'AlphaProof Solved Olympiad Math in 4 Minutes'",
+    "hook_headline": "AI Solved The World's Hardest Math",
+    "hook_style": "Mindblowing Revelation",
+    "speaker": "Demis Hassabis",
+    "podcast_name": "Google DeepMind Keynote / Hard Fork",
+    "source_url": "https://www.youtube.com/watch?v=4D5E6F7G8H",
+    "duration_sec": 45,
+    "wpm": 168,
+    "topics": [
+      "Synthetic Reasoning & Logic",
+      "AGI Timelines & Singularity"
+    ],
+    "predicted_virality": 94.5,
+    "virality_badge": "VIRAL BREAKOUT \ud83d\udd25",
+    "target_platforms": [
+      "YouTube Shorts",
+      "X.com Video",
+      "TikTok",
+      "Instagram Reels"
+    ],
+    "video_preview_url": "/assets/previews/clip-hassabis-433.mp4",
+    "thumbnail_url": "/assets/avatars/zuri_chen.jpg",
+    "pinned_affiliate": "\u26a1 Deploy local AI agents with $0 cloud cost: https://sbgroup.corp/titan-pro",
+    "captions_sample": "For decades, mathematicians believed intuitive creativity was purely human. When AlphaProof proved the Olympiad geometry problem in minutes, everything changed.",
+    "status": "REJECTED",
+    "created_at": "2026-09-11 00:40:33"
+  },
+  {
+    "id": "CLIP-ILYA-01",
+    "title": "Why Ilya REALLY Left OpenAI (The Superintelligence Truth)",
+    "hook_headline": "Why Ilya Sutskever Left OpenAI",
+    "hook_style": "Insider Truth Exposed",
+    "speaker": "Ilya Sutskever",
+    "podcast_name": "Dwarkesh Patel Podcast",
+    "source_url": "https://www.youtube.com/watch?v=1A2B3C4D5E",
+    "duration_sec": 48,
+    "wpm": 164,
+    "topics": [
+      "Superintelligence Safety (SSI)",
+      "Synthetic Reasoning & Logic",
+      "AGI Timelines & Singularity"
+    ],
+    "predicted_virality": 96.4,
+    "virality_badge": "VIRAL BREAKOUT \ud83d\udd25",
+    "target_platforms": [
+      "YouTube Shorts",
+      "X.com Video",
+      "TikTok",
+      "Instagram Reels"
+    ],
+    "video_preview_url": "/assets/previews/ilya_ssi_short.mp4",
+    "thumbnail_url": "/assets/avatars/lyra_vance.jpg",
+    "pinned_affiliate": "\u26a1 Build autonomous agents with 0 cloud cost: https://sbgroup.corp/titan-pro",
+    "captions_sample": "People think scaling is just adding more GPUs. That was true for GPT-4. But true synthetic reasoning requires a fundamental paradigm shift.",
+    "status": "APPROVED",
+    "created_at": "2026-09-11 00:39:55"
+  },
+  {
+    "id": "CLIP-JENSEN-02",
+    "title": "Jensen Huang: 'Every Software Engineer Needs To Hear This Now'",
+    "hook_headline": "Software Engineering Is Dead?",
+    "hook_style": "Controversial Debate",
+    "speaker": "Jensen Huang",
+    "podcast_name": "Stanford GSB View From The Top",
+    "source_url": "https://www.youtube.com/watch?v=2B3C4D5E6F",
+    "duration_sec": 42,
+    "wpm": 172,
+    "topics": [
+      "Autonomous Coding Agents",
+      "Compute Scaling & GPU Wars"
+    ],
+    "predicted_virality": 94.8,
+    "virality_badge": "TRENDING NOW \ud83d\ude80",
+    "target_platforms": [
+      "YouTube Shorts",
+      "X.com Video",
+      "TikTok",
+      "Instagram Reels"
+    ],
+    "video_preview_url": "/assets/previews/jensen_coding_short.mp4",
+    "thumbnail_url": "/assets/avatars/kaelen_cross.jpg",
+    "pinned_affiliate": "\ud83d\ude80 Try the AI coding intelligence suite: https://sbgroup.corp/titan-pro",
+    "captions_sample": "It is our job to create computing technology such that nobody has to program. The programming language of the future is human.",
+    "status": "REJECTED",
+    "created_at": "2026-09-11 00:39:55"
+  },
+  {
+    "id": "CLIP-KARPATHY-03",
+    "title": "Andrej Karpathy Explains How Autonomous Agent Swarms Actually Work",
+    "hook_headline": "The LLM OS Nobody Saw Coming",
+    "hook_style": "Mindblowing Revelation",
+    "speaker": "Andrej Karpathy",
+    "podcast_name": "No Priors AI Podcast",
+    "source_url": "https://www.youtube.com/watch?v=3C4D5E6F7G",
+    "duration_sec": 54,
+    "wpm": 160,
+    "topics": [
+      "Autonomous Coding Agents",
+      "Synthetic Reasoning & Logic"
+    ],
+    "predicted_virality": 95.2,
+    "virality_badge": "VIRAL BREAKOUT \ud83d\udd25",
+    "target_platforms": [
+      "YouTube Shorts",
+      "X.com Video",
+      "TikTok",
+      "Instagram Reels"
+    ],
+    "video_preview_url": "/assets/previews/karpathy_os_short.mp4",
+    "thumbnail_url": "/assets/avatars/orion_stark.jpg",
+    "pinned_affiliate": "\ud83e\udd16 Deploy your sovereign local council: https://sbgroup.corp/titan-pro",
+    "captions_sample": "Think of the LLM not as a chatbot, but as the CPU of a brand-new operating system. It coordinates memory, tools, and subagents.",
+    "status": "REJECTED",
+    "created_at": "2026-09-11 00:39:55"
+  }
+]

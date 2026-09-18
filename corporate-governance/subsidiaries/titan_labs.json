@@ -1,0 +1,24 @@
+{
+  "id": "SUB-01",
+  "name": "TITAN Labs",
+  "focus": "AI-Native Consumer Electronics Decision Engine, Hardware Truth & Recommendation Intelligence",
+  "status": "Active / Scaling",
+  "managing_director": "Managing Director - Product Intelligence",
+  "live_web_url": "http://localhost:3000",
+  "core_stack": ["React 18", "TypeScript", "Vite", "Tailwind CSS", "Kotlin", "Jetpack Compose", "PostgreSQL 16", "pgvector", "Kafka", "Ollama"],
+  "key_assets": [
+    "TITAN-REC-008 Recommendation Algorithm (S = 0.30P + 0.20V + 0.15C + 0.10B + 0.10Q + 0.05E + 0.05T + 0.05A)",
+    "Local LLM Fit Estimator & Quantization Matrix (Llama-3, DeepSeek R1, Qwen 2.5)",
+    "TITAN Engineering Pack v2.0 (Deliverables 01–23 & 100+ Table Database Bible)",
+    "2026 Next-Gen Hardware Catalog (RTX 5090/5080/5070 Laptops, Core Ultra 9, Ryzen AI 9)",
+    "Autonomous Titan Control Tower & Web Fleet Governance",
+    "Deterministic 8-Dimension Evaluation Engine (100% Kotlin/TS mathematical parity)",
+    "Real-time Multi-Retailer Price Index & Arbitrage (Amazon, Flipkart, Croma)"
+  ],
+  "target_kpis": [
+    "Recommendation calculation latency < 10ms",
+    "Mathematical score invariance = 100.0%",
+    "Local LLM VRAM estimation accuracy = 100%",
+    "Active retailer coverage > 25 marketplaces"
+  ]
+}

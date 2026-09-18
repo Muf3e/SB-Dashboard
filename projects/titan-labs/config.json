@@ -1,0 +1,15 @@
+{
+  "id": "titan-labs",
+  "name": "TITAN Labs",
+  "leader": "Hiroshi Tanaka",
+  "port": 8000,
+  "affiliate_tag": "mufee-21",
+  "tracked_retailers": [
+    "Amazon India",
+    "Flipkart",
+    "Croma",
+    "Reliance Digital"
+  ],
+  "tracked_items_count": 6,
+  "status": "ONLINE"
+}

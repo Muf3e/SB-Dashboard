@@ -1,0 +1,18 @@
+{
+  "id": "sb-fragrance",
+  "name": "SB Fragrance",
+  "leader": "Tariq Burhani",
+  "sector": "Luxury Artisanal Attars & Perfumery",
+  "target_monthly_revenue_inr": 184000,
+  "margin_pct": 85.0,
+  "channels": [
+    "WhatsApp Concierge",
+    "B2B Gifting",
+    "SB Dashboard"
+  ],
+  "flagship_products": [
+    "Royal Dehn Al Oud",
+    "Taif Rose & Royal Amber",
+    "Mukhallat Burhani"
+  ]
+}

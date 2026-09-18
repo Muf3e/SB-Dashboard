@@ -1,0 +1,17 @@
+﻿{
+  "id": "SUB-04",
+  "name": "Future Venture Incubator",
+  "focus": "Rapid Prototyping, Market Validation, & Micro-SaaS Venture Spin-Outs",
+  "status": "Incubating",
+  "managing_director": "Managing Director - Venture Innovation & Incubation",
+  "core_stack": ["OpenUI", "Aider", "Browser-Use", "Crawl4AI", "Docling"],
+  "key_assets": [
+    "Zero-to-One Rapid UI Prototyper",
+    "Automated Competitive Intelligence Scraper",
+    "Venture Blueprinting & Financial Modeling Engine"
+  ],
+  "target_kpis": [
+    "New prototype concept-to-MVP under 48 hours",
+    "Automated competitive intelligence briefings per venture"
+  ]
+}

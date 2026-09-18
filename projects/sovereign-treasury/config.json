@@ -1,0 +1,17 @@
+{
+  "id": "sovereign-treasury",
+  "name": "Sovereign Treasury",
+  "cfo": "Thaddeus Stone",
+  "gateways": [
+    "Razorpay",
+    "PayPal"
+  ],
+  "supported_currencies": [
+    "INR",
+    "USD",
+    "EUR",
+    "GBP",
+    "AED"
+  ],
+  "signature_verification": "HMAC-SHA256"
+}

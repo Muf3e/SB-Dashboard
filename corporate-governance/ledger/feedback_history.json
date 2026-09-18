@@ -1,0 +1,109 @@
+[
+  {
+    "id": "RLHF-1789068183364",
+    "timestamp": "2026-09-11 00:53:03",
+    "clip_id": "CLIP-KARPATHY-03",
+    "action": "REJECT",
+    "clip_title": "Andrej Karpathy Explains How Autonomous Agent Swarms Actually Work",
+    "speaker": "Andrej Karpathy",
+    "topics": [
+      "Autonomous Coding Agents",
+      "Synthetic Reasoning & Logic"
+    ],
+    "hook_style": "Mindblowing Revelation",
+    "rejection_reasons": [
+      "hook_too_weak",
+      "pacing_too_slow"
+    ],
+    "custom_notes": "Hook was too abstract. We need punchier opening lines in the first 2 seconds and faster cuts.",
+    "edited_fields": {},
+    "weights_delta": {
+      "hook:Mindblowing Revelation": -0.1728,
+      "target_pacing_wpm": 8
+    }
+  },
+  {
+    "id": "RLHF-1789068191398",
+    "timestamp": "2026-09-11 00:53:11",
+    "clip_id": "CLIP-ILYA-01",
+    "action": "APPROVE",
+    "clip_title": "Why Ilya REALLY Left OpenAI (The Superintelligence Truth)",
+    "speaker": "Ilya Sutskever",
+    "topics": [
+      "Superintelligence Safety (SSI)",
+      "Synthetic Reasoning & Logic",
+      "AGI Timelines & Singularity"
+    ],
+    "hook_style": "Insider Truth Exposed",
+    "rejection_reasons": [],
+    "custom_notes": "Brilliant hook and pacing. Perfect demonstration of SSI superintelligence focus.",
+    "edited_fields": {},
+    "weights_delta": {
+      "speaker:Ilya Sutskever": 0.0048,
+      "topic:Superintelligence Safety (SSI)": 0.0108,
+      "topic:Synthetic Reasoning & Logic": 0.0048,
+      "topic:AGI Timelines & Singularity": 0.006,
+      "hook:Insider Truth Exposed": 0.0108
+    }
+  },
+  {
+    "id": "RLHF-1789070501106",
+    "timestamp": "2026-09-11 01:31:41",
+    "clip_id": "CLIP-JENSEN-02",
+    "action": "REJECT",
+    "clip_title": "Jensen Huang: 'Every Software Engineer Needs To Hear This Now'",
+    "speaker": "Jensen Huang",
+    "topics": [
+      "Autonomous Coding Agents",
+      "Compute Scaling & GPU Wars"
+    ],
+    "hook_style": "Controversial Debate",
+    "rejection_reasons": [
+      "hook_too_weak",
+      "speaker_uninteresting",
+      "pacing_too_slow",
+      "topic_irrelevant",
+      "pacing_too_fast",
+      "monologue_without_hook"
+    ],
+    "custom_notes": "there is nothing in it no audio no video nothing",
+    "edited_fields": {},
+    "weights_delta": {
+      "hook:Controversial Debate": -0.1692,
+      "speaker:Jensen Huang": -0.1692,
+      "topic:Autonomous Coding Agents": -0.1584,
+      "topic:Compute Scaling & GPU Wars": -0.1674,
+      "target_pacing_wpm": -8
+    }
+  },
+  {
+    "id": "RLHF-1789070563590",
+    "timestamp": "2026-09-11 01:32:43",
+    "clip_id": "CLIP-HASSABIS-433",
+    "action": "REJECT",
+    "clip_title": "Demis Hassabis: 'AlphaProof Solved Olympiad Math in 4 Minutes'",
+    "speaker": "Demis Hassabis",
+    "topics": [
+      "Synthetic Reasoning & Logic",
+      "AGI Timelines & Singularity"
+    ],
+    "hook_style": "Mindblowing Revelation",
+    "rejection_reasons": [
+      "hook_too_weak",
+      "speaker_uninteresting",
+      "pacing_too_slow",
+      "topic_irrelevant",
+      "pacing_too_fast",
+      "monologue_without_hook"
+    ],
+    "custom_notes": "the video is good but there is less content and it is way to short all the shorts should be minimum of 30s duration ",
+    "edited_fields": {},
+    "weights_delta": {
+      "hook:Mindblowing Revelation": -0.1417,
+      "speaker:Demis Hassabis": -0.1638,
+      "topic:Synthetic Reasoning & Logic": -0.1737,
+      "topic:AGI Timelines & Singularity": -0.1721,
+      "target_pacing_wpm": -8
+    }
+  }
+]

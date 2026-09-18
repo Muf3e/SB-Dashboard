@@ -1,0 +1,14 @@
+{
+  "id": "cortex-shorts-studio",
+  "name": "CORTEX AI Shorts Studio",
+  "min_duration_seconds": 30,
+  "rendering_engine": "Remotion 4.0 React",
+  "aspect_ratio": "9:16 (1080x1920)",
+  "supported_platforms": [
+    "YouTube Shorts",
+    "X.com",
+    "TikTok",
+    "Instagram Reels"
+  ],
+  "autonomy_readiness": 74.0
+}

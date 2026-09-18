@@ -1,0 +1,11 @@
+{
+  "id": "karpathy-incubator",
+  "name": "Karpathy LLM Council Incubator",
+  "stages": [
+    "Flaw Interrogation",
+    "Cross-Examination",
+    "Consensus Convergence"
+  ],
+  "debators_count": 8,
+  "inference_cost": ".00 (Local Ollama)"
+}

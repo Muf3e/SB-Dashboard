@@ -1,0 +1,19 @@
+{
+  "id": "SUB-03",
+  "name": "Global AI Tooling & Plugin Hub",
+  "focus": "Enterprise Tooling, Plugin Distribution, & Multi-Agent Capability Hub",
+  "status": "Operational / Central",
+  "managing_director": "Managing Director - Systems & Agentic Infrastructure",
+  "core_stack": ["RuFlo v3.39", "MetaGPT", "CrewAI", "Agency-Swarm", "ECC (898 skills)", "Ollama"],
+  "key_assets": [
+    "46 Verified Open-Source Repositories across 8 Categories",
+    "1,200+ Discovered Agent Skills & Rule Manifests",
+    "manage-plugins.ps1 Unified Distribution Engine",
+    "Local 100% Offline Ollama Qwen2.5-Coder Engine"
+  ],
+  "target_kpis": [
+    "100% repository health audit pass rate",
+    "Sub-second skill junction wiring into project trees",
+    "Zero cloud API dependency for core operations"
+  ]
+}

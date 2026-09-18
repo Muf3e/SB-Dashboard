@@ -1,0 +1,14 @@
+{
+  "id": "adwell-media",
+  "name": "AdWell Media",
+  "leader": "Jaxson Drake",
+  "batch_size": 1000,
+  "sponsor_price_per_bottle_inr": 42.0,
+  "cogs_per_bottle_inr": 15.0,
+  "net_margin_pct": 64.3,
+  "target_venues": [
+    "Medical Clinics",
+    "Executive Summits",
+    "Luxury Weddings"
+  ]
+}

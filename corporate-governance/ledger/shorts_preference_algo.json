@@ -1,0 +1,54 @@
+{
+  "version": "2.4-RLHF",
+  "last_updated": "2026-09-11 01:32:43",
+  "autopilot_enabled": false,
+  "autonomy_readiness_pct": 84.5,
+  "total_reviews_count": 12,
+  "total_approvals": 7,
+  "total_rejections": 5,
+  "learning_rate": 0.12,
+  "target_pacing_wpm": 176,
+  "preferred_accent_color": "#FFE600",
+  "speaker_affinity": {
+    "Ilya Sutskever": 0.9648,
+    "Jensen Huang": 0.7708,
+    "Sam Altman": 0.89,
+    "Andrej Karpathy": 0.95,
+    "Yann LeCun": 0.87,
+    "Demis Hassabis": 0.7462,
+    "Dario Amodei": 0.84,
+    "Geoffrey Hinton": 0.88,
+    "Mark Zuckerberg": 0.82,
+    "Dwarkesh Patel": 0.9,
+    "Lex Fridman": 0.86
+  },
+  "topic_affinity": {
+    "AGI Timelines & Singularity": 0.7839,
+    "Compute Scaling & GPU Wars": 0.7626,
+    "Synthetic Reasoning & Logic": 0.7911,
+    "Superintelligence Safety (SSI)": 0.9208,
+    "Autonomous Coding Agents": 0.7216,
+    "Humanoid Robotics": 0.85,
+    "Open-Source vs Closed Weights": 0.89,
+    "Prompt Engineering Tactics": 0.65
+  },
+  "hook_style_affinity": {
+    "Controversial Debate": 0.7708,
+    "Mindblowing Revelation": 0.6455,
+    "Insider Truth Exposed": 0.9208,
+    "Future Shock Prediction": 0.89,
+    "Technical Proof": 0.78
+  },
+  "visual_preferences": {
+    "split_screen_interview": 0.92,
+    "speaker_dynamic_crop": 0.88,
+    "active_word_neon_pop": 0.95,
+    "bottom_visualizer_wave": 0.9,
+    "progress_bar_enabled": 0.94
+  },
+  "negative_penalties": {
+    "monologue_without_hook": -0.45,
+    "generic_chatgpt_prompts": -0.35,
+    "boring_intro_over_4s": -0.5
+  }
+}

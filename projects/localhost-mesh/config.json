@@ -1,0 +1,13 @@
+{
+  "id": "localhost-mesh",
+  "name": "Localhost Sovereign Mesh",
+  "total_nodes": 5,
+  "ports": [
+    8080,
+    20128,
+    3000,
+    11434,
+    8000
+  ],
+  "status": "5/5 ONLINE"
+}

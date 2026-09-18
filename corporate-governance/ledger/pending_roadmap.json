@@ -1,0 +1,298 @@
+{
+  "updated_at": "2026-09-10T01:42:28.669476",
+  "version": "1.0.0",
+  "summary": {
+    "total_initiatives": 20,
+    "completed": 6,
+    "in_progress": 9,
+    "pending_ratification": 2,
+    "scheduled": 3,
+    "overall_progress": 76
+  },
+  "categories": [
+    {
+      "id": "titan_labs",
+      "name": "TITAN Labs (Hardware Intelligence)",
+      "icon": "💻",
+      "color": "sky",
+      "lead": "Hiroshi Tanaka (MD) & Dr. Vikram Shenoy (CTO)"
+    },
+    {
+      "id": "media_reels",
+      "name": "Media Generation & Viral Marketing",
+      "icon": "🎬",
+      "color": "pink",
+      "lead": "Lyra Valen (CMO) & Marcus Vance (COO)"
+    },
+    {
+      "id": "sb_fragrance",
+      "name": "SB Fragrance Division (Artisanal Luxury)",
+      "icon": "🌿",
+      "color": "amber",
+      "lead": "Tariq Burhani (Managing Director)"
+    },
+    {
+      "id": "alfann_art",
+      "name": "Alfann Art (Personalized Gifting)",
+      "icon": "🎨",
+      "color": "purple",
+      "lead": "Fatima Al-Burhani (Managing Director)"
+    },
+    {
+      "id": "adwell_media",
+      "name": "AdWell Media (Sponsored Water)",
+      "icon": "💧",
+      "color": "blue",
+      "lead": "Jaxson Drake (Managing Director)"
+    },
+    {
+      "id": "governance",
+      "name": "Corporate Governance & Infrastructure",
+      "icon": "⚖️",
+      "color": "emerald",
+      "lead": "Arthur Pendelton (CEO) & Thaddeus Stone (CFO)"
+    }
+  ],
+  "items": [
+    {
+      "id": "TODO-001",
+      "category": "titan_labs",
+      "title": "Dual-Theme Animated Logo Loading HUD",
+      "description": "Implement unique animated loading screens for Light (colorful rainbow) and Dark (cybernetic shield) modes with zero onboarding friction.",
+      "owner": "Hiroshi Tanaka",
+      "priority": "CRITICAL",
+      "status": "COMPLETED",
+      "progress": 100,
+      "eta": "Completed",
+      "action_required": "None — Verified across 93 vitest tests."
+    },
+    {
+      "id": "TODO-019",
+      "category": "titan_labs",
+      "title": "TITAN-REC-008 Recommendation Engine & Local LLM Fit Matrix",
+      "description": "Port and integrate canonical recommendation algorithm S = 0.30P + 0.20V + 0.15C + 0.10B + 0.10Q + 0.05E + 0.05T + 0.05A with VRAM quantization estimation for Llama-3, DeepSeek R1, and Qwen 2.5 Coder.",
+      "owner": "Dr. Vikram Shenoy",
+      "priority": "CRITICAL",
+      "status": "COMPLETED",
+      "progress": 100,
+      "eta": "Completed",
+      "action_required": "None — Integrated into live web app and verified."
+    },
+    {
+      "id": "TODO-020",
+      "category": "titan_labs",
+      "title": "TITAN Engineering Pack v2.0 Architecture Explorer",
+      "description": "Deploy interactive Deliverables 01–23 Explorer, 100+ Table Database Bible, Kafka event streaming mesh, pgvector semantic search, and Titan Control Tower autonomous agent fleet governance.",
+      "owner": "Hiroshi Tanaka",
+      "priority": "HIGH",
+      "status": "COMPLETED",
+      "progress": 100,
+      "eta": "Completed",
+      "action_required": "None — Integrated into live web app and verified."
+    },
+    {
+      "id": "TODO-002",
+      "category": "titan_labs",
+      "title": "Automated Multi-Retailer Spec & Price Crawler",
+      "description": "Deploy 24/7 headless Crawl4AI worker swarms to continuously scrape Amazon India, Flipkart, and Croma with affiliate tag auto-injection (mufee-21).",
+      "owner": "Dr. Vikram Shenoy",
+      "priority": "HIGH",
+      "status": "IN_PROGRESS",
+      "progress": 75,
+      "eta": "24 Hours",
+      "action_required": "Authorize worker concurrency limit on local machine."
+    },
+    {
+      "id": "TODO-003",
+      "category": "titan_labs",
+      "title": "Custom Domain & Cloudflare DNS Deployment",
+      "description": "Map custom domain (titanlabs.in / titan-product-intelligence.com) to Vercel production edge with SSL and caching.",
+      "owner": "Dr. Vikram Shenoy",
+      "priority": "HIGH",
+      "status": "SCHEDULED",
+      "progress": 30,
+      "eta": "2 Days",
+      "action_required": "Provide registrar credentials or nameserver access."
+    },
+    {
+      "id": "TODO-004",
+      "category": "titan_labs",
+      "title": "Mobile APK Packaging (Android & iOS)",
+      "description": "Compile React Native / Flutter standalone build for distribution on Google Play Store internal test track.",
+      "owner": "Hiroshi Tanaka",
+      "priority": "MEDIUM",
+      "status": "IN_PROGRESS",
+      "progress": 60,
+      "eta": "3 Days",
+      "action_required": "Android Keystore signing key generation."
+    },
+    {
+      "id": "TODO-005",
+      "category": "media_reels",
+      "title": "High-Energy 9:16 Kinetic Video Reel Engine",
+      "description": "Render 1080x1920 60fps fast-paced beat-synced vertical product reveal commercial with sub-bass audio and hardware renders.",
+      "owner": "Lyra Valen",
+      "priority": "CRITICAL",
+      "status": "COMPLETED",
+      "progress": 100,
+      "eta": "Completed",
+      "action_required": "titan-reel.mp4 rendered and integrated in Dashboard."
+    },
+    {
+      "id": "TODO-006",
+      "category": "media_reels",
+      "title": "Automated YouTube Shorts & Instagram Reels Uploader",
+      "description": "Build scheduled headless upload bot to post rendered vertical reels directly to official SB Group social channels with affiliate bio links.",
+      "owner": "Lyra Valen",
+      "priority": "HIGH",
+      "status": "IN_PROGRESS",
+      "progress": 65,
+      "eta": "48 Hours",
+      "action_required": "Provide YouTube / Instagram creator account session cookies."
+    },
+    {
+      "id": "TODO-007",
+      "category": "media_reels",
+      "title": "Daily 10-Reel HyperFrames Batch Generator",
+      "description": "Automate turn-key reel rendering for daily top-10 gadget price drops and head-to-head comparisons using local GPU workers.",
+      "owner": "Marcus Vance",
+      "priority": "MEDIUM",
+      "status": "SCHEDULED",
+      "progress": 40,
+      "eta": "3 Days",
+      "action_required": "Set background batch cron schedule."
+    },
+    {
+      "id": "TODO-008",
+      "category": "sb_fragrance",
+      "title": "Ratify GATE-002: Private Reserve Luxury Collection",
+      "description": "Formal Chairperson authorization to initiate manufacturing of 12 bespoke artisanal attars with gold SB crest crystal flacons.",
+      "owner": "Tariq Burhani",
+      "priority": "CRITICAL",
+      "status": "PENDING_APPROVAL",
+      "progress": 85,
+      "eta": "Awaiting Ratification",
+      "action_required": "Chairperson 1-click ratification on Dashboard."
+    },
+    {
+      "id": "TODO-009",
+      "category": "sb_fragrance",
+      "title": "Luxury E-Commerce Storefront (Next.js / Shopify)",
+      "description": "Develop bespoke ultra-luxury digital boutique with olfactory notes interactive visualizer and international shipping calculator.",
+      "owner": "Tariq Burhani",
+      "priority": "HIGH",
+      "status": "IN_PROGRESS",
+      "progress": 50,
+      "eta": "4 Days",
+      "action_required": "Select payment gateway provider (Stripe / Razorpay)."
+    },
+    {
+      "id": "TODO-010",
+      "category": "sb_fragrance",
+      "title": "Flacon & Gold Foil Presentation Packaging",
+      "description": "Contract luxury glassmakers for 50ml crystal bottles with precision gold-foil SB crest box embossing.",
+      "owner": "Tariq Burhani",
+      "priority": "MEDIUM",
+      "status": "IN_PROGRESS",
+      "progress": 45,
+      "eta": "5 Days",
+      "action_required": "Approve sample packaging render."
+    },
+    {
+      "id": "TODO-011",
+      "category": "alfann_art",
+      "title": "WhatsApp Business Cloud API Auto-Ordering",
+      "description": "Deploy automated WhatsApp conversational commerce bot for catalog browsing, custom text input, and order confirmation (+91 8788472293).",
+      "owner": "Fatima Al-Burhani",
+      "priority": "HIGH",
+      "status": "IN_PROGRESS",
+      "progress": 70,
+      "eta": "48 Hours",
+      "action_required": "Meta Developer WhatsApp Cloud API token."
+    },
+    {
+      "id": "TODO-012",
+      "category": "alfann_art",
+      "title": "Live Payment Checkout Gateway Integration",
+      "description": "Connect instant UPI and credit card checkout for custom ₹60 bag tags, customized mugs, and return gift bundles.",
+      "owner": "Fatima Al-Burhani",
+      "priority": "HIGH",
+      "status": "IN_PROGRESS",
+      "progress": 55,
+      "eta": "3 Days",
+      "action_required": "Merchant account API keys."
+    },
+    {
+      "id": "TODO-013",
+      "category": "adwell_media",
+      "title": "Ratify GATE-004: 1,000-Bottle Sponsored Water Pilot",
+      "description": "Chairperson signoff to deploy sponsored bottled water batches to clinics, gyms, and wedding planners in Chennai & Mumbai.",
+      "owner": "Jaxson Drake",
+      "priority": "HIGH",
+      "status": "PENDING_APPROVAL",
+      "progress": 80,
+      "eta": "Awaiting Ratification",
+      "action_required": "Chairperson 1-click ratification on Dashboard."
+    },
+    {
+      "id": "TODO-014",
+      "category": "adwell_media",
+      "title": "Dynamic QR Campaign & Engagement Tracker",
+      "description": "Deploy URL shortener and redirect engine to log scans, locations, and sponsor ROI telemetry per batch.",
+      "owner": "Jaxson Drake",
+      "priority": "MEDIUM",
+      "status": "IN_PROGRESS",
+      "progress": 60,
+      "eta": "3 Days",
+      "action_required": "Domain configuration for qr.adwell.in."
+    },
+    {
+      "id": "TODO-015",
+      "category": "governance",
+      "title": "Corporate Constitution & Board Ledger Ratification",
+      "description": "Adopt SB Group Corporate Constitution establishing Chairperson absolute veto authority and autonomous subsidiary swarms.",
+      "owner": "Arthur Pendelton",
+      "priority": "CRITICAL",
+      "status": "COMPLETED",
+      "progress": 100,
+      "eta": "Completed",
+      "action_required": "Ratified in board_ledger.json (GATE-001)."
+    },
+    {
+      "id": "TODO-016",
+      "category": "governance",
+      "title": "Local GPU Inference Acceleration (Sub-100ms)",
+      "description": "Optimize local Ollama model (qwen2.5-coder) via TensorRT / vLLM execution context for instant multi-agent swarming.",
+      "owner": "Dr. Vikram Shenoy",
+      "priority": "MEDIUM",
+      "status": "IN_PROGRESS",
+      "progress": 70,
+      "eta": "24 Hours",
+      "action_required": "CUDA runtime verification."
+    },
+    {
+      "id": "TODO-017",
+      "category": "governance",
+      "title": "Executive Dashboard Theme & UI Overhaul",
+      "description": "Build dual-theme engine (Light colorful mode & Dark gold mode) with minimal, simple, professional executive navigation.",
+      "owner": "Arthur Pendelton",
+      "priority": "CRITICAL",
+      "status": "COMPLETED",
+      "progress": 100,
+      "eta": "In Progress",
+      "action_required": "Finalizing UI styling."
+    },
+    {
+      "id": "TODO-018",
+      "category": "governance",
+      "title": "Automated Daily Executive Audio Podcast Briefing",
+      "description": "Synthesize multi-agent daily briefing audio summary at 08:00 UTC using local Edge-TTS for the Chairperson.",
+      "owner": "Arthur Pendelton",
+      "priority": "LOW",
+      "status": "SCHEDULED",
+      "progress": 35,
+      "eta": "4 Days",
+      "action_required": "Approve podcast voice tone and host personality."
+    }
+  ]
+}

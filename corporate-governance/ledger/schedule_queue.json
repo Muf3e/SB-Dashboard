@@ -1,0 +1,121 @@
+[
+  {
+    "id": "SCHED-901",
+    "clip_id": "CLIP-ILYA-01",
+    "title": "Why Ilya REALLY Left OpenAI (The Superintelligence Truth)",
+    "speaker": "Ilya Sutskever",
+    "scheduled_time": "2026-09-11 03:00:00",
+    "platforms": [
+      "YouTube Shorts",
+      "X.com Video",
+      "TikTok",
+      "Instagram Reels"
+    ],
+    "status": "QUEUED",
+    "tags": [
+      "#AI",
+      "#OpenAI",
+      "#IlyaSutskever",
+      "#Superintelligence",
+      "#Shorts",
+      "#TechNews"
+    ],
+    "pinned_monetization": "\u26a1 Deploy sovereign local agents with $0 cloud cost: https://sbgroup.corp/titan-pro",
+    "estimated_reach": "45K - 120K views",
+    "payloads": {
+      "youtube": {
+        "title": "Why Ilya REALLY Left OpenAI (Superintelligence Truth) #Shorts",
+        "description": "Ilya Sutskever reveals why scaling compute is no longer enough for AGI and what SSI is building.\n\n\u26a1 Access our AI Arbitrage Radar: https://sbgroup.corp/titan-pro\n\n#Shorts #AI #OpenAI #Tech",
+        "tags": "AI, OpenAI, Ilya Sutskever, AGI, Machine Learning, Technology"
+      },
+      "x_com": {
+        "tweet_text": "Ilya Sutskever explains the real reason he left OpenAI to start SSI.\n\n'Scaling GPUs was the GPT-4 playbook. Superintelligence requires synthetic reasoning.' \ud83e\uddf5\ud83d\udc47\n\n#AI #AGI"
+      },
+      "tiktok": {
+        "caption": "Why Ilya REALLY left OpenAI \ud83e\udd2f wait till the end #ai #tech #openai #coding #future #shorts",
+        "sound": "Trending Tech Ambient - Neural Waves"
+      },
+      "instagram_reels": {
+        "caption": "The paradigm shift nobody is talking about. Ilya Sutskever on why compute scaling hits a wall without synthetic data.\n\nLink in bio for full tech breakdown.\n.\n.\n#ai #artificialintelligence #techtrends #openai #siliconvalley"
+      }
+    }
+  },
+  {
+    "id": "SCHED-902",
+    "clip_id": "CLIP-JENSEN-02",
+    "title": "Jensen Huang: 'Every Software Engineer Needs To Hear This Now'",
+    "speaker": "Jensen Huang",
+    "scheduled_time": "2026-09-11 09:30:00",
+    "platforms": [
+      "YouTube Shorts",
+      "X.com Video",
+      "TikTok"
+    ],
+    "status": "QUEUED",
+    "tags": [
+      "#Nvidia",
+      "#JensenHuang",
+      "#Coding",
+      "#SoftwareEngineering",
+      "#AI"
+    ],
+    "pinned_monetization": "\ud83d\ude80 Test your apps against the AI Intelligence Suite: https://sbgroup.corp/titan-pro",
+    "estimated_reach": "85K - 250K views",
+    "payloads": {
+      "youtube": {
+        "title": "Jensen Huang: 'Nobody Should Learn Programming' #Shorts",
+        "description": "Nvidia CEO Jensen Huang shares his controversial perspective on the future of software engineering in the era of autonomous agents.\n\n\ud83d\ude80 Deploy AI tools: https://sbgroup.corp/titan-pro\n\n#Shorts #Nvidia #AI #Coding",
+        "tags": "Nvidia, Jensen Huang, Coding, AI, Software Engineering"
+      },
+      "x_com": {
+        "tweet_text": "Jensen Huang: 'It is our job to create technology so that nobody has to program.'\n\nIs human coding obsolete, or is this the ultimate developer unlock? \ud83e\uddf5\n\n#Nvidia #AI"
+      },
+      "tiktok": {
+        "caption": "Nvidia CEO says stop learning to code?! \ud83d\ude31 #nvidia #tech #coding #ai #programming #money",
+        "sound": "Cyberpunk Tech Pulse"
+      },
+      "instagram_reels": {
+        "caption": "Jensen Huang on the death of traditional programming languages. Do you agree?\n\nFollow @cortex.ai.shorts for daily AI clips.\n.\n#nvidia #jensenhuang #techleader #techinnovation"
+      }
+    }
+  },
+  {
+    "id": "SCHED-1789068191401",
+    "clip_id": "CLIP-ILYA-01",
+    "title": "Why Ilya REALLY Left OpenAI (The Superintelligence Truth)",
+    "speaker": "Ilya Sutskever",
+    "scheduled_time": "2026-09-11 04:00:00",
+    "platforms": [
+      "YouTube Shorts",
+      "X.com Video",
+      "TikTok",
+      "Instagram Reels"
+    ],
+    "status": "QUEUED",
+    "tags": [
+      "#AI",
+      "#IlyaSutskever",
+      "#Shorts",
+      "#TechNews"
+    ],
+    "pinned_monetization": "\u26a1 Build autonomous agents with 0 cloud cost: https://sbgroup.corp/titan-pro",
+    "estimated_reach": "30K - 90K views",
+    "payloads": {
+      "youtube": {
+        "title": "Why Ilya Sutskever Left OpenAI #Shorts",
+        "description": "Why Ilya REALLY Left OpenAI (The Superintelligence Truth)\n\n\u26a1 Affiliate Partner: \u26a1 Build autonomous agents with 0 cloud cost: https://sbgroup.corp/titan-pro\n\n#Shorts #AI #Tech",
+        "tags": "AI, Tech, Shorts, Innovation"
+      },
+      "x_com": {
+        "tweet_text": "Why Ilya Sutskever Left OpenAI\n\nIlya Sutskever drops major insights on the future of AI. \ud83d\udc47\n\n#AI #Tech"
+      },
+      "tiktok": {
+        "caption": "Why Ilya Sutskever Left OpenAI \ud83e\udd2f #ai #tech #shorts #future",
+        "sound": "Futuristic Ambience"
+      },
+      "instagram_reels": {
+        "caption": "Why Ilya REALLY Left OpenAI (The Superintelligence Truth)\n\nLink in bio for full breakdown.\n.\n#ai #technews"
+      }
+    }
+  }
+]

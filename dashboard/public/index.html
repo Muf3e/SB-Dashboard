@@ -1,0 +1,2594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SB Group — Executive Agent Command & Communication Platform</title>
+  <link rel="icon" type="image/png" href="/assets/sb_logo_dark.png">
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Cinzel, Inter, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- Custom Styling -->
+  <link rel="stylesheet" href="/style.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              gold: '#D4AF37',
+              goldLight: '#FBE599',
+              navy: '#070B14',
+              card: '#0E172A',
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="antialiased">
+
+  <!-- Executive Masthead Header -->
+  <header class="header-glass py-3.5 px-6">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+      
+      <!-- Brand & Dynamic Theme-Responsive SB Logo -->
+      <div class="flex items-center gap-3.5">
+        <div class="relative group cursor-pointer shrink-0" onclick="switchTab('progress')">
+          <div id="dashboard-logo-box" class="w-12 h-12 rounded-xl border border-amber-500/40 shadow-md overflow-hidden bg-transparent p-1 flex items-center justify-center ring-2 ring-amber-500/20 group-hover:ring-amber-400 transition-all">
+            <img id="dashboard-logo" src="/assets/sb_logo_dark.png" alt="SB Group Official Logo" class="w-full h-full object-contain" style="width: 42px; height: 42px; max-width: 42px; max-height: 42px;">
+          </div>
+          <div class="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 border-2 border-slate-900 rounded-full shadow"></div>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-['Cinzel'] text-xl sm:text-2xl font-extrabold tracking-wider brand-title">SB GROUP</h1>
+            <span class="badge-gold text-[10px] px-2 py-0.5">EXECUTIVE COMMAND</span>
+          </div>
+          <p class="text-xs text-amber-300 font-semibold tracking-wide">SAIFEE BURHANI GROUP OF COMPANIES</p>
+          <p class="text-[11px] text-slate-400">SB Fragrance • TITAN Labs • Alfann Art • AdWell Media</p>
+        </div>
+      </div>
+
+      <!-- Telemetry Status & Action Buttons -->
+      <div class="flex flex-wrap items-center gap-2.5">
+        
+        <!-- Unified Localhost Ecosystem Status Strip -->
+        <div id="header-localhost-strip" class="localhost-strip hidden sm:flex items-center gap-1.5" title="Sovereign Localhost Ports Status">
+          <span class="text-[9px] uppercase font-mono font-bold tracking-wider text-slate-400 pl-1 pr-0.5">LOCAL:</span>
+          <button id="host-pill-8080" onclick="switchTab('ecosystem'); switchEcosystemViewport('sb_dashboard');" class="host-pill online" title="Port 8080 • SB Group Executive Command">
+            <span class="host-dot"></span>8080
+          </button>
+          <button id="host-pill-20128" onclick="switchTab('ecosystem'); switchEcosystemViewport('omniroute');" class="host-pill online" title="Port 20128 • OmniRoute Multi-Provider Gateway (352 Providers)">
+            <span class="host-dot"></span>20128
+          </button>
+          <button id="host-pill-3000" onclick="switchTab('ecosystem'); switchEcosystemViewport('worldmonitor');" class="host-pill online" title="Port 3000 • WorldMonitor OSINT Global Intelligence">
+            <span class="host-dot"></span>3000
+          </button>
+          <button id="host-pill-11434" onclick="switchTab('ecosystem'); switchEcosystemViewport('ollama');" class="host-pill online" title="Port 11434 • Local Ollama Sovereign Core">
+            <span class="host-dot"></span>11434
+          </button>
+          <button id="host-pill-8000" onclick="switchTab('ecosystem'); switchEcosystemViewport('titan');" class="host-pill online" title="Port 8000 • TITAN Labs Retail Arbitrage Gateway">
+            <span class="host-dot"></span>8000
+          </button>
+        </div>
+
+        <!-- Live Swarm Badge -->
+        <div class="flex items-center gap-1.5 bg-slate-900/80 border border-slate-700/60 rounded-full px-2.5 py-1 shadow-inner">
+          <span class="pulse-beacon"></span>
+          <span id="agents-online-counter" class="text-xs font-semibold text-emerald-400">10 LEADERS</span>
+        </div>
+
+        <!-- Live Clock -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-xl px-2.5 py-1 text-center">
+          <div id="live-clock" class="text-xs font-mono font-bold text-slate-200">00:00:00</div>
+          <div class="text-[8px] text-amber-400/90 font-mono font-bold uppercase">Chairperson</div>
+        </div>
+
+        <!-- Theme Toggle Button (Light/Day vs Dark/Night) -->
+        <button id="theme-toggle-btn" onclick="toggleDashboardTheme()" class="btn-ghost text-xs py-1 px-2.5" title="Toggle Dashboard Theme">
+          <span id="theme-toggle-icon">☀️</span>
+        </button>
+
+        <!-- Executive Modals Quick Actions -->
+        <div class="flex items-center gap-1.5">
+          <button onclick="switchTab('shorts')" class="btn-ghost text-xs py-1.5 px-3 border border-purple-500/50 text-purple-300 hover:bg-purple-950/40 flex items-center gap-1.5 shadow-sm" title="AI Clipped Shorts Studio & Human Approval Queue">
+            <span>🎬</span> AI Shorts Studio
+          </button>
+          <button onclick="openTreasuryModal()" class="btn-ghost text-xs py-1.5 px-3 border border-emerald-500/50 text-emerald-300 hover:bg-emerald-950/40 flex items-center gap-1.5 shadow-sm" title="Manage Razorpay & PayPal Payment Gateways">
+            <span>💳</span> Gateways & Treasury
+          </button>
+          <button onclick="openBriefingModal()" class="btn-ghost text-xs py-1.5 px-3">
+            <span>🏛️</span> Briefing
+          </button>
+          <button onclick="openDirectiveModal()" class="btn-gold text-xs py-1.5 px-3">
+            <span>📜</span> New Mandate
+          </button>
+          <button id="header-btn-settings" onclick="switchTab('settings')" class="btn-ghost text-xs py-1.5 px-3 border border-slate-700 hover:border-amber-400/60 text-slate-200 flex items-center gap-1.5 shadow-sm" title="Conglomerate & API Settings">
+            <span>⚙️</span> Settings
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto w-full px-4 sm:px-6 py-5 flex-1 flex flex-col gap-5">
+
+    <!-- KPI Metric Summary Ribbon -->
+    <section class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div class="card-glass p-3 text-center">
+        <div class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Executive Team</div>
+        <div id="metric-active-agents" class="text-xl sm:text-2xl font-bold text-amber-400 mt-0.5">10</div>
+        <div id="metric-agents-sub" class="text-[10px] text-emerald-400 font-medium">8 Online • 2 Standby</div>
+      </div>
+      <div class="card-glass p-3 text-center">
+        <div class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Business Units</div>
+        <div class="text-xl sm:text-2xl font-bold text-sky-400 mt-0.5">4</div>
+        <div class="text-[10px] text-slate-400 font-medium">Active Subsidiaries</div>
+      </div>
+      <div class="card-glass p-3 text-center">
+        <div class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Ecosystem Repos</div>
+        <div class="text-xl sm:text-2xl font-bold text-emerald-400 mt-0.5">58</div>
+        <div class="text-[10px] text-slate-400 font-medium">Tools & Harnesses</div>
+      </div>
+      <div class="card-glass p-3 text-center">
+        <div class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Directives Issued</div>
+        <div id="metric-directives" class="text-xl sm:text-2xl font-bold text-amber-200 mt-0.5">3</div>
+        <div class="text-[10px] text-amber-400 font-medium">Board Ratified</div>
+      </div>
+      <div class="card-glass p-3 text-center">
+        <div class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Pending Gates</div>
+        <div id="metric-pending-gates" class="text-xl sm:text-2xl font-bold text-amber-500 mt-0.5">3</div>
+        <div class="text-[10px] text-amber-400/80 font-medium">Awaiting Ratification</div>
+      </div>
+      <div class="card-glass p-3 text-center">
+        <div class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Cloud AI Spend</div>
+        <div class="text-xl sm:text-2xl font-bold text-emerald-400 mt-0.5">$0.00</div>
+        <div class="text-[10px] text-emerald-300 font-medium">100% Local Sovereign</div>
+      </div>
+    </section>
+
+    <!-- Clean Tabbed Navigation Bar -->
+    <nav class="flex items-center justify-between border-b border-slate-800/80 bg-slate-900/30 px-2 rounded-t-xl overflow-x-auto">
+      <div class="flex items-center gap-1">
+        <button id="tab-btn-progress" onclick="switchTab('progress')" class="nav-tab active">
+          <span>🏛️</span> Executive Suite
+        </button>
+        <button id="tab-btn-ecosystem" onclick="switchTab('ecosystem')" class="nav-tab border-cyan-500/40">
+          <span>🌐</span> Localhost Hub
+          <span id="ecosystem-tab-badge" class="bg-cyan-500/30 text-cyan-300 text-[10px] px-1.5 py-0.2 rounded-full font-bold ml-1 font-mono">5/5 ONLINE</span>
+        </button>
+        <button id="tab-btn-communication" onclick="switchTab('communication')" class="nav-tab">
+          <span>💬</span> Communication Hub & Lounge
+          <span id="chat-tab-badge" class="bg-amber-500/30 text-amber-300 text-[10px] px-1.5 py-0.2 rounded-full font-bold ml-1">LIVE</span>
+        </button>
+        <button id="tab-btn-roadmap" onclick="switchTab('roadmap')" class="nav-tab">
+          <span>📌</span> Master Roadmap & Actions
+          <span id="roadmap-tab-badge" class="bg-amber-500 text-slate-950 text-[10px] px-1.5 py-0.2 rounded-full font-bold ml-1">13</span>
+        </button>
+        <button id="tab-btn-ventures" onclick="switchTab('ventures')" class="nav-tab">
+          <span>🚀</span> Active Ventures & Reels
+        </button>
+        <button id="tab-btn-shorts" onclick="switchTab('shorts')" class="nav-tab border-purple-500/40">
+          <span>🎬</span> AI Shorts Studio
+          <span id="shorts-pending-badge" class="bg-purple-500 text-slate-950 text-[10px] px-1.5 py-0.2 rounded-full font-bold ml-1">4</span>
+        </button>
+        <button id="tab-btn-governance" onclick="switchTab('governance')" class="nav-tab">
+          <span>⚖️</span> Board Governance
+          <span id="gates-tab-badge" class="bg-amber-500 text-slate-950 text-[10px] px-1.5 py-0.2 rounded-full font-bold ml-1">3</span>
+        </button>
+        <button id="tab-btn-tools" onclick="switchTab('tools')" class="nav-tab">
+          <span>🛠️</span> 58-Tool Directory
+        </button>
+        <button id="tab-btn-settings" onclick="switchTab('settings')" class="nav-tab border-amber-500/40">
+          <span>⚙️</span> Settings
+        </button>
+      </div>
+      <div class="hidden md:flex items-center gap-2 text-xs text-slate-400 pr-2 shrink-0">
+        <span>Pulse:</span>
+        <span class="text-emerald-400 font-mono font-semibold">3s Local Sync</span>
+      </div>
+    </nav>
+
+    <!-- =====================================================================
+         TAB 1: MAIN PAGE CARD LAYOUT (Executive Overview + Fixed Right Dock)
+         ===================================================================== -->
+    <section id="tab-content-progress" class="flex flex-col gap-6">
+      
+      <!-- 2-Column Responsive Executive Canvas -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- LEFT / MAIN STAGE: 8-9 COLUMNS ON DESKTOP -->
+        <div class="lg:col-span-8 xl:col-span-9 flex flex-col gap-6">
+
+          <!-- 1. CARD: EARNINGS FROM VARIOUS BUSINESSES -->
+          <div id="card-finances" class="card-glass p-5 border border-amber-500/30 shadow-lg">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-800 pb-3 mb-4">
+              <div class="flex items-center gap-2.5">
+                <span class="text-xl">💰</span>
+                <div>
+                  <h3 class="text-base font-bold text-white tracking-wide">Subsidiary Earnings & Financial Portfolio</h3>
+                  <p class="text-xs text-slate-400">Consolidated real revenues, gross margins, and operational profitability</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="badge-green text-[10px] font-mono">NET MARGIN: 72.6%</span>
+                <span class="badge-gold text-[10px] font-mono">CLOUD BILL: $0.00</span>
+              </div>
+            </div>
+
+            <!-- Financial Metrics Ribbon -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+              <div class="bg-slate-900/70 p-3 rounded-xl border border-slate-800 text-center">
+                <div class="text-[10px] text-slate-400 uppercase font-mono">Total Monthly Gross</div>
+                <div id="finance-total-gross" class="text-lg sm:text-xl font-extrabold text-amber-300 mt-0.5">₹4,65,400</div>
+                <div class="text-[10px] text-emerald-400 font-medium">Across 4 Subsidiaries</div>
+              </div>
+              <div class="bg-slate-900/70 p-3 rounded-xl border border-slate-800 text-center">
+                <div class="text-[10px] text-slate-400 uppercase font-mono">Net Operating Profit</div>
+                <div id="finance-total-profit" class="text-lg sm:text-xl font-extrabold text-emerald-400 mt-0.5">₹3,38,020</div>
+                <div class="text-[10px] text-slate-400 font-medium">Retained Capital</div>
+              </div>
+              <div class="bg-slate-900/70 p-3 rounded-xl border border-slate-800 text-center">
+                <div class="text-[10px] text-slate-400 uppercase font-mono">Blended Margin</div>
+                <div class="text-lg sm:text-xl font-extrabold text-sky-400 mt-0.5">72.6%</div>
+                <div class="text-[10px] text-sky-300 font-medium">High Margin Profile</div>
+              </div>
+              <div class="bg-slate-900/70 p-3 rounded-xl border border-slate-800 text-center">
+                <div class="text-[10px] text-slate-400 uppercase font-mono">Cloud Inference Cost</div>
+                <div class="text-lg sm:text-xl font-extrabold text-emerald-400 mt-0.5">$0.00</div>
+                <div class="text-[10px] text-emerald-300 font-medium">Saved ₹32,500/mo</div>
+              </div>
+            </div>
+
+            <!-- Subsidiary Business Units Grid -->
+            <div id="finance-ventures-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              <!-- Rendered dynamically via app.js -->
+            </div>
+          </div>
+
+          <!-- 2. CARD: CURRENT ACTIVE TASKS (WORK IN FLIGHT) -->
+          <div id="card-current-tasks" class="card-glass p-5 border border-sky-500/30">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+              <div class="flex items-center gap-2.5">
+                <span class="text-xl">⚡</span>
+                <div>
+                  <h3 class="text-base font-bold text-white tracking-wide">Current Active Tasks (Live Work in Flight)</h3>
+                  <p class="text-xs text-slate-400">Real-time execution telemetry streamed from autonomous pipelines</p>
+                </div>
+              </div>
+              <span class="badge-blue text-[10px] font-mono">5 ACTIVE PIPELINES</span>
+            </div>
+
+            <div id="current-tasks-container" class="space-y-3">
+              <!-- Rendered dynamically via app.js -->
+            </div>
+          </div>
+
+          <!-- 3. CARD: LIST OF EMPLOYEES (ACTIVE & NON-ACTIVE/STANDBY) -->
+          <div id="card-employees" class="card-glass p-5 border border-emerald-500/30">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-800 pb-3 mb-4">
+              <div class="flex items-center gap-2.5">
+                <span class="text-xl">👥</span>
+                <div>
+                  <h3 class="text-base font-bold text-white tracking-wide">Executive Personnel (Active & Standby)</h3>
+                  <p class="text-xs text-slate-400">10 autonomous colleagues with distinct human personalities, ages, and backgrounds</p>
+                </div>
+              </div>
+
+              <!-- Filter Pills -->
+              <div class="flex items-center gap-1.5">
+                <button onclick="filterEmployeeRoster('all')" class="employee-filter-btn px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/40" data-filter="all">All (10)</button>
+                <button onclick="filterEmployeeRoster('online')" class="employee-filter-btn px-2.5 py-1 rounded-lg text-xs font-medium text-slate-300 hover:bg-slate-800 border border-transparent" data-filter="online">● Active (8)</button>
+                <button onclick="filterEmployeeRoster('standby')" class="employee-filter-btn px-2.5 py-1 rounded-lg text-xs font-medium text-slate-300 hover:bg-slate-800 border border-transparent" data-filter="standby">💤 Standby (2)</button>
+              </div>
+            </div>
+
+            <div id="employees-grid-container" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3.5">
+              <!-- Rendered dynamically via app.js -->
+            </div>
+          </div>
+
+          <!-- 4. CARD: TASK REQUESTS FOR APPROVAL (CHAIRPERSON DECISION GATES) -->
+          <div id="card-approval-requests" class="card-glass p-5 border border-amber-500/30">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+              <div class="flex items-center gap-2.5">
+                <span class="text-xl">⚖️</span>
+                <div>
+                  <h3 class="text-base font-bold text-white tracking-wide">Task Requests for Approval (Chairperson Decision Gates)</h3>
+                  <p class="text-xs text-slate-400">Formal corporate governance requiring your authorization before capital or actions deploy</p>
+                </div>
+              </div>
+              <span id="approval-pending-counter" class="badge-gold text-[10px] font-mono">3 AWAITING SIGN</span>
+            </div>
+
+            <div id="approval-requests-container" class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+              <!-- Rendered dynamically via app.js -->
+            </div>
+          </div>
+
+          <!-- 5 & 6. SUB-GRID: PENDING TASKS & COMPLETED TASKS -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            
+            <!-- 5. PENDING TASKS CARD -->
+            <div id="card-pending-tasks" class="card-glass p-5 border border-slate-800">
+              <div class="flex items-center justify-between border-b border-slate-800 pb-2.5 mb-3">
+                <div class="flex items-center gap-2">
+                  <span class="text-base">⏳</span>
+                  <h4 class="text-xs font-bold uppercase tracking-wider text-slate-300">Pending Tasks & Queue</h4>
+                </div>
+                <span id="pending-tasks-badge" class="badge-blue text-[10px] font-mono">IN QUEUE</span>
+              </div>
+              <div id="pending-tasks-list" class="space-y-2.5 max-h-72 overflow-y-auto pr-1">
+                <!-- Rendered dynamically via app.js -->
+              </div>
+            </div>
+
+            <!-- 6. COMPLETED TASKS CARD -->
+            <div id="card-completed-tasks" class="card-glass p-5 border border-slate-800">
+              <div class="flex items-center justify-between border-b border-slate-800 pb-2.5 mb-3">
+                <div class="flex items-center gap-2">
+                  <span class="text-base">✅</span>
+                  <h4 class="text-xs font-bold uppercase tracking-wider text-slate-300">Completed Tasks & Milestones</h4>
+                </div>
+                <span id="completed-tasks-badge" class="badge-green text-[10px] font-mono">VERIFIED</span>
+              </div>
+              <div id="completed-tasks-list" class="space-y-2.5 max-h-72 overflow-y-auto pr-1">
+                <!-- Rendered dynamically via app.js -->
+              </div>
+            </div>
+
+          </div>
+
+          <!-- 7. CARD: AUTONOMOUS BUSINESS INCUBATOR & STARTUP DEBATES -->
+          <div id="card-business-incubator" class="card-glass p-5 border border-purple-500/30">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-800 pb-3 mb-4">
+              <div class="flex items-center gap-2.5">
+                <span class="text-xl">💡</span>
+                <div>
+                  <h3 class="text-base font-bold text-white tracking-wide">Continuous Autonomous Business Incubator</h3>
+                  <p class="text-xs text-slate-400">Future business ideas, expansions, investments & spending actively debated by employees to finalize for startup</p>
+                </div>
+              </div>
+              <span class="badge-gold text-[10px] font-mono">LIVE SWARM DEBATE</span>
+            </div>
+
+            <!-- Pitch / Board Meeting Form: Convene Strategic Swarm Meeting -->
+            <form id="incubator-pitch-form" onsubmit="handlePitchIdea(event)" class="mb-5 bg-slate-900/80 p-4 rounded-xl border border-purple-500/30 flex flex-col gap-3 shadow-lg">
+              <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2 text-amber-400 text-xs font-bold tracking-wide">
+                  <span>🏛️ CONVENE STRATEGIC EXECUTIVE MEETING</span>
+                </div>
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                  <span class="text-[10px] uppercase font-mono text-slate-400">Meeting Agenda:</span>
+                  <select id="incubator-meeting-type" class="bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-amber-300 font-semibold focus:outline-none focus:border-amber-400" onchange="updatePitchPlaceholder()">
+                    <option value="AUTO">✨ Auto-Detect Agenda from Topic</option>
+                    <option value="NEW_PRODUCT">🚀 New Product / Venture Launch (5-Yr Trajectory, Demographics, TAM)</option>
+                    <option value="ONGOING_REVIEW">🔄 Ongoing Product Performance (Current Cash Flow, Feature Changes, Roadmap)</option>
+                    <option value="INVESTMENT_TRADING">💰 Strategic Investment & Trading (Zero-Loss Guardrails, Bot Diligence, Yield)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="flex flex-col sm:flex-row items-center gap-2.5">
+                <input
+                  type="text"
+                  id="incubator-pitch-input"
+                  placeholder="Post new product idea, ongoing review mandate, or capital investment proposal..."
+                  class="flex-1 w-full bg-slate-950 border border-slate-700/80 rounded-lg px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
+                  required
+                >
+                <button type="submit" id="incubator-pitch-btn" class="btn-gold text-xs py-2.5 px-4 shrink-0 w-full sm:w-auto flex items-center justify-center gap-1.5 font-bold">
+                  <span>Convene Strategic Meeting</span> ➔
+                </button>
+              </div>
+              <div class="flex items-center justify-between text-[10px] text-slate-400 px-0.5">
+                <span>Quorum: CEO, CTO, CMO, CFO, COO + Karpathy LLM-Council Debaters</span>
+                <span class="text-amber-400/90 font-mono">Zero Yes-Men • Blind Peer Review Active</span>
+              </div>
+            </form>
+
+            <!-- Incubator Proposals Grid -->
+            <div id="incubator-proposals-container" class="space-y-4">
+              <!-- Rendered dynamically via app.js -->
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RIGHT SIDE FIXED SHORT PANEL: 3-4 COLUMNS (STICKY ON DESKTOP) -->
+        <aside class="lg:col-span-4 xl:col-span-3 flex flex-col gap-5 lg:sticky lg:top-24 h-fit">
+          
+          <!-- DOCK 1: RAPID WATERCOOLER COMMUNICATION CONSOLE -->
+          <div class="card-glass p-4 border border-amber-500/30 flex flex-col gap-3">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+              <div class="flex items-center gap-2">
+                <span class="text-base">☕</span>
+                <h4 class="text-xs font-bold uppercase tracking-wider text-slate-200">Team Watercooler</h4>
+              </div>
+              <button onclick="switchTab('communication')" class="text-[10px] text-amber-400 hover:text-amber-300 font-mono flex items-center gap-1">
+                <span>Open Lounge</span> ➔
+              </button>
+            </div>
+
+            <!-- Quick Snippet of Latest Banter -->
+            <div id="quick-watercooler-feed" class="space-y-2 text-xs max-h-48 overflow-y-auto pr-1 font-sans">
+              <!-- Rendered dynamically -->
+            </div>
+
+            <!-- Quick Chat Input -->
+            <form id="quick-watercooler-form" onsubmit="handleSendQuickWatercooler(event)" class="pt-2 border-t border-slate-800 flex items-center gap-1.5">
+              <input
+                type="text"
+                id="quick-watercooler-input"
+                placeholder="Say hi to the team casually..."
+                class="flex-1 bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
+                required
+              >
+              <button type="submit" id="quick-watercooler-btn" class="btn-gold text-xs py-1.5 px-3 shrink-0">
+                ➔
+              </button>
+            </form>
+          </div>
+
+          <!-- DOCK 2: ACTIVE AGENT PULSE -->
+          <div class="card-glass p-4 border border-slate-800 flex flex-col gap-2.5">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+              <div class="flex items-center gap-2">
+                <span class="text-base">🛰️</span>
+                <h4 class="text-xs font-bold uppercase tracking-wider text-slate-200">Active Agent Pulse</h4>
+              </div>
+              <span class="badge-green text-[9px]">Local 100%</span>
+            </div>
+            <div id="agent-pulse-list" class="space-y-1.5 max-h-44 overflow-y-auto pr-1">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
+          <!-- DOCK 3: 58-TOOL QUICK LAUNCHER -->
+          <div class="card-glass p-4 border border-slate-800 flex flex-col gap-2.5">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+              <div class="flex items-center gap-2">
+                <span class="text-base">🛠️</span>
+                <h4 class="text-xs font-bold uppercase tracking-wider text-slate-200">58-Tool Quick Directory</h4>
+              </div>
+              <button onclick="switchTab('tools')" class="text-[10px] text-sky-400 hover:text-sky-300 font-mono">View All ➔</button>
+            </div>
+            <input
+              type="text"
+              id="quick-tool-search"
+              oninput="handleQuickToolSearch(this.value)"
+              placeholder="Search 58 tools (e.g. Crawl4AI, OmniRoute)..."
+              class="bg-slate-900 border border-slate-700/80 rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 mb-1"
+            >
+            <div id="quick-tools-list" class="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
+        </aside>
+
+      </div>
+
+      <!-- Live Heartbeat Log Stream -->
+      <div class="card-glass p-4 border border-slate-800 mt-2">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
+          <div class="flex items-center gap-2">
+            <span class="text-base">🛰️</span>
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300">Live Agent Heartbeat & Telemetry Feed</h3>
+          </div>
+          <span class="badge-green text-[10px]">Real-Time Streaming</span>
+        </div>
+        <div id="live-logs-container" class="space-y-1.5 font-mono text-xs max-h-40 overflow-y-auto pr-1">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- =====================================================================
+         TAB: UNIFIED SOVEREIGN LOCALHOST ECOSYSTEM HUB
+         ===================================================================== -->
+    <section id="tab-content-ecosystem" class="hidden flex flex-col gap-6">
+
+      <!-- Ecosystem Header & Quick Metrics -->
+      <div class="card-glass p-5 border border-cyan-500/30 shadow-lg relative overflow-hidden">
+        <div class="absolute -right-10 -top-10 w-48 h-48 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 relative z-10">
+          <div>
+            <div class="flex items-center gap-2.5">
+              <span class="text-2xl">🌐</span>
+              <div>
+                <h2 class="text-lg sm:text-xl font-bold text-white tracking-wide flex items-center gap-2">
+                  Unified Sovereign Localhost Deck
+                  <span id="ecosystem-mesh-badge" class="badge-green text-[10px] font-mono">ALL ENGINES ONLINE</span>
+                </h2>
+                <p class="text-xs text-slate-400 mt-0.5">Centralized command deck uniting all 5 sovereign local engines running on this workstation</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="flex flex-wrap items-center gap-2">
+            <button onclick="loadEcosystemHosts(true)" class="btn-ghost text-xs py-1.5 px-3 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-950/40 flex items-center gap-1.5 shadow-sm">
+              <span>🔄</span> Probe All Ports
+            </button>
+            <button onclick="triggerAllStandbyEngines()" class="btn-gold text-xs py-1.5 px-3.5 flex items-center gap-1.5 shadow-sm">
+              <span>⚡</span> Launch All Standby
+            </button>
+          </div>
+        </div>
+
+        <!-- Metric Ribbon -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5 pt-4 border-t border-slate-800/80">
+          <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 text-center">
+            <div class="text-[10px] text-slate-400 uppercase font-mono tracking-wider">Multi-Provider Router</div>
+            <div class="text-lg sm:text-xl font-extrabold text-cyan-300 mt-0.5">352 Providers</div>
+            <div class="text-[10px] text-emerald-400 font-medium">OmniRoute Port 20128</div>
+          </div>
+          <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 text-center">
+            <div class="text-[10px] text-slate-400 uppercase font-mono tracking-wider">Free Monthly Quota</div>
+            <div class="text-lg sm:text-xl font-extrabold text-amber-300 mt-0.5">~1.47 Billion</div>
+            <div class="text-[10px] text-slate-400 font-medium">Zero-Cost Token Mesh</div>
+          </div>
+          <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 text-center">
+            <div class="text-[10px] text-slate-400 uppercase font-mono tracking-wider">OSINT Radar</div>
+            <div class="text-lg sm:text-xl font-extrabold text-purple-300 mt-0.5">Global 24/7</div>
+            <div class="text-[10px] text-purple-400 font-medium">WorldMonitor Port 3000</div>
+          </div>
+          <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 text-center">
+            <div class="text-[10px] text-slate-400 uppercase font-mono tracking-wider">Cloud Inference Spend</div>
+            <div class="text-lg sm:text-xl font-extrabold text-emerald-400 mt-0.5">$0.00 / mo</div>
+            <div class="text-[10px] text-emerald-300 font-medium">100% Sovereign Local Core</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5 Localhost Service Control Cards -->
+      <div id="ecosystem-cards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+
+      <!-- Embedded In-Dashboard Viewport Frame Container -->
+      <div class="viewport-frame-container">
+        <!-- Viewport Header Bar -->
+        <div class="viewport-browser-bar">
+          <!-- macOS style aesthetic window control dots -->
+          <div class="flex items-center gap-1.5 shrink-0 pr-2">
+            <div class="w-3 h-3 rounded-full bg-rose-500/80 border border-rose-600"></div>
+            <div class="w-3 h-3 rounded-full bg-amber-500/80 border border-amber-600"></div>
+            <div class="w-3 h-3 rounded-full bg-emerald-500/80 border border-emerald-600"></div>
+          </div>
+
+          <!-- Quick-Switch Viewport Buttons -->
+          <div class="flex items-center gap-1 overflow-x-auto py-1">
+            <button id="viewport-btn-omniroute" onclick="switchEcosystemViewport('omniroute')" class="viewport-tab-btn active">
+              <span>⚡</span> OmniRoute (20128)
+            </button>
+            <button id="viewport-btn-worldmonitor" onclick="switchEcosystemViewport('worldmonitor')" class="viewport-tab-btn">
+              <span>🌍</span> WorldMonitor (3000)
+            </button>
+            <button id="viewport-btn-titan" onclick="switchEcosystemViewport('titan')" class="viewport-tab-btn">
+              <span>💻</span> TITAN Labs (8000)
+            </button>
+            <button id="viewport-btn-ollama" onclick="switchEcosystemViewport('ollama')" class="viewport-tab-btn">
+              <span>🧠</span> Ollama (11434)
+            </button>
+            <button id="viewport-btn-sb_dashboard" onclick="switchEcosystemViewport('sb_dashboard')" class="viewport-tab-btn">
+              <span>🏛️</span> SB Group (8080)
+            </button>
+          </div>
+
+          <!-- Address Bar & Actions -->
+          <div class="flex items-center gap-2 shrink-0">
+            <div class="viewport-address-pill hidden md:flex">
+              <span class="text-xs text-slate-500">🔒</span>
+              <span id="viewport-active-url" class="truncate">http://localhost:20128</span>
+            </div>
+            <button onclick="reloadEcosystemViewport()" class="btn-ghost text-xs py-1.5 px-2.5" title="Reload Viewport">
+              <span>🔄</span>
+            </button>
+            <button onclick="popoutEcosystemViewport()" class="btn-ghost text-xs py-1.5 px-2.5 text-cyan-300" title="Open in New Tab">
+              <span>↗️</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Active Viewport Frame -->
+        <div class="relative w-full flex-1 bg-slate-950 overflow-hidden flex flex-col">
+          <div id="viewport-loader" class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center gap-3 hidden">
+            <div class="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
+            <p class="text-xs text-cyan-300 font-mono">Connecting to local engine...</p>
+          </div>
+          <iframe id="ecosystem-viewport-iframe" src="/proxy/omniroute/" class="w-full flex-1 border-0" style="min-height: 680px;" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals"></iframe>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- =====================================================================
+         TAB 2: PERSONNEL COMMUNICATION HUB (Casual Group Chat + Executive Sync)
+         ===================================================================== -->
+    <section id="tab-content-communication" class="hidden flex flex-col gap-5 flex-1 min-h-[600px]">
+      
+      <!-- Communication Hub Header & Channel Mode Selector -->
+      <div class="card-glass p-4 border border-amber-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2.5">
+            <span class="text-xl">💬</span>
+            <h2 class="text-base sm:text-lg font-bold text-white tracking-wide">Corporate Communication & Collaboration Hub</h2>
+          </div>
+          <p class="text-xs text-slate-400 mt-0.5">
+            Casual team lounge for daily work & experiences, transparent inter-executive project discussions, and 1-on-1 direct transmissions
+          </p>
+        </div>
+
+        <!-- Channel Pills -->
+        <div class="flex flex-wrap items-center gap-2 bg-slate-900/80 p-1.5 rounded-xl border border-slate-800">
+          <button id="comm-chan-btn-watercooler" onclick="switchCommChannel('watercooler')" class="comm-channel-btn active px-3 py-1.5 rounded-lg text-xs font-semibold">
+            <span>☕</span> Watercooler Group Chat
+          </button>
+          <button id="comm-chan-btn-sync" onclick="switchCommChannel('sync')" class="comm-channel-btn px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white">
+            <span>⚡</span> Inter-Executive Project Syncs
+          </button>
+          <button id="comm-chan-btn-direct" onclick="switchCommChannel('direct')" class="comm-channel-btn px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white">
+            <span>👤</span> Direct 1-on-1
+          </button>
+        </div>
+      </div>
+
+      <!-- CHANNEL 1: CASUAL WATERCOOLER GROUP CHAT -->
+      <div id="comm-channel-watercooler" class="card-glass p-4 flex flex-col justify-between min-h-[520px] flex-1">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-xl">☕</div>
+            <div>
+              <h4 class="text-sm font-bold text-white">#all-hands-watercooler (Casual Team Lounge)</h4>
+              <p class="text-[11px] text-slate-400">Where all 10 colleagues chat casually about daily work, coffee, funny moments, and speak naturally to you</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="badge-green text-[10px]">10 Colleague Members</span>
+            <span class="text-[10px] font-mono text-emerald-400 hidden sm:inline">CASUAL HUMAN TONE</span>
+          </div>
+        </div>
+
+        <!-- Watercooler Messages Feed -->
+        <div id="watercooler-messages-box" class="flex-1 overflow-y-auto space-y-3.5 pr-2 mb-3 max-h-[460px]">
+          <!-- Rendered dynamically via app.js -->
+        </div>
+
+        <!-- Watercooler Chat Input -->
+        <form id="watercooler-send-form" onsubmit="handleSendWatercoolerMessage(event)" class="pt-3 border-t border-slate-800 flex items-center gap-2">
+          <input
+            type="text"
+            id="watercooler-user-input"
+            placeholder="Chat casually with your team (e.g. '@tariq how is that agarwood drying down?', '@vik what's the local inference latency?')..."
+            class="flex-1 bg-slate-900 border border-slate-700/80 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
+            required
+            autocomplete="off"
+          >
+          <button type="submit" id="watercooler-send-btn" class="btn-gold text-xs py-2.5 px-5 shrink-0">
+            <span>Send to Lounge</span> ➔
+          </button>
+        </form>
+      </div>
+
+      <!-- CHANNEL 2: INTER-EXECUTIVE PROJECT SYNCS (Who is talking to Whom & Purpose) -->
+      <div id="comm-channel-sync" class="hidden flex flex-col gap-4">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+          <div>
+            <h3 class="text-sm font-bold text-white">Transparent Inter-Executive Project Communications</h3>
+            <p class="text-xs text-slate-400">Live view of who is talking to whom, for what purpose, and what decisions were reached</p>
+          </div>
+          <span class="badge-blue text-[10px] font-mono">5 ACTIVE SYNCS</span>
+        </div>
+
+        <div id="project-syncs-container" class="space-y-4">
+          <!-- Rendered dynamically via app.js -->
+        </div>
+      </div>
+
+      <!-- CHANNEL 3: DIRECT 1-ON-1 TRANSMISSIONS -->
+      <div id="comm-channel-direct" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-5 flex-1 min-h-[520px]">
+        <!-- Agent Selection Sidebar -->
+        <div class="lg:col-span-4 card-glass p-3.5 flex flex-col gap-3">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300">Select Colleague</h3>
+            <span class="badge-green text-[10px]">10 Available</span>
+          </div>
+          <div id="chat-agents-list" class="space-y-1.5 overflow-y-auto flex-1 max-h-[480px] pr-1">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Active Transmission & Conversation Pane -->
+        <div class="lg:col-span-8 card-glass p-4 flex flex-col justify-between min-h-[500px]">
+          <!-- Chat Header -->
+          <div id="chat-active-header" class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
+            <div class="flex items-center gap-3">
+              <img id="chat-header-avatar" src="/assets/avatars/arthur.jpg" alt="Active Leader" class="w-10 h-10 rounded-full object-cover border border-amber-500/40">
+              <div>
+                <div class="flex items-center gap-2">
+                  <h4 id="chat-header-name" class="text-sm font-bold text-white">Arthur Pendelton</h4>
+                  <span id="chat-header-title" class="badge-gold text-[10px]">Chief Executive Officer (CEO)</span>
+                </div>
+                <p id="chat-header-focus" class="text-[11px] text-slate-400">Autonomous Conglomerate Strategy</p>
+              </div>
+            </div>
+            <span class="text-[10px] font-mono text-emerald-400">CASUAL 1-ON-1 MODE</span>
+          </div>
+
+          <!-- Chat Messages Container -->
+          <div id="chat-messages-box" class="flex-1 overflow-y-auto space-y-3 pr-2 mb-3 max-h-[380px]">
+            <!-- Rendered dynamically -->
+          </div>
+
+          <!-- Chat Input Form -->
+          <form id="chat-send-form" onsubmit="handleSendChatMessage(event)" class="pt-2 border-t border-slate-800 flex items-center gap-2">
+            <input
+              type="text"
+              id="chat-user-input"
+              placeholder="Chat casually with this colleague..."
+              class="flex-1 bg-slate-900 border border-slate-700/80 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
+              required
+              autocomplete="off"
+            >
+            <button type="submit" id="chat-send-btn" class="btn-gold text-xs py-2.5 px-4 shrink-0">
+              <span>Send</span> ➔
+            </button>
+          </form>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- =====================================================================
+         TAB 3: Live Roadmap & Pending Actions Tracker
+         ===================================================================== -->
+    <section id="tab-content-roadmap" class="hidden flex flex-col gap-5">
+      <!-- Roadmap Overview Ribbon -->
+      <div class="card-glass p-5 border border-amber-500/30">
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-base sm:text-lg font-bold text-white tracking-wide">SB Group Master Roadmap & Action Tracker</h2>
+              <span class="badge-gold text-[10px] font-mono">18 TOTAL INITIATIVES</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">
+              Live tracking of active, pending, and scheduled corporate mandates across all 4 subsidiaries and executive governance.
+            </p>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="text-right">
+              <div class="text-[10px] text-slate-400 uppercase font-mono">Overall Conglomerate Progress</div>
+              <div id="metric-roadmap-progress-val" class="text-lg font-extrabold text-amber-400">68%</div>
+            </div>
+            <div class="w-32 progress-track bg-slate-800">
+              <div id="metric-roadmap-progress-bar" class="progress-fill" style="width: 68%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Roadmap Status Metrics Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+          <div class="bg-slate-900/60 rounded-xl p-3 border border-slate-800/80 text-center">
+            <div class="text-[10px] text-slate-400 uppercase font-mono">Completed</div>
+            <div id="metric-roadmap-completed" class="text-xl font-bold text-emerald-400 mt-0.5">5</div>
+            <div class="text-[10px] text-slate-500">Verified Milestones</div>
+          </div>
+          <div class="bg-slate-900/60 rounded-xl p-3 border border-slate-800/80 text-center">
+            <div class="text-[10px] text-slate-400 uppercase font-mono">In Progress</div>
+            <div id="metric-roadmap-inprogress" class="text-xl font-bold text-sky-400 mt-0.5">8</div>
+            <div class="text-[10px] text-slate-500">Active Execution</div>
+          </div>
+          <div class="bg-slate-900/60 rounded-xl p-3 border border-slate-800/80 text-center">
+            <div class="text-[10px] text-slate-400 uppercase font-mono">Pending Ratification</div>
+            <div id="metric-roadmap-pending" class="text-xl font-bold text-amber-400 mt-0.5">3</div>
+            <div class="text-[10px] text-slate-500">Awaiting Signoff</div>
+          </div>
+          <div class="bg-slate-900/60 rounded-xl p-3 border border-slate-800/80 text-center">
+            <div class="text-[10px] text-slate-400 uppercase font-mono">Scheduled</div>
+            <div id="metric-roadmap-scheduled" class="text-xl font-bold text-slate-300 mt-0.5">2</div>
+            <div class="text-[10px] text-slate-500">In Queue</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Roadmap Filtering Controls -->
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div class="flex flex-wrap items-center gap-1.5">
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider mr-1">Venture:</span>
+          <button onclick="filterRoadmap('all', null)" class="roadmap-filter-btn px-3 py-1 rounded-lg text-xs font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/40" data-cat="all">All Tracks</button>
+          <button onclick="filterRoadmap('titan_labs', null)" class="roadmap-filter-btn px-3 py-1 rounded-lg text-xs font-medium text-slate-300 hover:bg-slate-800 border border-transparent" data-cat="titan_labs">💻 TITAN Labs</button>
+          <button onclick="filterRoadmap('media_reels', null)" class="roadmap-filter-btn px-3 py-1 rounded-lg text-xs font-medium text-slate-300 hover:bg-slate-800 border border-transparent" data-cat="media_reels">🎬 Media & Reels</button>
+          <button onclick="filterRoadmap('sb_fragrance', null)" class="roadmap-filter-btn px-3 py-1 rounded-lg text-xs font-medium text-slate-300 hover:bg-slate-800 border border-transparent" data-cat="sb_fragrance">🌿 SB Fragrance</button>
+          <button onclick="filterRoadmap('alfann_art', null)" class="roadmap-filter-btn px-3 py-1 rounded-lg text-xs font-medium text-slate-300 hover:bg-slate-800 border border-transparent" data-cat="alfann_art">🎨 Alfann Art</button>
+          <button onclick="filterRoadmap('adwell_media', null)" class="roadmap-filter-btn px-3 py-1 rounded-lg text-xs font-medium text-slate-300 hover:bg-slate-800 border border-transparent" data-cat="adwell_media">💧 AdWell Water</button>
+          <button onclick="filterRoadmap('governance', null)" class="roadmap-filter-btn px-3 py-1 rounded-lg text-xs font-medium text-slate-300 hover:bg-slate-800 border border-transparent" data-cat="governance">⚖️ Governance</button>
+        </div>
+
+        <div class="flex items-center gap-1.5">
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider mr-1">Status:</span>
+          <select id="roadmap-status-select" onchange="filterRoadmap(null, this.value)" class="bg-slate-900 border border-slate-700 text-xs rounded-lg px-2.5 py-1 text-slate-200 focus:border-amber-400">
+            <option value="all">All Statuses</option>
+            <option value="IN_PROGRESS">In Progress</option>
+            <option value="PENDING_APPROVAL">Pending Ratification</option>
+            <option value="COMPLETED">Completed</option>
+            <option value="SCHEDULED">Scheduled</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Roadmap Items List -->
+      <div id="roadmap-items-container" class="space-y-3">
+        <!-- Rendered dynamically via app.js -->
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         TAB 4: Active Ventures & Media Theater
+         ===================================================================== -->
+    <section id="tab-content-ventures" class="hidden flex flex-col gap-6">
+
+      <!-- Venture 1: TITAN Labs Web Platform -->
+      <div class="card-glass p-5 border border-cyan-500/30">
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+          <div class="flex items-center gap-3.5">
+            <div class="relative p-2 rounded-xl bg-slate-900 border border-slate-700/80 shadow">
+              <img src="/assets/avatars/hiroshi.jpg" alt="Hiroshi Tanaka" class="w-12 h-12 rounded-lg object-cover">
+              <span class="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 border-2 border-slate-900 rounded-full"></span>
+            </div>
+            <div>
+              <div class="flex flex-wrap items-center gap-2">
+                <h3 class="text-base font-bold text-white tracking-wide">TITAN Labs — Consumer Electronics Intelligence</h3>
+                <span class="badge-blue text-[10px] px-2 py-0.5 font-mono">v1.1.0 OPERATIONAL</span>
+                <span class="badge-green text-[10px] px-2 py-0.5">88/88 VITEST PASSING</span>
+              </div>
+              <p class="text-xs text-slate-400 mt-0.5">
+                Full Dual-Theme Architecture with Unique Animated Logo Loaders for Daylight (Colorful Logo) and Night (Cyber Shield).
+              </p>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+            <a href="https://titan-product-intelligence.vercel.app" target="_blank" class="btn-ghost text-xs py-2 px-3.5 flex items-center gap-1.5 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-950/40">
+              <span>🌐</span> Production Cloud (Vercel)
+            </a>
+            <button onclick="triggerTitanBuild()" id="btn-titan-build" class="btn-gold text-xs py-2 px-3.5 flex items-center gap-1.5">
+              <span>⚡</span> Rebuild Web App
+            </button>
+            <button onclick="triggerTitanSync()" id="btn-titan-sync" class="btn-ghost text-xs py-2 px-3 flex items-center gap-1.5 text-slate-300">
+              <span>🔄</span> Sync Data
+            </button>
+          </div>
+        </div>
+
+        <!-- Spec Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+          <div class="bg-slate-900/60 rounded-xl p-3 border border-slate-800/80">
+            <div class="text-[10px] text-slate-400 uppercase font-mono">Light / Day Mode</div>
+            <div class="text-xs font-bold text-amber-300 mt-0.5">☀️ Colorful Rainbow Logo</div>
+            <div class="text-[10px] text-slate-400">Daylight Prismatic HUD</div>
+          </div>
+          <div class="bg-slate-900/60 rounded-xl p-3 border border-slate-800/80">
+            <div class="text-[10px] text-slate-400 uppercase font-mono">Dark / Night Mode</div>
+            <div class="text-xs font-bold text-cyan-300 mt-0.5">🌙 Cyber Titanium Shield</div>
+            <div class="text-[10px] text-slate-400">Cybernetic Conduits HUD</div>
+          </div>
+          <div class="bg-slate-900/60 rounded-xl p-3 border border-slate-800/80">
+            <div class="text-[10px] text-slate-400 uppercase font-mono">User Onboarding</div>
+            <div class="text-xs font-bold text-emerald-400 mt-0.5">Streamlined Instant Access</div>
+            <div class="text-[10px] text-slate-400">Zero Onboarding Delays</div>
+          </div>
+          <div class="bg-slate-900/60 rounded-xl p-3 border border-slate-800/80">
+            <div class="text-[10px] text-slate-400 uppercase font-mono">Affiliate Engine</div>
+            <div class="text-xs font-bold text-sky-400 mt-0.5 font-mono">tag=mufee-21</div>
+            <div class="text-[10px] text-slate-400">Amazon Associates Integrated</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Venture 2: TITAN Media Swarm — 9:16 Video Reel Theater -->
+      <div class="card-glass p-5 border border-pink-500/30">
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+          <div class="flex items-center gap-3.5">
+            <div class="relative p-2 rounded-xl bg-slate-900 border border-slate-700/80 shadow">
+              <img src="/assets/avatars/lyra.jpg" alt="Lyra Valen" class="w-12 h-12 rounded-lg object-cover">
+              <span class="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 border-2 border-slate-900 rounded-full"></span>
+            </div>
+            <div>
+              <div class="flex flex-wrap items-center gap-2">
+                <h3 class="text-base font-bold text-white tracking-wide">TITAN Media Swarm — Kinetic Video Reel Theater</h3>
+                <span class="badge-blue text-[10px] px-2 py-0.5 font-mono">9:16 VERTICAL 60FPS</span>
+                <span class="badge-green text-[10px] px-2 py-0.5 font-mono">AUDIO MASTERED</span>
+              </div>
+              <p class="text-xs text-slate-400 mt-0.5">
+                Fast-paced kinetic commercial reel synced to sub-bass electronic audio drops for Instagram Reels & YouTube Shorts.
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <a href="/assets/titan-reel.mp4" download="TITAN-Labs-Launch-Commercial.mp4" class="btn-gold text-xs py-2 px-3.5 flex items-center gap-1.5">
+              <span>⬇️</span> Download Reel (MP4)
+            </a>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-5 items-center">
+          <div class="lg:col-span-4 flex justify-center">
+            <div class="relative w-[270px] h-[500px] rounded-[36px] bg-slate-950 p-2.5 border-4 border-slate-800 shadow-2xl flex flex-col items-center">
+              <div class="w-20 h-3.5 bg-slate-800 rounded-full mb-2"></div>
+              <div class="w-full h-full rounded-[24px] overflow-hidden relative bg-black">
+                <video id="titan-reel-player" src="/assets/titan-reel.mp4" controls loop playsinline class="w-full h-full object-cover"></video>
+              </div>
+            </div>
+          </div>
+
+          <div class="lg:col-span-8 space-y-3.5">
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <div class="bg-slate-900/70 p-3 rounded-xl border border-slate-800">
+                <div class="text-[10px] text-slate-400 uppercase font-mono">Aspect Ratio & Res</div>
+                <div class="text-sm font-bold text-cyan-300 mt-0.5">9:16 (1080x1920)</div>
+                <div class="text-[10px] text-slate-500">TikTok / Reels / Shorts</div>
+              </div>
+              <div class="bg-slate-900/70 p-3 rounded-xl border border-slate-800">
+                <div class="text-[10px] text-slate-400 uppercase font-mono">Audio Engineering</div>
+                <div class="text-sm font-bold text-amber-300 mt-0.5">Sub-Bass Electronic</div>
+                <div class="text-[10px] text-slate-500">Synchronized Kinetic SFX</div>
+              </div>
+              <div class="bg-slate-900/70 p-3 rounded-xl border border-slate-800">
+                <div class="text-[10px] text-slate-400 uppercase font-mono">Affiliate Tag</div>
+                <div class="text-sm font-bold text-emerald-400 mt-0.5 font-mono">mufee-21</div>
+                <div class="text-[10px] text-slate-500">Live Commission Channel</div>
+              </div>
+            </div>
+
+            <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-800/80 space-y-2">
+              <div class="text-xs font-bold text-slate-300 flex items-center justify-between">
+                <span>🎵 Beat-Synced 15-Second Kinetic Timeline</span>
+                <span class="text-[10px] font-mono text-cyan-400">HYPERFRAMES 60FPS</span>
+              </div>
+              <div class="space-y-1 text-xs text-slate-400">
+                <div class="flex items-start gap-2">
+                  <span class="font-mono text-cyan-400 text-[11px] w-14 shrink-0">0.0-1.8s</span>
+                  <span><strong class="text-white">The Kinetic Hook:</strong> Sub-bass slam, strobe cut & typography <em>"STOP GUESSING."</em></span>
+                </div>
+                <div class="flex items-start gap-2">
+                  <span class="font-mono text-cyan-400 text-[11px] w-14 shrink-0">1.8-4.5s</span>
+                  <span><strong class="text-white">Hardware Slam:</strong> 3D laptop render + 21,480 Geekbench counter tick.</span>
+                </div>
+                <div class="flex items-start gap-2">
+                  <span class="font-mono text-cyan-400 text-[11px] w-14 shrink-0">4.5-7.2s</span>
+                  <span><strong class="text-white">The Face-Off:</strong> Paid Marketing Hype vs TITAN Unfiltered Truth.</span>
+                </div>
+                <div class="flex items-start gap-2">
+                  <span class="font-mono text-cyan-400 text-[11px] w-14 shrink-0">7.2-10.5s</span>
+                  <span><strong class="text-white">Price Radar:</strong> 3D Smartphone radar scan with Amazon discount ticker ($1,499 -> $1,079).</span>
+                </div>
+                <div class="flex items-start gap-2">
+                  <span class="font-mono text-cyan-400 text-[11px] w-14 shrink-0">10.5-15.0s</span>
+                  <span><strong class="text-white">SB Group Crest Finale:</strong> Gold SB insignia, "Smarter Choices • Brighter Tomorrow" CTA.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Venture 3: Apex Viral Media — Automated Remotion Video Suite -->
+      <div class="card-glass p-5 border border-amber-500/30">
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+          <div class="flex items-center gap-3.5">
+            <div class="relative p-2 rounded-xl bg-slate-900 border border-slate-700/80 shadow">
+              <img src="/assets/avatars/jaxson.jpg" alt="Jaxson Reed" class="w-12 h-12 rounded-lg object-cover">
+              <span class="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 border-2 border-slate-900 rounded-full"></span>
+            </div>
+            <div>
+              <div class="flex flex-wrap items-center gap-2">
+                <h3 class="text-base font-bold text-white tracking-wide">Apex Viral Media — Remotion Short-Form Generator</h3>
+                <span class="badge-gold text-[10px] px-2 py-0.5 font-mono">REMOTION 4.0 READY</span>
+                <span class="badge-green text-[10px] px-2 py-0.5 font-mono">100% LOCAL $0 COMPUTE</span>
+              </div>
+              <p class="text-xs text-slate-400 mt-0.5">
+                Automated vertical 9:16 reels for Instagram, YouTube Shorts, and TikTok with kinetic typography, beat-synced audio, and spec overlays.
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <a href="/assets/reels/viral_reel_latest.mp4" download="viral_reel_latest.mp4" class="btn-gold text-xs py-2 px-3.5 flex items-center gap-1.5">
+              <span>⬇️</span> Download Latest Reel (2.24 MB)
+            </a>
+          </div>
+        </div>
+
+        <!-- Video Player & Generator Form Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-5 items-center">
+          <!-- 9:16 Vertical Player -->
+          <div class="lg:col-span-4 flex justify-center">
+            <div class="relative w-[270px] h-[500px] rounded-[36px] bg-slate-950 p-2.5 border-4 border-amber-500/40 shadow-2xl flex flex-col items-center">
+              <div class="w-20 h-3.5 bg-slate-800 rounded-full mb-2"></div>
+              <div class="w-full h-full rounded-[24px] overflow-hidden relative bg-black">
+                <video id="viral-reel-player" src="/assets/reels/viral_reel_latest.mp4" controls loop playsinline class="w-full h-full object-cover"></video>
+              </div>
+            </div>
+          </div>
+
+          <!-- Interactive Generator Form & Ledger -->
+          <div class="lg:col-span-8 space-y-4">
+            <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-amber-300 mb-2 flex items-center gap-2">
+                <span>⚡</span> Generate New 9:16 Viral Reel
+              </h4>
+              <form id="reel-generate-form" onsubmit="handleGenerateReel(event)" class="space-y-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label class="text-[10px] text-slate-400 block mb-1">Topic / Product Comparison</label>
+                    <input type="text" id="reel-topic" value="MacBook Air M3 vs Dell XPS 14" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:border-amber-400" required>
+                  </div>
+                  <div>
+                    <label class="text-[10px] text-slate-400 block mb-1">Top Badge Text</label>
+                    <input type="text" id="reel-badge" value="TITAN PRODUCT INTELLIGENCE" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:border-amber-400" required>
+                  </div>
+                </div>
+                <div>
+                  <label class="text-[10px] text-slate-400 block mb-1">Attention Hook Headline (Big Kinetic Text)</label>
+                  <input type="text" id="reel-hook" value="STOP BUYING THE WRONG LAPTOP IN 2026!" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:border-amber-400" required>
+                </div>
+                <div class="flex items-center justify-between pt-1">
+                  <div class="flex items-center gap-2">
+                    <span class="text-[10px] text-slate-400">Duration:</span>
+                    <select id="reel-duration" class="bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
+                      <option value="90">3 Seconds (Fast Test)</option>
+                      <option value="150">5 Seconds (Quick Pop)</option>
+                      <option value="360" selected>12 Seconds (Full Reel)</option>
+                    </select>
+                  </div>
+                  <button type="submit" id="btn-render-reel" class="btn-gold text-xs py-2 px-5 flex items-center gap-1.5">
+                    <span>🎬</span> Render 1080x1920 MP4
+                  </button>
+                </div>
+              </form>
+              <div id="reel-status-msg" class="hidden mt-2 text-xs font-mono text-emerald-400 bg-slate-950/80 p-2 rounded-lg border border-emerald-500/30"></div>
+            </div>
+
+            <!-- Rendered Reels Archive -->
+            <div class="bg-slate-900/40 p-3.5 rounded-xl border border-slate-800">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-slate-300">📁 Rendered Reels Archive</span>
+                <span class="badge-blue text-[9px] font-mono" id="reels-count-badge">1 RENDERED</span>
+              </div>
+              <div id="reels-archive-list" class="space-y-2 max-h-[140px] overflow-y-auto pr-1">
+                <div class="flex items-center justify-between bg-slate-950/80 p-2 rounded-lg border border-slate-800 text-xs">
+                  <div>
+                    <strong class="text-white">MacBook Air M3 vs Dell XPS 14</strong>
+                    <div class="text-[10px] text-slate-400">3.0s • 2.24 MB • Instagram / Shorts / TikTok</div>
+                  </div>
+                  <span class="badge-green text-[9px]">READY FOR UPLOAD</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Venture 4: Tayyār Digital Products Storefront (Businesses\Stkr) -->
+      <div class="card-glass p-5 border border-emerald-500/30">
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+          <div class="flex items-center gap-3.5">
+            <div class="relative p-2 rounded-xl bg-slate-900 border border-slate-700/80 shadow">
+              <img src="/assets/avatars/fatima.jpg" alt="Fatima Al-Burhani" class="w-12 h-12 rounded-lg object-cover">
+              <span class="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 border-2 border-slate-900 rounded-full"></span>
+            </div>
+            <div>
+              <div class="flex flex-wrap items-center gap-2">
+                <h3 class="text-base font-bold text-white tracking-wide">Tayyār Digital Products — Passive Sticker & Printables</h3>
+                <span class="badge-green text-[10px] px-2 py-0.5 font-mono">91.5% PROFIT MARGIN</span>
+                <span class="badge-gold text-[10px] px-2 py-0.5 font-mono">100% PASSIVE FULFILLMENT</span>
+              </div>
+              <p class="text-xs text-slate-400 mt-0.5">
+                Instant digital downloads with zero physical shipping, zero inventory risk, and pre-built Canva customizable templates.
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="handleDeployStkr()" id="btn-deploy-stkr" class="btn-gold text-xs py-2 px-3.5 flex items-center gap-1.5">
+              <span>🚀</span> Deploy Storefront / Pre-fill Setup
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-5 mt-4 items-center">
+          <!-- Mockup Image -->
+          <div class="md:col-span-4 flex justify-center">
+            <div class="rounded-2xl overflow-hidden border border-slate-700 shadow-lg max-w-[280px]">
+              <img src="/assets/stkr/Product_Mockup.jpg" alt="Tayyar Sticker Pack Mockup" class="w-full h-auto object-cover">
+            </div>
+          </div>
+
+          <!-- Product Details & Economics -->
+          <div class="md:col-span-8 space-y-3">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div class="bg-slate-900/70 p-3 rounded-xl border border-slate-800 text-center">
+                <div class="text-[10px] text-slate-400 uppercase font-mono">Price Point</div>
+                <div class="text-base font-bold text-amber-300 mt-0.5">$3.99 / ₹299</div>
+                <div class="text-[10px] text-slate-500">Impulse Buy Tier</div>
+              </div>
+              <div class="bg-slate-900/70 p-3 rounded-xl border border-slate-800 text-center">
+                <div class="text-[10px] text-slate-400 uppercase font-mono">Cost of Goods</div>
+                <div class="text-base font-bold text-emerald-400 mt-0.5">$0.00</div>
+                <div class="text-[10px] text-emerald-400">Pure Digital File</div>
+              </div>
+              <div class="bg-slate-900/70 p-3 rounded-xl border border-slate-800 text-center">
+                <div class="text-[10px] text-slate-400 uppercase font-mono">Bundle Size</div>
+                <div class="text-base font-bold text-sky-300 mt-0.5">6.06 MB</div>
+                <div class="text-[10px] text-slate-500">ZIP with 12 PNGs + PDF</div>
+              </div>
+              <div class="bg-slate-900/70 p-3 rounded-xl border border-slate-800 text-center">
+                <div class="text-[10px] text-slate-400 uppercase font-mono">Platform Margin</div>
+                <div class="text-base font-bold text-emerald-300 mt-0.5">91.5%</div>
+                <div class="text-[10px] text-emerald-400">Retained Cash Flow</div>
+              </div>
+            </div>
+
+            <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-800/80 text-xs space-y-2">
+              <div class="font-bold text-white">Included in Vol. 1 Package:</div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-slate-300">
+                <div class="flex items-center gap-2"><span>✅</span> 12 Transparent High-Res PNG Stickers</div>
+                <div class="flex items-center gap-2"><span>✅</span> Printable A4 High-Quality PDF Sheet</div>
+                <div class="flex items-center gap-2"><span>✅</span> Canva Editable Template (Custom Names)</div>
+                <div class="flex items-center gap-2"><span>✅</span> Multilingual Typography (English, Hindi, Urdu)</div>
+              </div>
+            </div>
+
+            <div id="stkr-deploy-feedback" class="hidden text-xs font-mono text-emerald-400 bg-slate-950 p-2.5 rounded-lg border border-emerald-500/30"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Venture 5: TITAN Labs Real-time Price Radar & Live Affiliate Gateway -->
+      <div class="card-glass p-5 border border-sky-500/30">
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+          <div class="flex items-center gap-3.5">
+            <div class="relative p-2 rounded-xl bg-slate-900 border border-slate-700/80 shadow">
+              <img src="/assets/avatars/hiroshi.jpg" alt="Hiroshi Tanaka" class="w-12 h-12 rounded-lg object-cover">
+              <span class="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 border-2 border-slate-900 rounded-full"></span>
+            </div>
+            <div>
+              <div class="flex flex-wrap items-center gap-2">
+                <h3 class="text-base font-bold text-white tracking-wide">TITAN Labs — Live Affiliate Gateway & Scraper (Port 8000)</h3>
+                <span class="badge-blue text-[10px] px-2 py-0.5 font-mono">PORT 8000 LIVE</span>
+                <span class="badge-green text-[10px] px-2 py-0.5 font-mono">TAG: mufee-21</span>
+              </div>
+              <p class="text-xs text-slate-400 mt-0.5">
+                Real-time price arbitration across Amazon India, Flipkart, and Croma with automatic commission routing.
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <a href="http://localhost:8000/api/products" target="_blank" class="btn-ghost text-xs py-2 px-3 flex items-center gap-1.5 border border-sky-500/40 text-sky-300">
+              <span>⚡</span> View Live JSON API
+            </a>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+          <div class="bg-slate-900/70 p-3 rounded-xl border border-slate-800 text-center">
+            <div class="text-[10px] text-slate-400 uppercase font-mono">Total Tracked Clicks</div>
+            <div class="text-lg font-bold text-amber-300 mt-0.5">142</div>
+            <div class="text-[10px] text-slate-500">Outbound Referrals</div>
+          </div>
+          <div class="bg-slate-900/70 p-3 rounded-xl border border-slate-800 text-center">
+            <div class="text-[10px] text-slate-400 uppercase font-mono">Est. Conversions</div>
+            <div class="text-lg font-bold text-emerald-400 mt-0.5">9 Orders</div>
+            <div class="text-[10px] text-emerald-400">6.3% Conversion Rate</div>
+          </div>
+          <div class="bg-slate-900/70 p-3 rounded-xl border border-slate-800 text-center">
+            <div class="text-[10px] text-slate-400 uppercase font-mono">Est. Commissions</div>
+            <div class="text-lg font-bold text-emerald-300 mt-0.5">₹8,420</div>
+            <div class="text-[10px] text-slate-500">Amazon Associates</div>
+          </div>
+          <div class="bg-slate-900/70 p-3 rounded-xl border border-slate-800 text-center">
+            <div class="text-[10px] text-slate-400 uppercase font-mono">Scraper Health</div>
+            <div class="text-lg font-bold text-sky-400 mt-0.5">98.4%</div>
+            <div class="text-[10px] text-sky-300">4 Retailers Scanning</div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- =====================================================================
+         TAB 5: Board Governance & Gates
+         ===================================================================== -->
+    <section id="tab-content-governance" class="hidden flex flex-col gap-5">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-base font-bold text-white">Board Decision Gates & Ratification Desk</h2>
+          <p class="text-xs text-slate-400">Formal corporate governance requiring Chairperson sign-off prior to capital deployment.</p>
+        </div>
+        <button onclick="openDirectiveModal()" class="btn-gold text-xs py-1.5 px-3">
+          <span>📜</span> Issue Board Directive
+        </button>
+      </div>
+
+      <div id="gates-list-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <div class="card-glass p-4 border border-slate-800">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300">Official Board Directives Ledger</h3>
+          <span class="badge-gold text-[10px]">Signed by Chairperson</span>
+        </div>
+        <div id="directives-list-container" class="space-y-2.5">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         TAB 6: 58-Tool Ecosystem Directory
+         ===================================================================== -->
+    <section id="tab-content-tools" class="hidden flex flex-col gap-4">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div>
+          <h2 class="text-base font-bold text-white">58-Tool Ecosystem Hub Directory</h2>
+          <p class="text-xs text-slate-400">Autonomous agents, scraping harnesses, code intelligence & media engines staged in C:\AI_Ecosystem.</p>
+        </div>
+        <input
+          type="text"
+          id="tools-search-input"
+          oninput="handleToolSearch(this.value)"
+          placeholder="Search tools (e.g. Crawl4AI, HyperFrames)..."
+          class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 w-full sm:w-64 focus:outline-none focus:border-amber-400"
+        >
+      </div>
+
+      <div id="tools-grid-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         TAB 7: CORTEX AI SHORTS STUDIO & HUMAN APPROVAL QUEUE
+         ===================================================================== -->
+    <section id="tab-content-shorts" class="hidden flex flex-col gap-6">
+
+      <!-- Studio Header & Autonomy Readiness Ribbon -->
+      <div class="card-glass p-5 border border-purple-500/40 shadow-xl relative overflow-hidden">
+        <div class="absolute -right-10 -top-10 w-48 h-48 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b border-slate-800 pb-4 mb-4">
+          <div class="flex items-center gap-3.5">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-700 flex items-center justify-center text-2xl shadow-lg shadow-purple-500/20 border border-purple-400/30">
+              🎬
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h2 class="text-lg font-extrabold text-white tracking-wide">CORTEX AI SHORTS STUDIO</h2>
+                <span class="badge-gold text-[10px] font-mono">SB GROUP SUBSIDIARY</span>
+                <span id="shorts-autopilot-badge" class="badge-blue text-[10px] font-mono">AUTOPILOT: STANDBY</span>
+              </div>
+              <p class="text-xs text-slate-400 mt-0.5">
+                Autonomous Viral AI Podcast & Keynote Clipping Suite • YouTube Shorts, X.com, TikTok, Instagram Reels
+              </p>
+            </div>
+          </div>
+
+          <!-- Studio Quick Actions -->
+          <div class="flex flex-wrap items-center gap-2">
+            <button onclick="handleGenerateShortSample()" id="btn-discover-short" class="btn-gold text-xs py-2 px-3.5 flex items-center gap-1.5 shadow-md">
+              <span>✨</span> Discover & Clip Next Short
+            </button>
+            <button onclick="handleToggleAutopilot()" id="btn-toggle-autopilot" class="btn-ghost text-xs py-2 px-3.5 border border-purple-500/40 text-purple-300 hover:bg-purple-950/30 flex items-center gap-1.5">
+              <span>⚡</span> <span id="label-toggle-autopilot">Enable Autopilot Mode</span>
+            </button>
+            <button onclick="openShortsConfigModal()" class="btn-ghost text-xs py-2 px-3 flex items-center gap-1.5 border border-slate-700 text-slate-300 hover:bg-slate-800">
+              <span>🔑</span> API Keys Vault
+            </button>
+          </div>
+        </div>
+
+        <!-- Autonomy Readiness Gauge & Telemetry Ribbon -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+          
+          <!-- Readiness Bar (Left 7 Cols) -->
+          <div class="md:col-span-7 bg-slate-950/70 p-3.5 rounded-xl border border-slate-800/80">
+            <div class="flex items-center justify-between text-xs mb-1.5 font-mono">
+              <span class="text-slate-300 font-semibold flex items-center gap-1.5">
+                <span>🧠</span> Autonomous Preference Readiness Index:
+                <span id="shorts-readiness-val" class="text-purple-400 font-bold">74.0%</span>
+              </span>
+              <span id="shorts-level-badge" class="badge-green text-[10px]">Level 2: Semi-Autonomous</span>
+            </div>
+            <div class="w-full h-3 bg-slate-800 rounded-full overflow-hidden p-0.5 border border-slate-700/60">
+              <div id="shorts-readiness-bar" class="h-full rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-amber-400 transition-all duration-700 shadow-sm" style="width: 74%;"></div>
+            </div>
+            <div class="flex items-center justify-between text-[10px] text-slate-500 mt-1.5 font-mono">
+              <span>Supervised (0-50%)</span>
+              <span>Semi-Autonomous (50-85%)</span>
+              <span>100% Autopilot Ready (85-100%)</span>
+            </div>
+          </div>
+
+          <!-- Studio Metrics (Right 5 Cols) -->
+          <div class="md:col-span-5 grid grid-cols-3 gap-2">
+            <div class="bg-slate-950/70 p-2.5 rounded-xl border border-slate-800 text-center">
+              <div class="text-[9px] uppercase font-mono text-slate-400">Reviews Done</div>
+              <div id="shorts-metric-reviews" class="text-base font-bold text-amber-300 font-mono mt-0.5">8</div>
+              <div class="text-[9px] text-slate-400">Human Inputs</div>
+            </div>
+            <div class="bg-slate-950/70 p-2.5 rounded-xl border border-slate-800 text-center">
+              <div class="text-[9px] uppercase font-mono text-slate-400">Approved & Queued</div>
+              <div id="shorts-metric-approved" class="text-base font-bold text-emerald-400 font-mono mt-0.5">6</div>
+              <div class="text-[9px] text-emerald-400/80">Scheduled</div>
+            </div>
+            <div class="bg-slate-950/70 p-2.5 rounded-xl border border-slate-800 text-center">
+              <div class="text-[9px] uppercase font-mono text-slate-400">Weekly Reach</div>
+              <div class="text-base font-bold text-sky-400 font-mono mt-0.5">1.8M+</div>
+              <div class="text-[9px] text-sky-300">Projected Views</div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Section 1: Pending Human Approval Queue (Chairperson Review) -->
+      <div class="card-glass p-5 border border-slate-800">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-800 pb-3 mb-4">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">📋</span>
+            <div>
+              <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono">
+                Human Approval Queue — Chairperson Mustafa Review
+              </h3>
+              <p class="text-xs text-slate-400">
+                Observe, approve, or reject generated shorts. Every response trains the RLHF algorithm weights in real time.
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span id="shorts-queue-count-badge" class="badge-gold text-[10px] font-mono">4 CANDIDATES WAITING</span>
+          </div>
+        </div>
+
+        <!-- Pending Cards Grid -->
+        <div id="shorts-pending-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Rendered dynamically by app.js -->
+        </div>
+      </div>
+
+      <!-- Section 2: RLHF Preference Learning & Learned Weights Telemetry -->
+      <div class="card-glass p-5 border border-slate-800">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">🧬</span>
+            <div>
+              <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono">
+                Learned Algorithm Preference Weights (RLHF Telemetry)
+              </h3>
+              <p class="text-xs text-slate-400">
+                The agent's internal mathematical scoring matrix updated directly by your approval and rejection signals.
+              </p>
+            </div>
+          </div>
+          <span class="badge-green text-[10px] font-mono">DYNAMIC ADAPTATION ACTIVE</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          
+          <!-- Column A: Speaker Affinities -->
+          <div class="bg-slate-950/70 p-4 rounded-xl border border-slate-800 space-y-2.5">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
+              <span class="text-xs font-bold text-amber-300 font-mono uppercase">🎙️ Speaker Affinities</span>
+              <span class="text-[10px] text-slate-400 font-mono">Weight (0-1)</span>
+            </div>
+            <div id="algo-speakers-list" class="space-y-2 text-xs">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
+          <!-- Column B: Topic Affinities -->
+          <div class="bg-slate-950/70 p-4 rounded-xl border border-slate-800 space-y-2.5">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
+              <span class="text-xs font-bold text-sky-300 font-mono uppercase">💡 Core Topic Heat</span>
+              <span class="text-[10px] text-slate-400 font-mono">Weight (0-1)</span>
+            </div>
+            <div id="algo-topics-list" class="space-y-2 text-xs">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
+          <!-- Column C: Hook Formulas & Pacing -->
+          <div class="bg-slate-950/70 p-4 rounded-xl border border-slate-800 space-y-2.5">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
+              <span class="text-xs font-bold text-purple-300 font-mono uppercase">⚡ Hook Formulas & Pacing</span>
+              <span class="text-[10px] text-slate-400 font-mono">Settings</span>
+            </div>
+            <div id="algo-hooks-list" class="space-y-2 text-xs">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Section 3: The 5-Agent Dedicated Studio Roster -->
+      <div class="card-glass p-5 border border-slate-800">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">👥</span>
+            <div>
+              <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono">
+                Specialized Studio Agents (Strict Single-Role Charters)
+              </h3>
+              <p class="text-xs text-slate-400">
+                Each agent has an assigned identity, custom AI avatar, and specialized domain. Inter-agent communication bus handles peer hand-offs.
+              </p>
+            </div>
+          </div>
+          <span class="badge-blue text-[10px] font-mono">5 SPECIALIZED AGENTS</span>
+        </div>
+
+        <div id="shorts-agents-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3.5">
+          <!-- Rendered dynamically by app.js -->
+        </div>
+      </div>
+
+      <!-- Section 4: Live Inter-Agent Collaboration Terminal & Dialogue Stream -->
+      <div class="card-glass p-5 border border-slate-800">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">💬</span>
+            <div>
+              <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono">
+                Studio Inter-Agent Collaboration Terminal
+              </h3>
+              <p class="text-xs text-slate-400">
+                Live peer-to-peer dialogues showing Lyra, Kaelen, Zuri, Orion, and Maya handing off tasks and collaborating.
+              </p>
+            </div>
+          </div>
+          <button onclick="fetchShortsCollabLog()" class="text-xs font-mono text-amber-400 hover:text-amber-300 flex items-center gap-1">
+            <span>🔄</span> Refresh Dialogue Feed
+          </button>
+        </div>
+
+        <div id="shorts-collab-dialogues" class="bg-slate-950/80 rounded-xl border border-slate-800 p-4 max-h-80 overflow-y-auto space-y-3 font-sans text-xs">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- Section 5: Omni-Channel Distribution & Scheduled Posts -->
+      <div class="card-glass p-5 border border-slate-800">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">📡</span>
+            <div>
+              <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono">
+                Omni-Channel Distribution & Scheduled Queue
+              </h3>
+              <p class="text-xs text-slate-400">
+                Automated multi-platform posting pipeline for YouTube Shorts, X.com, TikTok, and Instagram Reels with pinned monetization.
+              </p>
+            </div>
+          </div>
+          <span class="badge-gold text-[10px] font-mono">AUTO-DISPATCH READY</span>
+        </div>
+
+        <div id="shorts-schedule-list" class="space-y-3">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- =====================================================================
+         TAB 8: EXECUTIVE SETTINGS & SOVEREIGN API VAULT
+         ===================================================================== -->
+    <section id="tab-content-settings" class="hidden flex flex-col gap-6">
+      
+      <!-- Top Settings Header Banner -->
+      <div class="card-glass p-5 border border-amber-500/40 shadow-xl relative overflow-hidden">
+        <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-amber-500/5 rounded-full blur-3xl pointer-events-none"></div>
+        
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500/20 to-purple-600/20 border border-amber-400/40 flex items-center justify-center text-2xl shadow-inner">
+              ⚙️
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 class="text-base font-bold text-white tracking-wide font-['Cinzel']">Executive Settings & Sovereign Vault</h3>
+                <span class="badge-gold text-[10px] font-mono">CHAIRPERSON PRIVILEGE</span>
+                <span id="settings-sovereign-badge" class="badge-green text-[10px] font-mono">100% LOCAL SOVEREIGN</span>
+              </div>
+              <p class="text-xs text-slate-400 mt-0.5">
+                Conglomerate Policies • Multi-Platform API Keys • Zero-Cloud Sovereignty • Swarm Preferences
+              </p>
+            </div>
+          </div>
+
+          <!-- Top Quick Actions -->
+          <div class="flex flex-wrap items-center gap-2">
+            <button onclick="handleToggleEmergencyKillswitch()" id="settings-killswitch-btn" class="btn-ghost text-xs py-2 px-3 border border-rose-500/50 text-rose-300 hover:bg-rose-950/50 flex items-center gap-1.5 shadow-md">
+              <span id="killswitch-icon">🚨</span>
+              <span id="killswitch-label">Emergency Stop Swarm</span>
+            </button>
+            <button onclick="handleExportSettingsBackup()" class="btn-ghost text-xs py-2 px-3 border border-slate-700 hover:border-amber-400/50 text-slate-300 flex items-center gap-1.5 shadow-md">
+              <span>💾</span> Export Vault Backup
+            </button>
+          </div>
+        </div>
+
+        <!-- Sub-Navigation Pill Tabs -->
+        <div class="flex items-center gap-1.5 pt-3 overflow-x-auto" id="settings-subtabs-nav">
+          <button onclick="switchSettingsSubtab('account')" id="subtab-btn-account" class="settings-subtab-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500/20 border border-amber-500/50 text-amber-300 transition-all flex items-center gap-1.5 shrink-0">
+            <span>👤</span> Account & Org
+          </button>
+          <button onclick="switchSettingsSubtab('apikeys')" id="subtab-btn-apikeys" class="settings-subtab-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900/60 border border-slate-700/60 text-slate-300 hover:text-white transition-all flex items-center gap-1.5 shrink-0">
+            <span>🔑</span> API Keys & Vault
+            <span id="settings-total-keys-badge" class="bg-purple-500/30 text-purple-300 text-[10px] px-1.5 py-0.2 rounded-full font-bold ml-0.5">22</span>
+          </button>
+          <button onclick="switchSettingsSubtab('privacy')" id="subtab-btn-privacy" class="settings-subtab-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900/60 border border-slate-700/60 text-slate-300 hover:text-white transition-all flex items-center gap-1.5 shrink-0">
+            <span>🛡️</span> Privacy & Sovereignty
+          </button>
+          <button onclick="switchSettingsSubtab('security')" id="subtab-btn-security" class="settings-subtab-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900/60 border border-slate-700/60 text-slate-300 hover:text-white transition-all flex items-center gap-1.5 shrink-0">
+            <span>🔒</span> Security & Access
+          </button>
+          <button onclick="switchSettingsSubtab('swarm')" id="subtab-btn-swarm" class="settings-subtab-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900/60 border border-slate-700/60 text-slate-300 hover:text-white transition-all flex items-center gap-1.5 shrink-0">
+            <span>🤖</span> Swarm Tuning
+          </button>
+          <button onclick="switchSettingsSubtab('ui')" id="subtab-btn-ui" class="settings-subtab-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900/60 border border-slate-700/60 text-slate-300 hover:text-white transition-all flex items-center gap-1.5 shrink-0">
+            <span>🎨</span> Interface & Alerts
+          </button>
+        </div>
+      </div>
+
+      <!-- ===================================================================
+           SUB-TAB 1: ACCOUNT & ORGANIZATION DETAILS
+           =================================================================== -->
+      <div id="subtab-content-account" class="settings-subpane space-y-6">
+        <div class="card-glass p-6 border border-slate-800">
+          <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
+            <div>
+              <h4 class="text-sm font-bold text-white font-['Cinzel'] flex items-center gap-2">
+                <span>👤</span> Chairperson & Conglomerate Profile
+              </h4>
+              <p class="text-xs text-slate-400">Manage executive leadership credentials and corporate currency defaults.</p>
+            </div>
+            <span class="badge-gold text-[10px] font-mono">SOVEREIGN PROFILE</span>
+          </div>
+
+          <form onsubmit="handleSaveAccountSettings(event)" class="space-y-4 text-xs">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-slate-400 mb-1 font-semibold">Chairperson Full Name</label>
+                <input type="text" id="set-acc-name" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-white focus:border-amber-400 font-sans" required>
+              </div>
+              <div>
+                <label class="block text-slate-400 mb-1 font-semibold">Executive Title</label>
+                <input type="text" id="set-acc-title" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-white focus:border-amber-400 font-sans" required>
+              </div>
+              <div>
+                <label class="block text-slate-400 mb-1 font-semibold">Conglomerate Name</label>
+                <input type="text" id="set-acc-org" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-white focus:border-amber-400 font-sans" required>
+              </div>
+              <div>
+                <label class="block text-slate-400 mb-1 font-semibold">Corporate Communications Email</label>
+                <input type="email" id="set-acc-email" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-white focus:border-amber-400 font-sans" required>
+              </div>
+              <div>
+                <label class="block text-slate-400 mb-1 font-semibold">System Timezone</label>
+                <select id="set-acc-tz" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-white focus:border-amber-400">
+                  <option value="Asia/Kolkata (IST, UTC+05:30)">Asia/Kolkata (IST, UTC+05:30) — Standard</option>
+                  <option value="Asia/Dubai (GST, UTC+04:00)">Asia/Dubai (GST, UTC+04:00)</option>
+                  <option value="America/New_York (EST, UTC-05:00)">America/New_York (EST, UTC-05:00)</option>
+                  <option value="America/Los_Angeles (PST, UTC-08:00)">America/Los_Angeles (PST, UTC-08:00)</option>
+                  <option value="Europe/London (GMT, UTC+00:00)">Europe/London (GMT, UTC+00:00)</option>
+                </select>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-slate-400 mb-1 font-semibold">Primary Currency</label>
+                  <input type="text" id="set-acc-cur-pri" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-amber-300 font-mono focus:border-amber-400" placeholder="INR (₹)">
+                </div>
+                <div>
+                  <label class="block text-slate-400 mb-1 font-semibold">Secondary Currency</label>
+                  <input type="text" id="set-acc-cur-sec" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-emerald-300 font-mono focus:border-amber-400" placeholder="USD ($)">
+                </div>
+              </div>
+            </div>
+
+            <div class="pt-2">
+              <label class="block text-slate-400 mb-1 font-semibold">Supervised Subsidiaries & Units</label>
+              <div class="flex flex-wrap gap-2 p-3 bg-slate-950/60 rounded-lg border border-slate-800" id="set-acc-subs-list">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
+
+            <div class="flex justify-end pt-3 border-t border-slate-800">
+              <button type="submit" class="btn-gold text-xs py-2 px-4 shadow-lg font-bold">
+                Save Account Profile
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- ===================================================================
+           SUB-TAB 2: API KEYS & INTEGRATIONS VAULT
+           =================================================================== -->
+      <div id="subtab-content-apikeys" class="settings-subpane hidden space-y-6">
+        
+        <!-- Vault Controls Bar -->
+        <div class="card-glass p-4 border border-purple-500/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+          <div>
+            <h4 class="text-sm font-bold text-white font-mono flex items-center gap-2">
+              <span>🔑</span> Sovereign API & Secret Vault
+            </h4>
+            <p class="text-xs text-slate-400">All credentials stored locally in <code class="text-purple-300 font-mono">.env.ecosystem</code> with zero telemetry.</p>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+            <input type="text" id="set-keys-search" oninput="filterApiKeys()" placeholder="Search provider or variable..." class="bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white font-mono placeholder-slate-500 focus:border-purple-400 flex-1 md:w-56">
+            <button onclick="openAddApiKeyModal()" class="btn-gold text-xs py-1.5 px-3 flex items-center gap-1 font-bold shadow-md">
+              <span>➕</span> Add Custom API Key
+            </button>
+          </div>
+        </div>
+
+        <!-- Category Filter Pills -->
+        <div class="flex items-center gap-1.5 overflow-x-auto pb-1" id="keys-category-filters">
+          <button onclick="setKeysCategoryFilter('ALL')" class="keys-cat-btn px-2.5 py-1 rounded-md text-[11px] font-mono bg-purple-500/20 border border-purple-500/50 text-purple-300 shrink-0">ALL</button>
+          <button onclick="setKeysCategoryFilter('AI & LLM')" class="keys-cat-btn px-2.5 py-1 rounded-md text-[11px] font-mono bg-slate-900 border border-slate-800 text-slate-400 hover:text-white shrink-0">AI & LLM</button>
+          <button onclick="setKeysCategoryFilter('Payments & Treasury')" class="keys-cat-btn px-2.5 py-1 rounded-md text-[11px] font-mono bg-slate-900 border border-slate-800 text-slate-400 hover:text-white shrink-0">Payments & Treasury</button>
+          <button onclick="setKeysCategoryFilter('Social & Publishing')" class="keys-cat-btn px-2.5 py-1 rounded-md text-[11px] font-mono bg-slate-900 border border-slate-800 text-slate-400 hover:text-white shrink-0">Social & Publishing</button>
+          <button onclick="setKeysCategoryFilter('Affiliate & Sourcing')" class="keys-cat-btn px-2.5 py-1 rounded-md text-[11px] font-mono bg-slate-900 border border-slate-800 text-slate-400 hover:text-white shrink-0">Affiliate & Sourcing</button>
+          <button onclick="setKeysCategoryFilter('Communication & Alerts')" class="keys-cat-btn px-2.5 py-1 rounded-md text-[11px] font-mono bg-slate-900 border border-slate-800 text-slate-400 hover:text-white shrink-0">Communication</button>
+          <button onclick="setKeysCategoryFilter('Custom Tools')" class="keys-cat-btn px-2.5 py-1 rounded-md text-[11px] font-mono bg-slate-900 border border-slate-800 text-slate-400 hover:text-white shrink-0">Custom Tools</button>
+        </div>
+
+        <!-- Keys Grid -->
+        <div id="settings-keys-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Rendered dynamically by app.js -->
+        </div>
+
+      </div>
+
+      <!-- ===================================================================
+           SUB-TAB 3: PRIVACY & SOVEREIGNTY
+           =================================================================== -->
+      <div id="subtab-content-privacy" class="settings-subpane hidden space-y-6">
+        <div class="card-glass p-6 border border-slate-800 space-y-5">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div>
+              <h4 class="text-sm font-bold text-white font-['Cinzel'] flex items-center gap-2">
+                <span>🛡️</span> Data Sovereignty & Zero-Cloud Safeguards
+              </h4>
+              <p class="text-xs text-slate-400">Guarantees that your strategic intellectual property and customer records never leak.</p>
+            </div>
+            <span class="badge-green text-[10px] font-mono">100% PRIVATE</span>
+          </div>
+
+          <form onsubmit="handleSavePrivacySettings(event)" class="space-y-4 text-xs">
+            <div class="space-y-3">
+              <label class="flex items-start gap-3 p-3 rounded-xl bg-slate-950/70 border border-slate-800 hover:border-emerald-500/40 cursor-pointer">
+                <input type="checkbox" id="set-priv-offline" class="mt-0.5 accent-emerald-500 w-4 h-4">
+                <div>
+                  <div class="font-bold text-white text-xs">100% Offline Sovereign Inference Mode</div>
+                  <div class="text-slate-400 text-[11px] mt-0.5">Forces all agent reasoning, council debates, and text generations to run strictly on local Ollama / vLLM (<code class="text-emerald-400">qwen2.5-coder:7b-instruct</code>). No cloud LLM prompts transmitted.</div>
+                </div>
+              </label>
+
+              <label class="flex items-start gap-3 p-3 rounded-xl bg-slate-950/70 border border-slate-800 hover:border-emerald-500/40 cursor-pointer">
+                <input type="checkbox" id="set-priv-zero-telem" class="mt-0.5 accent-emerald-500 w-4 h-4">
+                <div>
+                  <div class="font-bold text-white text-xs">Zero-Telemetry & Tracking Shield</div>
+                  <div class="text-slate-400 text-[11px] mt-0.5">Completely blocks external telemetry, usage pings, crash analytics, and remote diagnostic calls across all 58 ecosystem tools.</div>
+                </div>
+              </label>
+
+              <label class="flex items-start gap-3 p-3 rounded-xl bg-slate-950/70 border border-slate-800 hover:border-emerald-500/40 cursor-pointer">
+                <input type="checkbox" id="set-priv-anon-aff" class="mt-0.5 accent-emerald-500 w-4 h-4">
+                <div>
+                  <div class="font-bold text-white text-xs">Affiliate Referrer Fingerprint Anonymization</div>
+                  <div class="text-slate-400 text-[11px] mt-0.5">Strips client browser fingerprints and machine metadata when generating outbound Amazon Associates and Flipkart referral funnels.</div>
+                </div>
+              </label>
+
+              <label class="flex items-start gap-3 p-3 rounded-xl bg-slate-950/70 border border-slate-800 hover:border-emerald-500/40 cursor-pointer">
+                <input type="checkbox" id="set-priv-local-strict" class="mt-0.5 accent-emerald-500 w-4 h-4">
+                <div>
+                  <div class="font-bold text-white text-xs">Strict Gitignore Guard</div>
+                  <div class="text-slate-400 text-[11px] mt-0.5">Continuously verifies that all <code class="text-amber-300 font-mono">.env*</code>, transaction ledgers, and video outputs are blacklisted from Git commits.</div>
+                </div>
+              </label>
+            </div>
+
+            <div class="p-3 bg-slate-950/70 rounded-xl border border-slate-800 flex items-center justify-between">
+              <div>
+                <div class="font-bold text-white text-xs">Temporary Media Cache Retention</div>
+                <div class="text-slate-400 text-[11px]">Auto-purges intermediate Remotion audio cuts and video frames.</div>
+              </div>
+              <select id="set-priv-purge-days" class="bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white focus:border-emerald-400">
+                <option value="3">Purge after 3 days</option>
+                <option value="7">Purge after 7 days (Recommended)</option>
+                <option value="30">Purge after 30 days</option>
+                <option value="0">Never purge (Keep forever)</option>
+              </select>
+            </div>
+
+            <div class="flex justify-between items-center pt-3 border-t border-slate-800">
+              <button type="button" onclick="handlePurgeTempCache()" class="btn-ghost text-xs text-rose-300 hover:bg-rose-950/40 border border-rose-500/40">
+                <span>🧹</span> Purge Temp Cache Now
+              </button>
+              <button type="submit" class="btn-gold text-xs py-2 px-4 shadow-lg font-bold">
+                Save Privacy Safeguards
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- ===================================================================
+           SUB-TAB 4: SECURITY & ACCESS CONTROL
+           =================================================================== -->
+      <div id="subtab-content-security" class="settings-subpane hidden space-y-6">
+        <div class="card-glass p-6 border border-slate-800 space-y-5">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div>
+              <h4 class="text-sm font-bold text-white font-['Cinzel'] flex items-center gap-2">
+                <span>🔒</span> Security & Cryptographic Access Control
+              </h4>
+              <p class="text-xs text-slate-400">Webhook HMAC signature validation, localhost lockouts, and emergency panic controls.</p>
+            </div>
+            <span class="badge-blue text-[10px] font-mono">ENCRYPTED VAULT</span>
+          </div>
+
+          <!-- Emergency Killswitch Banner -->
+          <div class="p-4 rounded-xl bg-rose-950/40 border border-rose-500/50 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+            <div>
+              <div class="flex items-center gap-2 text-rose-300 font-bold text-xs font-mono">
+                <span>🚨</span> EMERGENCY CONGLOMERATE KILLSWITCH
+              </div>
+              <p class="text-[11px] text-rose-200/80 mt-1 max-w-xl">
+                Instantly pauses all 10 corporate agents, halts automated video generation queues, and freezes automated payment settlements across all subsidiaries.
+              </p>
+            </div>
+            <button onclick="handleToggleEmergencyKillswitch()" class="btn-ghost text-xs py-2 px-4 bg-rose-950 border border-rose-500 text-rose-300 hover:bg-rose-900 font-bold shrink-0 shadow-lg">
+              <span id="killswitch-action-label">Engage Emergency Stop</span>
+            </button>
+          </div>
+
+          <form onsubmit="handleSaveSecuritySettings(event)" class="space-y-4 text-xs">
+            <div class="space-y-3">
+              <label class="flex items-start gap-3 p-3 rounded-xl bg-slate-950/70 border border-slate-800 hover:border-blue-500/40 cursor-pointer">
+                <input type="checkbox" id="set-sec-hmac" class="mt-0.5 accent-blue-500 w-4 h-4">
+                <div>
+                  <div class="font-bold text-white text-xs">Mandatory HMAC-SHA256 Webhook Verification</div>
+                  <div class="text-slate-400 text-[11px] mt-0.5">Rejects any unsigned or forged incoming webhooks for Razorpay and PayPal. Protects against spoofed payment events.</div>
+                </div>
+              </label>
+
+              <label class="flex items-start gap-3 p-3 rounded-xl bg-slate-950/70 border border-slate-800 hover:border-blue-500/40 cursor-pointer">
+                <input type="checkbox" id="set-sec-localhost" class="mt-0.5 accent-blue-500 w-4 h-4">
+                <div>
+                  <div class="font-bold text-white text-xs">Strict Localhost-Only Access Binding</div>
+                  <div class="text-slate-400 text-[11px] mt-0.5">Restricts dashboard REST API endpoints to loopback requests from this machine. Rejects remote network queries.</div>
+                </div>
+              </label>
+
+              <label class="flex items-start gap-3 p-3 rounded-xl bg-slate-950/70 border border-slate-800 hover:border-blue-500/40 cursor-pointer">
+                <input type="checkbox" id="set-sec-pin" class="mt-0.5 accent-blue-500 w-4 h-4">
+                <div>
+                  <div class="font-bold text-white text-xs">Session PIN Protection for Secret Reveals</div>
+                  <div class="text-slate-400 text-[11px] mt-0.5">Prompts for Chairperson authentication before unmasking raw API keys or modifying banking routes.</div>
+                </div>
+              </label>
+            </div>
+
+            <div class="flex justify-end pt-3 border-t border-slate-800">
+              <button type="submit" class="btn-gold text-xs py-2 px-4 shadow-lg font-bold">
+                Save Security Policies
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- ===================================================================
+           SUB-TAB 5: AUTONOMOUS SWARM & COUNCIL TUNING
+           =================================================================== -->
+      <div id="subtab-content-swarm" class="settings-subpane hidden space-y-6">
+        <div class="card-glass p-6 border border-slate-800 space-y-5">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div>
+              <h4 class="text-sm font-bold text-white font-['Cinzel'] flex items-center gap-2">
+                <span>🤖</span> Autonomous Swarm & Council Tuning
+              </h4>
+              <p class="text-xs text-slate-400">Configure default LLM reasoning engines, autonomy gates, and debate rigor.</p>
+            </div>
+            <span class="badge-gold text-[10px] font-mono">SWARM TUNING</span>
+          </div>
+
+          <form onsubmit="handleSaveSwarmSettings(event)" class="space-y-4 text-xs">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-slate-400 mb-1 font-semibold">Primary Sovereign LLM Model</label>
+                <select id="set-swarm-model" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-amber-300 font-mono focus:border-amber-400">
+                  <option value="qwen2.5-coder:7b-instruct">qwen2.5-coder:7b-instruct (Installed & Active)</option>
+                  <option value="llama3.1:latest">llama3.1:latest (Meta Llama 3.1)</option>
+                  <option value="deepseek-r1:7b">deepseek-r1:7b (Local Reasoning)</option>
+                  <option value="mistral:7b-instruct">mistral:7b-instruct</option>
+                </select>
+                <span class="text-[10px] text-slate-500 mt-1 block">Used by Arthur, Vik, Karpathy Council, and CORTEX AI Shorts agents.</span>
+              </div>
+
+              <div>
+                <label class="block text-slate-400 mb-1 font-semibold">Local Ollama Base Endpoint</label>
+                <input type="text" id="set-swarm-ollama-url" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-white font-mono focus:border-amber-400" required>
+              </div>
+
+              <div>
+                <label class="block text-slate-400 mb-1 font-semibold">Karpathy Council Debate Rigor</label>
+                <select id="set-swarm-rigor" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-white focus:border-amber-400">
+                  <option value="express_2_rounds">Express (2 Rounds: Fast Ideation)</option>
+                  <option value="standard_3_rounds">Standard (3 Rounds: Flaws + Alternate Options + Ratification)</option>
+                  <option value="deep_5_rounds">Deep Audit (5 Rounds: Full Stress-Testing & Financial Vetoes)</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-slate-400 mb-1 font-semibold">Autopilot Promotion Readiness Gate</label>
+                <select id="set-swarm-threshold" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-purple-300 font-mono focus:border-amber-400">
+                  <option value="80">80% — Early Autonomous Promotion</option>
+                  <option value="85">85% — Balanced Supervised</option>
+                  <option value="90">90% — High Reliability (Recommended)</option>
+                  <option value="95">95% — Maximum Alignment Strict</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="pt-2">
+              <label class="flex items-start gap-3 p-3 rounded-xl bg-slate-950/70 border border-slate-800 hover:border-amber-500/40 cursor-pointer">
+                <input type="checkbox" id="set-swarm-strict-roles" class="mt-0.5 accent-amber-500 w-4 h-4">
+                <div>
+                  <div class="font-bold text-white text-xs">Strict Single-Responsibility Role Enforcement</div>
+                  <div class="text-slate-400 text-[11px] mt-0.5">Mandates that every agent performs only their assigned domain (Lyra scouts, Kaelen clips, Zuri styles, Orion scores, Maya posts). Cross-domain operations require explicit peer hand-off messages.</div>
+                </div>
+              </label>
+            </div>
+
+            <div class="flex justify-end pt-3 border-t border-slate-800">
+              <button type="submit" class="btn-gold text-xs py-2 px-4 shadow-lg font-bold">
+                Save Swarm Tuning
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- ===================================================================
+           SUB-TAB 6: INTERFACE & NOTIFICATIONS
+           =================================================================== -->
+      <div id="subtab-content-ui" class="settings-subpane hidden space-y-6">
+        <div class="card-glass p-6 border border-slate-800 space-y-5">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div>
+              <h4 class="text-sm font-bold text-white font-['Cinzel'] flex items-center gap-2">
+                <span>🎨</span> Visual Theme & Executive Notifications
+              </h4>
+              <p class="text-xs text-slate-400">Customize the executive command aesthetic and real-time auditory signals.</p>
+            </div>
+            <span class="badge-gold text-[10px] font-mono">UI PREFERENCES</span>
+          </div>
+
+          <form onsubmit="handleSaveUiSettings(event)" class="space-y-4 text-xs">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-slate-400 mb-1 font-semibold">Active Executive Theme</label>
+                <select id="set-ui-theme" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-white focus:border-amber-400">
+                  <option value="obsidian_dark">Obsidian Dark (Executive Mode)</option>
+                  <option value="daylight_mode">Daylight Mode (High Contrast)</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-slate-400 mb-1 font-semibold">Conglomerate Crest & Logo</label>
+                <select id="set-ui-logo" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-white focus:border-amber-400">
+                  <option value="sb_group_crest">Saifee Burhani Conglomerate Crest</option>
+                  <option value="titan_cyber">Titan Labs Cyber Emblem</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-slate-400 mb-1 font-semibold">Real-Time Telemetry Refresh Rate</label>
+                <select id="set-ui-refresh" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-white focus:border-amber-400">
+                  <option value="2">2 Seconds (Ultra-Responsive)</option>
+                  <option value="3">3 Seconds (Standard)</option>
+                  <option value="5">5 Seconds (Balanced)</option>
+                  <option value="10">10 Seconds (Power-Saving)</option>
+                </select>
+              </div>
+
+              <div class="flex items-center pt-5">
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" id="set-ui-chimes" class="accent-amber-400 w-4 h-4">
+                  <span class="text-slate-300 font-semibold text-xs">Executive Audio Chimes on Key Events</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="flex justify-end pt-3 border-t border-slate-800">
+              <button type="submit" class="btn-gold text-xs py-2 px-4 shadow-lg font-bold">
+                Save Interface Preferences
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Directive Issuance Modal -->
+  <div id="modal-directive" class="fixed inset-0 modal-overlay z-50 flex items-center justify-center hidden p-4">
+    <div class="card-glass max-w-lg w-full p-6 border border-amber-500/40">
+      <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-2">
+        <h3 class="text-sm font-bold text-amber-300 font-['Cinzel']">Issue Chairperson Board Directive</h3>
+        <button onclick="closeDirectiveModal()" class="text-slate-400 hover:text-slate-200 text-lg">&times;</button>
+      </div>
+      <form onsubmit="handleCreateDirective(event)" class="space-y-3.5 text-xs">
+        <div>
+          <label class="block text-slate-400 mb-1 font-semibold">Target Subsidiary / Unit</label>
+          <select id="modal-directive-target" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-200 focus:border-amber-400">
+            <option value="All Subsidiaries">All Subsidiaries (Executive Council)</option>
+            <option value="TITAN Labs">TITAN Labs (Hiroshi Tanaka)</option>
+            <option value="Media Swarm">Media Swarm (Lyra Valen)</option>
+            <option value="SB Fragrance">SB Fragrance (Tariq Burhani)</option>
+            <option value="Alfann Art Studio">Alfann Art (Fatima Al-Burhani)</option>
+            <option value="AdWell Media">AdWell Media (Jaxson Drake)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1 font-semibold">Directive Title</label>
+          <input type="text" id="modal-directive-title" placeholder="e.g. Expand Automated Retailer Crawlers" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-200 focus:border-amber-400">
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1 font-semibold">Mandate Details</label>
+          <textarea id="modal-directive-mandate" rows="3" placeholder="Operational goals, execution parameters, delivery timelines..." required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-200 focus:border-amber-400"></textarea>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeDirectiveModal()" class="btn-ghost text-xs">Cancel</button>
+          <button type="submit" class="btn-gold text-xs">Sign & Dispatch Mandate</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Executive Briefing Modal -->
+  <div id="modal-briefing" class="fixed inset-0 modal-overlay z-50 flex items-center justify-center hidden p-4">
+    <div class="card-glass max-w-2xl w-full p-6 border border-amber-500/40 max-h-[85vh] flex flex-col">
+      <div class="flex items-center justify-between mb-3 border-b border-slate-800 pb-2.5">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">🏛️</span>
+          <h3 class="text-sm font-bold text-amber-300 font-['Cinzel']">SB Group Executive Intelligence Briefing</h3>
+        </div>
+        <button onclick="closeBriefingModal()" class="text-slate-400 hover:text-slate-200 text-lg">&times;</button>
+      </div>
+      <div id="briefing-content" class="flex-1 overflow-y-auto pr-2 chat-markdown text-xs text-slate-300 leading-relaxed space-y-3">
+        <div class="text-center py-10 animate-pulse text-amber-400">
+          Synthesizing intelligence across SB Fragrance, TITAN Labs, Alfann Art, and AdWell via local Ollama...
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 pt-3 border-t border-slate-800 mt-2">
+        <button onclick="closeBriefingModal()" class="btn-ghost text-xs">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sovereign Treasury & Payment Gateways Modal -->
+  <div id="modal-treasury" class="fixed inset-0 modal-overlay z-50 flex items-center justify-center hidden p-3 sm:p-4">
+    <div class="card-glass max-w-4xl w-full p-5 sm:p-6 border border-emerald-500/40 max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+      
+      <!-- Modal Header -->
+      <div class="flex items-start justify-between border-b border-slate-800 pb-3 mb-4 shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-emerald-950/60 border border-emerald-500/40 flex items-center justify-center text-xl shadow-inner">
+            💳
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-base sm:text-lg font-bold text-white font-['Cinzel'] tracking-wide">SB Group Sovereign Treasury & Gateways</h3>
+              <span class="badge-green text-[10px] font-mono font-bold">SOVEREIGN MONETIZATION</span>
+            </div>
+            <p class="text-xs text-slate-400">Direct real-money checkout & payout rails via Razorpay (UPI/India) & PayPal (Global Cards)</p>
+          </div>
+        </div>
+        <button onclick="closeTreasuryModal()" class="text-slate-400 hover:text-white text-2xl leading-none px-2">&times;</button>
+      </div>
+
+      <!-- Navigation Tabs inside Treasury Modal -->
+      <div class="flex items-center gap-2 border-b border-slate-800 pb-2 mb-4 shrink-0 overflow-x-auto text-xs font-semibold">
+        <button id="treasury-tab-btn-links" onclick="switchTreasuryTab('links')" class="px-3 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1.5 transition-all">
+          <span>⚡</span> 1-Click Payment Link & QR
+        </button>
+        <button id="treasury-tab-btn-config" onclick="switchTreasuryTab('config')" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 border border-transparent flex items-center gap-1.5 transition-all">
+          <span>🔑</span> Gateway Credentials Setup
+        </button>
+        <button id="treasury-tab-btn-ledger" onclick="switchTreasuryTab('ledger')" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 border border-transparent flex items-center gap-1.5 transition-all">
+          <span>📜</span> Settlement Ledger & Proof
+        </button>
+      </div>
+
+      <!-- Modal Body (Scrollable) -->
+      <div class="flex-1 overflow-y-auto pr-1 space-y-4 text-xs text-slate-300">
+
+        <!-- ===================================================================
+             PANEL 1: 1-CLICK PAYMENT LINK & UPI QR GENERATOR
+             =================================================================== -->
+        <div id="treasury-panel-links" class="space-y-4">
+          
+          <!-- Venture Presets -->
+          <div class="space-y-1.5">
+            <span class="text-[11px] uppercase font-mono font-bold text-amber-400 block">Select Active Venture Preset:</span>
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
+              <button onclick="applyPaymentPreset('stkr')" class="bg-slate-900/80 hover:bg-slate-800 border border-slate-700/80 p-2.5 rounded-xl text-left transition-all group">
+                <div class="text-white font-bold group-hover:text-amber-300">🏷️ Tayyār Stickers</div>
+                <div class="text-emerald-400 font-mono font-bold text-xs mt-0.5">₹299 / $3.99</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">Instant Digital Bundle</div>
+              </button>
+              <button onclick="applyPaymentPreset('titan')" class="bg-slate-900/80 hover:bg-slate-800 border border-slate-700/80 p-2.5 rounded-xl text-left transition-all group">
+                <div class="text-white font-bold group-hover:text-amber-300">⚡ TITAN Labs Pro</div>
+                <div class="text-emerald-400 font-mono font-bold text-xs mt-0.5">₹499 / $9.99</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">Price Arbitrage Pass</div>
+              </button>
+              <button onclick="applyPaymentPreset('alfann')" class="bg-slate-900/80 hover:bg-slate-800 border border-slate-700/80 p-2.5 rounded-xl text-left transition-all group">
+                <div class="text-white font-bold group-hover:text-amber-300">🎨 Alfann Art Studio</div>
+                <div class="text-emerald-400 font-mono font-bold text-xs mt-0.5">₹1,850 / $29.00</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">LED Light Commission</div>
+              </button>
+              <button onclick="applyPaymentPreset('custom')" class="bg-slate-900/80 hover:bg-slate-800 border border-slate-700/80 p-2.5 rounded-xl text-left transition-all group">
+                <div class="text-white font-bold group-hover:text-amber-300">💡 Custom Venture</div>
+                <div class="text-sky-400 font-mono font-bold text-xs mt-0.5">Custom Amount</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">Council Incubator Venture</div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Payment Link Creation Form -->
+          <form id="treasury-link-form" onsubmit="handleGeneratePaymentLink(event)" class="bg-slate-950/70 p-4 rounded-xl border border-slate-800 space-y-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-slate-400 mb-1 font-semibold">Payment Gateway & Rail</label>
+                <select id="link-gateway" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-semibold focus:border-amber-400" onchange="updateGatewayCurrency()">
+                  <option value="RAZORPAY">🇮🇳 Razorpay (UPI, GPay, PhonePe, Paytm, Indian Cards) — INR</option>
+                  <option value="PAYPAL">🌐 PayPal (International Cards, Multi-Currency) — USD</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-slate-400 mb-1 font-semibold">Product / Venture Title</label>
+                <input type="text" id="link-title" value="Tayyār Islamic Sticker Pack Vol 1" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white focus:border-amber-400">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label id="link-amount-label" class="block text-slate-400 mb-1 font-semibold">Amount (INR ₹)</label>
+                <input type="number" step="0.01" id="link-amount" value="299" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-emerald-400 font-mono font-bold focus:border-amber-400">
+              </div>
+              <div>
+                <label class="block text-slate-400 mb-1 font-semibold">Customer Name (Optional)</label>
+                <input type="text" id="link-customer-name" placeholder="E.g. Mustafa Client" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white focus:border-amber-400">
+              </div>
+              <div>
+                <label class="block text-slate-400 mb-1 font-semibold">Customer Email (For Receipt)</label>
+                <input type="email" id="link-customer-email" placeholder="customer@example.com" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white focus:border-amber-400">
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between pt-1">
+              <span class="text-[11px] text-slate-400">Generates instant shareable URL, QR code, and webhook fulfillment listener.</span>
+              <button type="submit" id="link-submit-btn" class="btn-gold text-xs py-2 px-4 font-bold flex items-center gap-1.5 shadow">
+                <span>⚡</span> Generate Live Payment Link & QR
+              </button>
+            </div>
+          </form>
+
+          <!-- Generated Link & QR Display Card (Hidden by default, shown upon generation) -->
+          <div id="treasury-link-result" class="hidden bg-emerald-950/20 border border-emerald-500/40 p-4 rounded-xl space-y-3">
+            <div class="flex items-center justify-between border-b border-emerald-900/40 pb-2">
+              <div class="flex items-center gap-2 text-emerald-400 font-bold">
+                <span>✓</span> Payment Link & UPI QR Ready
+              </div>
+              <span id="link-result-gateway-badge" class="badge-green text-[10px] font-mono">RAZORPAY LIVE</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
+              <!-- QR Code Preview -->
+              <div class="sm:col-span-4 flex flex-col items-center justify-center p-3 bg-white rounded-xl shadow-md border border-slate-200">
+                <img id="link-result-qr" src="" alt="UPI / Payment QR Code" class="w-36 h-36 object-contain">
+                <span class="text-[10px] text-slate-800 font-mono font-bold mt-1 text-center">Scan with GPay / PhonePe / Camera</span>
+              </div>
+
+              <!-- URL & Instant Actions -->
+              <div class="sm:col-span-8 space-y-3">
+                <div>
+                  <span class="text-[10px] uppercase font-mono text-slate-400 block mb-1">Shareable Customer Checkout URL:</span>
+                  <div class="flex items-center gap-2">
+                    <input type="text" id="link-result-url" readonly class="flex-1 bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs font-mono text-amber-300 select-all">
+                    <button onclick="copyPaymentLink()" id="link-copy-btn" class="btn-ghost text-xs py-2 px-3 shrink-0">
+                      📋 Copy Link
+                    </button>
+                    <a id="link-open-btn" href="#" target="_blank" class="btn-gold text-xs py-2 px-3 shrink-0">
+                      Open ➔
+                    </a>
+                  </div>
+                </div>
+
+                <!-- Simulation & Verification Button -->
+                <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800 flex items-center justify-between gap-3">
+                  <div>
+                    <div class="font-bold text-white text-xs">Simulate / Verify Payment Clearance</div>
+                    <div class="text-[10px] text-slate-400">Trigger instant settlement in the SB Group ledger for testing</div>
+                  </div>
+                  <button onclick="handleSimulateVerifyPayment()" id="link-verify-btn" class="btn-ghost text-xs py-1.5 px-3 border border-emerald-500/50 text-emerald-300 hover:bg-emerald-950/40 shrink-0 font-semibold">
+                    ✓ Clear & Settle Funds
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ===================================================================
+             PANEL 2: GATEWAY CREDENTIALS SETUP (.env.treasury)
+             =================================================================== -->
+        <div id="treasury-panel-config" class="hidden space-y-4">
+          
+          <div class="p-3 bg-amber-950/30 border border-amber-500/30 rounded-xl flex items-start gap-2.5">
+            <span class="text-base mt-0.5">🔒</span>
+            <div class="text-xs text-amber-200 leading-relaxed">
+              <strong>Sovereign Local Vault:</strong> All credentials are saved strictly on your local PC in <code class="text-amber-300 bg-black/40 px-1 py-0.5 rounded font-mono">c:\AI_Ecosystem\.env.treasury</code>. They are excluded from git and never transmitted to external cloud servers.
+            </div>
+          </div>
+
+          <form id="treasury-credentials-form" onsubmit="handleSaveTreasuryCredentials(event)" class="space-y-4">
+            
+            <!-- Razorpay Setup Card -->
+            <div class="card-glass p-4 border border-slate-800 space-y-3">
+              <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                <div class="flex items-center gap-2">
+                  <span class="text-base">🇮🇳</span>
+                  <h4 class="font-bold text-white text-xs uppercase tracking-wider">Razorpay Credentials (India UPI & Cards)</h4>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span id="rzp-status-pill" class="badge-gold text-[10px] font-mono">NOT CONFIGURED</span>
+                  <select id="cfg-rzp-mode" class="bg-slate-900 border border-slate-700 rounded px-2 py-0.5 text-[10px] text-amber-300 font-mono font-bold">
+                    <option value="test">Test Mode</option>
+                    <option value="live">Live Mode</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-slate-400 text-[11px] mb-1 font-semibold">Key ID (starts with rzp_live_ or rzp_test_)</label>
+                  <input type="text" id="cfg-rzp-key-id" placeholder="rzp_live_xxxxxxxxxxxxxx" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-white font-mono focus:border-amber-400">
+                </div>
+                <div>
+                  <label class="block text-slate-400 text-[11px] mb-1 font-semibold">Key Secret</label>
+                  <input type="password" id="cfg-rzp-key-secret" placeholder="••••••••••••••••••••••••" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-white font-mono focus:border-amber-400">
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-slate-400 text-[11px] mb-1 font-semibold">Webhook Secret (Optional, for auto-verifying payment webhooks)</label>
+                <input type="password" id="cfg-rzp-webhook-secret" placeholder="Your custom webhook secret string" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-white font-mono focus:border-amber-400">
+              </div>
+            </div>
+
+            <!-- PayPal Setup Card -->
+            <div class="card-glass p-4 border border-slate-800 space-y-3">
+              <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                <div class="flex items-center gap-2">
+                  <span class="text-base">🌐</span>
+                  <h4 class="font-bold text-white text-xs uppercase tracking-wider">PayPal Credentials (Global International Checkout)</h4>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span id="pp-status-pill" class="badge-gold text-[10px] font-mono">NOT CONFIGURED</span>
+                  <select id="cfg-pp-mode" class="bg-slate-900 border border-slate-700 rounded px-2 py-0.5 text-[10px] text-amber-300 font-mono font-bold">
+                    <option value="sandbox">Sandbox Mode</option>
+                    <option value="live">Live Mode</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-slate-400 text-[11px] mb-1 font-semibold">Client ID</label>
+                  <input type="text" id="cfg-pp-client-id" placeholder="PayPal REST App Client ID" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-white font-mono focus:border-amber-400">
+                </div>
+                <div>
+                  <label class="block text-slate-400 text-[11px] mb-1 font-semibold">Client Secret</label>
+                  <input type="password" id="cfg-pp-client-secret" placeholder="••••••••••••••••••••••••" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-white font-mono focus:border-amber-400">
+                </div>
+              </div>
+            </div>
+
+            <!-- Save & Test Buttons -->
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
+              <button type="button" onclick="handleTestGatewayConnections()" id="test-gateways-btn" class="btn-ghost text-xs py-2 px-4 w-full sm:w-auto flex items-center justify-center gap-1.5 border border-sky-500/40 text-sky-300 hover:bg-sky-950/30">
+                <span>🔄</span> Test Live Connection
+              </button>
+              <button type="submit" id="save-gateways-btn" class="btn-gold text-xs py-2 px-5 w-full sm:w-auto font-bold flex items-center justify-center gap-1.5 shadow-lg">
+                <span>💾</span> Save Credentials to Sovereign Vault
+              </button>
+            </div>
+
+            <!-- Live Test Output Result Box -->
+            <div id="cfg-test-results" class="hidden p-3 rounded-xl border border-slate-800 text-xs font-mono space-y-1">
+              <!-- Rendered dynamically -->
+            </div>
+
+          </form>
+
+        </div>
+
+        <!-- ===================================================================
+             PANEL 3: SOVEREIGN SETTLEMENT LEDGER (LIVE TRANSACTIONS)
+             =================================================================== -->
+        <div id="treasury-panel-ledger" class="hidden space-y-4">
+          
+          <!-- Treasury Balances Ribbon -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+            <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800 text-center">
+              <span class="text-[9px] uppercase font-mono text-slate-400 block">Total Settled INR</span>
+              <span id="ledger-total-inr" class="text-base sm:text-lg font-bold text-emerald-400 font-mono mt-0.5">₹798.00</span>
+            </div>
+            <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800 text-center">
+              <span class="text-[9px] uppercase font-mono text-slate-400 block">Total Settled USD</span>
+              <span id="ledger-total-usd" class="text-base sm:text-lg font-bold text-sky-400 font-mono mt-0.5">$3.99</span>
+            </div>
+            <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800 text-center">
+              <span class="text-[9px] uppercase font-mono text-slate-400 block">Verified Conversions</span>
+              <span id="ledger-total-count" class="text-base sm:text-lg font-bold text-amber-300 font-mono mt-0.5">3</span>
+            </div>
+            <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800 text-center">
+              <span class="text-[9px] uppercase font-mono text-slate-400 block">Fulfillment Rate</span>
+              <span class="text-base sm:text-lg font-bold text-purple-300 font-mono mt-0.5">100% Autopilot</span>
+            </div>
+          </div>
+
+          <!-- Chronological Ledger Table -->
+          <div class="bg-slate-950/70 rounded-xl border border-slate-800 overflow-hidden">
+            <div class="flex items-center justify-between p-3 border-b border-slate-800">
+              <span class="font-bold text-white text-xs uppercase font-mono">Real-Time Sovereign Transaction Feed</span>
+              <button onclick="fetchTreasuryStatus(true)" class="text-[10px] font-mono text-amber-400 hover:text-amber-300 flex items-center gap-1">
+                <span>↻</span> Refresh Feed
+              </button>
+            </div>
+            <div class="overflow-x-auto max-h-64">
+              <table class="w-full text-[11px] text-left border-collapse">
+                <thead class="bg-slate-900/90 text-slate-400 font-mono uppercase text-[9px] border-b border-slate-800">
+                  <tr>
+                    <th class="p-2.5">TX ID / Time</th>
+                    <th class="p-2.5">Gateway</th>
+                    <th class="p-2.5">Venture / Product</th>
+                    <th class="p-2.5">Amount</th>
+                    <th class="p-2.5">Customer</th>
+                    <th class="p-2.5">Status</th>
+                    <th class="p-2.5">Delivery</th>
+                  </tr>
+                </thead>
+                <tbody id="ledger-table-body" class="divide-y divide-slate-800/60 font-sans">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="flex items-center justify-between pt-3 border-t border-slate-800 mt-2 shrink-0 text-[11px] text-slate-400">
+        <div class="flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>Inbound Webhooks: <code class="text-slate-300 font-mono">/api/webhooks/razorpay</code> • <code class="text-slate-300 font-mono">/api/webhooks/paypal</code></span>
+        </div>
+        <button onclick="closeTreasuryModal()" class="btn-ghost text-xs py-1 px-3">Close</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =======================================================================
+       MODAL: REJECT SHORT & TRAIN ALGORITHM (RLHF FEEDBACK)
+       ======================================================================= -->
+  <div id="modal-shorts-reject" class="fixed inset-0 modal-overlay z-50 flex items-center justify-center hidden p-4">
+    <div class="card-glass max-w-lg w-full p-6 border border-rose-500/40 shadow-2xl relative">
+      <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">🧬</span>
+          <div>
+            <h3 class="text-sm font-bold text-rose-300 font-mono uppercase">Reject Clip & Train Algorithm (RLHF)</h3>
+            <p class="text-[11px] text-slate-400">Orion Stark will penalize matching weights and adapt future clipping rules.</p>
+          </div>
+        </div>
+        <button onclick="closeShortRejectModal()" class="text-slate-400 hover:text-white text-lg">&times;</button>
+      </div>
+
+      <input type="hidden" id="reject-target-clip-id" value="">
+
+      <div class="space-y-4 text-xs">
+        <div>
+          <span class="block text-slate-300 font-semibold mb-2">Select Primary Rejection Reasons (Teaches Scoring Model):</span>
+          <div class="grid grid-cols-2 gap-2" id="reject-reasons-group">
+            <label class="flex items-center gap-2 p-2 rounded-lg bg-slate-900/80 border border-slate-700/80 hover:border-rose-500/50 cursor-pointer">
+              <input type="checkbox" value="hook_too_weak" class="accent-rose-500">
+              <span class="text-slate-300 text-[11px]">🎣 Hook Too Weak / Slow</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 rounded-lg bg-slate-900/80 border border-slate-700/80 hover:border-rose-500/50 cursor-pointer">
+              <input type="checkbox" value="speaker_uninteresting" class="accent-rose-500">
+              <span class="text-slate-300 text-[11px]">👤 Speaker Low Affinity</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 rounded-lg bg-slate-900/80 border border-slate-700/80 hover:border-rose-500/50 cursor-pointer">
+              <input type="checkbox" value="pacing_too_slow" class="accent-rose-500">
+              <span class="text-slate-300 text-[11px]">⏱️ Pacing Too Slow (Increase WPM)</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 rounded-lg bg-slate-900/80 border border-slate-700/80 hover:border-rose-500/50 cursor-pointer">
+              <input type="checkbox" value="topic_irrelevant" class="accent-rose-500">
+              <span class="text-slate-300 text-[11px]">💡 Topic Uninteresting / Stale</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 rounded-lg bg-slate-900/80 border border-slate-700/80 hover:border-rose-500/50 cursor-pointer">
+              <input type="checkbox" value="pacing_too_fast" class="accent-rose-500">
+              <span class="text-slate-300 text-[11px]">⚡ Pacing Too Rushed</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 rounded-lg bg-slate-900/80 border border-slate-700/80 hover:border-rose-500/50 cursor-pointer">
+              <input type="checkbox" value="monologue_without_hook" class="accent-rose-500">
+              <span class="text-slate-300 text-[11px]">😴 Lacks Debate / Tension</span>
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Chairperson Custom Directives / Stylistic Notes:</label>
+          <textarea id="reject-custom-notes" rows="3" placeholder="e.g., Focus more on controversial statements about AGI timelines or use faster kinetic cuts..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-200 placeholder-slate-500 focus:border-rose-400 font-sans"></textarea>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+          <button onclick="closeShortRejectModal()" class="btn-ghost text-xs py-1.5 px-3">Cancel</button>
+          <button onclick="submitShortRejection()" class="btn-ghost text-xs py-1.5 px-4 bg-rose-950/60 border border-rose-500/50 text-rose-300 hover:bg-rose-900/80 font-bold shadow-md">
+            <span>🧬</span> Train Algorithm & Reject Clip
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =======================================================================
+       MODAL: OMNI-CHANNEL DISTRIBUTION API CREDENTIALS VAULT
+       ======================================================================= -->
+  <div id="modal-shorts-config" class="fixed inset-0 modal-overlay z-50 flex items-center justify-center hidden p-4">
+    <div class="card-glass max-w-lg w-full p-6 border border-purple-500/40 shadow-2xl relative">
+      <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">🔑</span>
+          <div>
+            <h3 class="text-sm font-bold text-purple-300 font-mono uppercase">Omni-Channel Credentials Vault</h3>
+            <p class="text-[11px] text-slate-400">Saved securely to local sovereign file <code class="text-purple-300 font-mono">.env.shorts</code> (gitignored).</p>
+          </div>
+        </div>
+        <button onclick="closeShortsConfigModal()" class="text-slate-400 hover:text-white text-lg">&times;</button>
+      </div>
+
+      <form onsubmit="handleSaveShortsKeys(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-400 mb-1 font-semibold">YouTube Data API v3 Key / OAuth</label>
+          <input type="text" id="cfg-yt-key" placeholder="AIzaSy... (For YouTube Shorts publishing)" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-white font-mono focus:border-purple-400">
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1 font-semibold">X.com (Twitter) API Key</label>
+          <input type="text" id="cfg-x-key" placeholder="Consumer Key / Bearer Token" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-white font-mono focus:border-purple-400">
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1 font-semibold">TikTok Content Posting Client Key</label>
+          <input type="text" id="cfg-tt-key" placeholder="TikTok for Developers Client Key" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-white font-mono focus:border-purple-400">
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1 font-semibold">Instagram Graph API Token</label>
+          <input type="text" id="cfg-ig-key" placeholder="EAA... (Facebook Developer Page Access Token)" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-white font-mono focus:border-purple-400">
+        </div>
+
+        <div class="flex items-center justify-between pt-2 border-t border-slate-800">
+          <span class="text-[10px] text-emerald-400 font-mono">⚡ Staging Mode Active if keys pending</span>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="closeShortsConfigModal()" class="btn-ghost text-xs py-1.5 px-3">Cancel</button>
+            <button type="submit" class="btn-gold text-xs py-1.5 px-4 font-bold shadow-md">Save Credentials</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =======================================================================
+       MODAL: 9:16 VERTICAL VIDEO PLAYER PREVIEW
+       ======================================================================= -->
+  <div id="modal-short-video" class="fixed inset-0 modal-overlay z-50 flex items-center justify-center hidden p-4">
+    <div class="card-glass max-w-sm w-full p-4 border border-purple-500/50 shadow-2xl relative flex flex-col items-center">
+      <div class="w-full flex items-center justify-between mb-3 border-b border-slate-800 pb-2">
+        <div class="flex items-center gap-2">
+          <span class="text-base">🎬</span>
+          <h4 id="video-modal-title" class="text-xs font-bold text-purple-300 font-mono truncate max-w-[240px]">Preview 9:16 AI Short</h4>
+        </div>
+        <button onclick="closeShortVideoModal()" class="text-slate-400 hover:text-white text-lg">&times;</button>
+      </div>
+
+      <!-- 9:16 Video Player Container -->
+      <div class="w-[270px] h-[480px] bg-black rounded-xl overflow-hidden border border-purple-500/30 shadow-inner relative flex items-center justify-center">
+        <video id="short-video-player" controls autoplay loop playsinline class="w-full h-full object-cover">
+          <source id="short-video-source" src="" type="video/mp4">
+          Your browser does not support HTML5 video.
+        </video>
+      </div>
+
+      <div class="w-full flex items-center justify-between mt-3 pt-2 border-t border-slate-800 text-[11px] text-slate-400 font-mono">
+        <span>⚡ 1080x1920 (30fps)</span>
+        <button onclick="closeShortVideoModal()" class="btn-ghost text-xs py-1 px-3">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =======================================================================
+       MODAL: ADD CUSTOM API KEY
+       ======================================================================= -->
+  <div id="modal-add-api-key" class="fixed inset-0 modal-overlay z-50 flex items-center justify-center hidden p-4">
+    <div class="card-glass max-w-lg w-full p-6 border border-purple-500/50 shadow-2xl relative">
+      <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">➕</span>
+          <div>
+            <h3 class="text-sm font-bold text-purple-300 font-mono uppercase">Add Custom API Key / Integration</h3>
+            <p class="text-[11px] text-slate-400">Registers directly into sovereign vault & syncs to <code class="text-purple-300 font-mono">.env.ecosystem</code>.</p>
+          </div>
+        </div>
+        <button onclick="closeAddApiKeyModal()" class="text-slate-400 hover:text-white text-lg">&times;</button>
+      </div>
+
+      <form onsubmit="handleSaveCustomApiKey(event)" class="space-y-3.5 text-xs">
+        <div>
+          <label class="block text-slate-400 mb-1 font-semibold">Service / Provider Name</label>
+          <input type="text" id="add-key-name" placeholder="e.g. ElevenLabs Voice API, Supabase, Midjourney" required class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white placeholder-slate-500 focus:border-purple-400">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-400 mb-1 font-semibold">Environment Variable</label>
+            <input type="text" id="add-key-env" placeholder="e.g. ELEVENLABS_API_KEY" required class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-purple-300 font-mono uppercase focus:border-purple-400">
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1 font-semibold">Category</label>
+            <select id="add-key-cat" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white focus:border-purple-400">
+              <option value="AI & LLM">AI & LLM</option>
+              <option value="Payments & Treasury">Payments & Treasury</option>
+              <option value="Social & Publishing">Social & Publishing</option>
+              <option value="Affiliate & Sourcing">Affiliate & Sourcing</option>
+              <option value="Communication & Alerts">Communication & Alerts</option>
+              <option value="Custom Tools" selected>Custom Tools</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-slate-400 font-semibold">Secret Key Value</label>
+            <button type="button" onclick="togglePasswordVisibility('add-key-val')" class="text-[10px] text-purple-400 hover:text-purple-300 font-mono">👁️ Show / Hide</button>
+          </div>
+          <input type="password" id="add-key-val" placeholder="Paste API key or secret token here..." required class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white font-mono focus:border-purple-400">
+        </div>
+
+        <div>
+          <label class="block text-slate-400 mb-1 font-semibold">Description / Purpose</label>
+          <textarea id="add-key-desc" rows="2" placeholder="Brief note on what this key powers in the ecosystem..." class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white placeholder-slate-500 focus:border-purple-400"></textarea>
+        </div>
+
+        <div class="flex items-center justify-between pt-3 border-t border-slate-800">
+          <span class="text-[10px] text-emerald-400 font-mono">🔒 Strictly Offline & Encrypted</span>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="closeAddApiKeyModal()" class="btn-ghost text-xs py-1.5 px-3">Cancel</button>
+            <button type="submit" class="btn-gold text-xs py-1.5 px-4 font-bold shadow-lg">Save to Sovereign Vault</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =======================================================================
+       MODAL: EDIT API KEY
+       ======================================================================= -->
+  <div id="modal-edit-api-key" class="fixed inset-0 modal-overlay z-50 flex items-center justify-center hidden p-4">
+    <div class="card-glass max-w-lg w-full p-6 border border-amber-500/50 shadow-2xl relative">
+      <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">✏️</span>
+          <div>
+            <h3 class="text-sm font-bold text-amber-300 font-mono uppercase">Edit Sovereign API Key</h3>
+            <p class="text-[11px] text-slate-400" id="edit-key-subtitle">Update credential value</p>
+          </div>
+        </div>
+        <button onclick="closeEditApiKeyModal()" class="text-slate-400 hover:text-white text-lg">&times;</button>
+      </div>
+
+      <form onsubmit="handleSaveEditedApiKey(event)" class="space-y-3.5 text-xs">
+        <input type="hidden" id="edit-key-id">
+
+        <div>
+          <label class="block text-slate-400 mb-1 font-semibold">Key Name</label>
+          <input type="text" id="edit-key-name" required class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white focus:border-amber-400">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-400 mb-1 font-semibold">Environment Variable</label>
+            <input type="text" id="edit-key-env" readonly class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-400 font-mono uppercase cursor-not-allowed">
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1 font-semibold">Category</label>
+            <select id="edit-key-cat" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white focus:border-amber-400">
+              <option value="AI & LLM">AI & LLM</option>
+              <option value="Payments & Treasury">Payments & Treasury</option>
+              <option value="Social & Publishing">Social & Publishing</option>
+              <option value="Affiliate & Sourcing">Affiliate & Sourcing</option>
+              <option value="Communication & Alerts">Communication & Alerts</option>
+              <option value="Custom Tools">Custom Tools</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-slate-400 font-semibold">Secret Key Value</label>
+            <button type="button" onclick="togglePasswordVisibility('edit-key-val')" class="text-[10px] text-amber-400 hover:text-amber-300 font-mono">👁️ Show / Hide</button>
+          </div>
+          <input type="password" id="edit-key-val" placeholder="Enter new secret or leave existing..." class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white font-mono focus:border-amber-400">
+        </div>
+
+        <div>
+          <label class="block text-slate-400 mb-1 font-semibold">Description / Notes</label>
+          <textarea id="edit-key-desc" rows="2" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white focus:border-amber-400"></textarea>
+        </div>
+
+        <div class="flex items-center justify-between pt-3 border-t border-slate-800">
+          <span class="text-[10px] text-emerald-400 font-mono">⚡ Instant Sync to .env.ecosystem</span>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="closeEditApiKeyModal()" class="btn-ghost text-xs py-1.5 px-3">Cancel</button>
+            <button type="submit" class="btn-gold text-xs py-1.5 px-4 font-bold shadow-lg">Update Credential</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-900/80 py-3.5 px-6 text-center text-[11px] text-slate-500">
+    <p>SB Group (Saifee Burhani Group of Companies) • Executive Autonomous Command Platform • 100% Offline Sovereign Inference</p>
+  </footer>
+
+  <!-- Application Logic -->
+  <script src="/app.js"></script>
+</body>
+</html>

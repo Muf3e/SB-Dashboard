@@ -1,0 +1,21 @@
+{
+  "id": "SUB-05",
+  "name": "Quantitative Trading & Global Market Intelligence",
+  "focus": "Autonomous Algorithmic Trading, Global Situational Awareness, & Multi-Agent Financial Research",
+  "status": "Operational / Strategic",
+  "managing_director": "Managing Director - Quantitative Strategies & Market Intelligence",
+  "core_stack": ["TradingAgents", "WorldMonitor", "Freqtrade", "AI-Trader", "FinRobot", "LLM-Council", "Ollama"],
+  "key_assets": [
+    "TradingAgents Multi-Agent Research Framework (Fundamental, Technical, Sentiment, Risk, Portfolio)",
+    "WorldMonitor Real-Time Geopolitical & Market Situational Awareness Platform",
+    "Freqtrade Production Backtesting, Paper-Trading & Automated Execution Engine",
+    "AI-Trader Agent-Native Multi-Strategy Market Execution Swarm",
+    "FinRobot Quantitative Equity Analytics & Automated Financial Report Generator",
+    "LLM-Council Multi-Model Blind Deliberation & Peer-Review Synthesis Harness"
+  ],
+  "target_kpis": [
+    "Real-time anomaly & market event detection < 60s",
+    "Comprehensive multi-perspective risk verification before capital allocation",
+    "100% paper-trading/dry-run validation prior to live trading gate clearance"
+  ]
+}

@@ -1,0 +1,7 @@
+# SB Group Executive Command Platform — Requirements
+# Designed with zero mandatory external pip dependencies for core operations.
+# Standard Python 3.10+ standard libraries (urllib, http.server, socket, hmac, hashlib, json) run out of the box.
+
+# Optional enhancements for local video rendering & advanced audio
+requests>=2.31.0
+pillow>=10.0.0

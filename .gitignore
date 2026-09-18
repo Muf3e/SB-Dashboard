@@ -1,0 +1,39 @@
+# Sovereign Environment & Secrets
+.env
+.env.*
+.env.treasury
+.env.shorts
+.env.ecosystem
+*.key
+*.pem
+*.log
+
+# Python & Node Runtime Caches
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+node_modules/
+.tempmediaStorage/
+.system_generated/
+dist/
+build/
+
+# External Cloned Ecosystem Libraries (Maintained in upstream submodules/repos)
+agents/
+automation/
+code-intelligence/
+harnesses/
+media-generation/
+memory-and-context/
+skills-and-reach/
+trading/
+bin/
+scratch/
+config/
+.agents/
+
+# Large Binary Samples
+*.mp4
+*.mp3
+test_results.json
