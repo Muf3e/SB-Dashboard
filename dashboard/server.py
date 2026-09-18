@@ -18,8 +18,10 @@ from datetime import datetime
 import time
 import subprocess
 import socket
-sys.path.insert(0, str(Path(r"C:\AI_Ecosystem\corporate-governance")))
-sys.path.insert(0, str(Path(r"C:\AI_Ecosystem\scripts")))
+ECOSYSTEM_ROOT = Path(__file__).resolve().parent.parent if Path(__file__).resolve().parent.name in ["dashboard", "api"] else Path(__file__).resolve().parent
+sys.path.insert(0, str(ECOSYSTEM_ROOT))
+sys.path.insert(0, str(ECOSYSTEM_ROOT / "corporate-governance"))
+sys.path.insert(0, str(ECOSYSTEM_ROOT / "scripts"))
 from council_engine import run_council_debate
 import treasury_engine
 import inter_agent_bus
@@ -29,8 +31,7 @@ import shorts_engine
 import settings_engine
 
 PORT = 8080
-ECOSYSTEM_ROOT = Path(r"C:\AI_Ecosystem")
-PUBLIC_DIR = ECOSYSTEM_ROOT / "dashboard" / "public"
+PUBLIC_DIR = ECOSYSTEM_ROOT / "public" if (ECOSYSTEM_ROOT / "public").exists() else ECOSYSTEM_ROOT / "dashboard" / "public"
 GOV_ROOT = ECOSYSTEM_ROOT / "corporate-governance"
 LEDGER_FILE = GOV_ROOT / "ledger" / "board_ledger.json"
 ROADMAP_FILE = GOV_ROOT / "ledger" / "pending_roadmap.json"
@@ -41,10 +42,13 @@ TITAN_WEB_DIR = Path(r"c:\Users\Mustafa\OneDrive\Documents\TITAN Labs - Web")
 OLLAMA_URL = "http://localhost:11434/api/generate"
 OLLAMA_MODEL = "qwen2.5-coder:7b-instruct"
 
-# Ensure dirs exist
-PUBLIC_DIR.mkdir(parents=True, exist_ok=True)
-BRIEFINGS_DIR.mkdir(parents=True, exist_ok=True)
-(GOV_ROOT / "ledger").mkdir(parents=True, exist_ok=True)
+# Ensure dirs exist safely
+try:
+    PUBLIC_DIR.mkdir(parents=True, exist_ok=True)
+    BRIEFINGS_DIR.mkdir(parents=True, exist_ok=True)
+    (GOV_ROOT / "ledger").mkdir(parents=True, exist_ok=True)
+except OSError:
+    pass
 
 START_TIME = datetime.now()
 
@@ -1793,8 +1797,8 @@ Address the Chairperson directly with utmost executive respect.
 
         # Check rendered reels count
         try:
-            ledger_path = r"c:\AI_Ecosystem\corporate-governance\ledger\rendered_reels.json"
-            if os.path.exists(ledger_path):
+            ledger_path = ECOSYSTEM_ROOT / "corporate-governance" / "ledger" / "rendered_reels.json"
+            if ledger_path.exists():
                 with open(ledger_path, "r", encoding="utf-8") as f:
                     reels = json.load(f)
                 for v in finances.get("ventures", []):
@@ -1813,9 +1817,9 @@ Address the Chairperson directly with utmost executive respect.
         self.send_json(finances)
 
     def handle_api_reels(self):
-        ledger_path = r"c:\AI_Ecosystem\corporate-governance\ledger\rendered_reels.json"
+        ledger_path = ECOSYSTEM_ROOT / "corporate-governance" / "ledger" / "rendered_reels.json"
         reels = []
-        if os.path.exists(ledger_path):
+        if ledger_path.exists():
             try:
                 with open(ledger_path, "r", encoding="utf-8") as f:
                     reels = json.load(f)
@@ -1830,8 +1834,8 @@ Address the Chairperson directly with utmost executive respect.
         frames = int(body.get("frames", 90))
         
         import subprocess
-        cmd = ["python", r"c:\AI_Ecosystem\scripts\generate_viral_reel.py", "--topic", topic, "--hook", hook, "--badge", badge, "--frames", str(frames)]
-        subprocess.Popen(cmd, cwd=r"c:\AI_Ecosystem")
+        cmd = ["python", str(ECOSYSTEM_ROOT / "scripts" / "generate_viral_reel.py"), "--topic", topic, "--hook", hook, "--badge", badge, "--frames", str(frames)]
+        subprocess.Popen(cmd, cwd=str(ECOSYSTEM_ROOT))
         self.send_json({
             "status": "QUEUED",
             "message": f"Remotion render queued for: {topic}",
@@ -1839,9 +1843,9 @@ Address the Chairperson directly with utmost executive respect.
         })
 
     def handle_api_stkr(self):
-        manifest_path = r"c:\AI_Ecosystem\corporate-governance\ledger\tayyar_stkr_manifest.json"
+        manifest_path = ECOSYSTEM_ROOT / "corporate-governance" / "ledger" / "tayyar_stkr_manifest.json"
         manifest = {}
-        if os.path.exists(manifest_path):
+        if manifest_path.exists():
             try:
                 with open(manifest_path, "r", encoding="utf-8") as f:
                     manifest = json.load(f)
@@ -1851,10 +1855,10 @@ Address the Chairperson directly with utmost executive respect.
 
     def handle_api_stkr_deploy(self, body):
         import subprocess
-        proc = subprocess.run(["python", r"c:\AI_Ecosystem\scripts\deploy_gumroad_pack.py"], capture_output=True, text=True)
-        manifest_path = r"c:\AI_Ecosystem\corporate-governance\ledger\tayyar_stkr_manifest.json"
+        proc = subprocess.run(["python", str(ECOSYSTEM_ROOT / "scripts" / "deploy_gumroad_pack.py")], capture_output=True, text=True)
+        manifest_path = ECOSYSTEM_ROOT / "corporate-governance" / "ledger" / "tayyar_stkr_manifest.json"
         manifest = {}
-        if os.path.exists(manifest_path):
+        if manifest_path.exists():
             try:
                 with open(manifest_path, "r", encoding="utf-8") as f:
                     manifest = json.load(f)
