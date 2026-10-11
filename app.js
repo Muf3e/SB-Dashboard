@@ -1,4426 +1,1232 @@
-// SB Group (Saifee Burhani Group of Companies) Dashboard Client Application
-// Executive Command, Autonomous Incubator & Casual Personnel Communications
+/**
+ * ==========================================================================
+ * MUNDER-DIFFLIN × AGENT STANDUP (SB GROUP DRAFT PLATFORM)
+ * Frontend Interactive Controller
+ *
+ * Implements:
+ * 1. Exact agent-standup system UI:
+ *    - 8 illustrated room scenes with desks
+ *    - Procedural SVG animated characters (blinking eyes, bobbing, typing laptops, mouth lip-sync, props)
+ *    - Speech bubbles above agent tiles
+ *    - Animal Crossing procedural Web Audio blip synthesizer
+ *    - Live shared screen: Terminal (bash outputs), Diff editor, Task lists
+ * 2. Exact Munder-Difflin system UI:
+ *    - Chunky retro SNES/Earthbound panels, pixel buttons, badges
+ *    - 363+ Ecosystem Agents directory with "What each agent is currently doing"
+ *    - Blue sticky task notes, context gauges, division pills, search
+ *    - 2D Office Floor scene with animated desk speech bubbles
+ *    - Command Center Kanban & Executive Watercooler chat
+ * ==========================================================================
+ */
 
-let appState = {
-  activeTab: 'progress',
-  commChannel: 'watercooler', // 'watercooler' | 'sync' | 'direct'
-  employeeStatusFilter: 'all', // 'all' | 'online' | 'standby'
-  agents: [],
-  selectedAgent: 'ceo',
-  status: {},
-  telemetry: { streams: [], logs: [] },
-  gates: [],
-  directives: [],
-  tools: [],
-  roadmap: null,
-  roadmapCategory: 'all',
-  roadmapStatus: 'all',
-  finances: null,
-  incubator: [],
-  treasury: null,
-  ecosystem: {
-    hosts: [],
-    activeViewport: 'omniroute',
-    lastChecked: null
-  },
-  communications: {
-    watercooler: [],
-    project_sync: []
-  },
-  chatHistories: {}
-};
+(function() {
+  'use strict';
 
-// --- Initialization ---
-document.addEventListener('DOMContentLoaded', () => {
-  initTheme();
-  initClock();
-  fetchInitialData();
-  loadEcosystemHosts();
-  setInterval(pollTelemetry, 3000);
-  setInterval(loadEcosystemHosts, 10000);
-});
+  // ------------------------------------------------------------------------
+  // HASH & PERSONA ENGINE (from agent-standup)
+  // ------------------------------------------------------------------------
 
-// --- Theme Management ---
-function initTheme() {
-  const saved = localStorage.getItem('sb_dashboard_theme') || 'dark';
-  applyTheme(saved);
-}
-
-function toggleDashboardTheme() {
-  const current = document.body.classList.contains('light-theme') ? 'light' : 'dark';
-  const next = current === 'dark' ? 'light' : 'dark';
-  localStorage.setItem('sb_dashboard_theme', next);
-  applyTheme(next);
-}
-
-function applyTheme(theme) {
-  const isLight = theme === 'light';
-  document.body.classList.toggle('light-theme', isLight);
-  const logoEl = document.getElementById('dashboard-logo');
-  const logoBox = document.getElementById('dashboard-logo-box');
-  const iconEl = document.getElementById('theme-toggle-icon');
-  const labelEl = document.getElementById('theme-toggle-label');
-  const favicon = document.querySelector("link[rel='icon']");
-
-  if (logoEl) {
-    logoEl.src = isLight ? '/assets/sb_logo_light.png' : '/assets/sb_logo_dark.png';
-  }
-  if (favicon) {
-    favicon.href = isLight ? '/assets/sb_logo_light.png' : '/assets/sb_logo_dark.png';
-  }
-  if (logoBox) {
-    if (isLight) {
-      logoBox.style.backgroundColor = 'transparent';
-      logoBox.style.borderColor = '#cbd5e1';
-      logoBox.style.boxShadow = '0 1px 4px rgba(0, 0, 0, 0.05)';
-    } else {
-      logoBox.style.backgroundColor = 'transparent';
-      logoBox.style.borderColor = 'rgba(212, 175, 55, 0.4)';
-      logoBox.style.boxShadow = '0 0 12px rgba(212, 175, 55, 0.15)';
+  function hashStr(str) {
+    let h = 2166136261 >>> 0;
+    for (let i = 0; i < str.length; i++) {
+      h = Math.imul(h ^ str.charCodeAt(i), 16777619) >>> 0;
     }
-  }
-  if (iconEl && labelEl) {
-    iconEl.innerText = isLight ? '🌙' : '☀️';
-    labelEl.innerText = isLight ? 'Dark Mode' : 'Daylight Mode';
-  }
-}
-
-// --- Live Clock ---
-function initClock() {
-  const clockEl = document.getElementById('live-clock');
-  const update = () => {
-    const now = new Date();
-    if (clockEl) {
-      clockEl.innerText = now.toLocaleTimeString('en-US', { hour12: false });
-    }
-  };
-  update();
-  setInterval(update, 1000);
-}
-
-// --- Data Fetching ---
-async function fetchInitialData() {
-  await Promise.all([
-    fetchStatus(),
-    fetchAgents(),
-    fetchTelemetry(),
-    fetchGates(),
-    fetchDirectives(),
-    fetchTools(),
-    fetchRoadmap(),
-    fetchFinances(),
-    fetchIncubator(),
-    fetchCommunications(),
-    fetchTreasuryStatus(),
-    fetchShortsStatus()
-  ]);
-  renderAllComponents();
-}
-
-async function fetchStatus() {
-  try {
-    const res = await fetch('/api/status');
-    const data = await res.json();
-    appState.status = data;
-    updateStatusRibbon(data);
-  } catch (err) {
-    console.error('Failed to fetch status', err);
-  }
-}
-
-async function fetchAgents() {
-  try {
-    const res = await fetch('/api/agents');
-    const data = await res.json();
-    appState.agents = data.agents || [];
-    renderEmployees();
-    renderRightPanelDock();
-    renderChatSidebar();
-  } catch (err) {
-    console.error('Failed to fetch agents', err);
-  }
-}
-
-async function fetchTelemetry() {
-  try {
-    const res = await fetch('/api/telemetry');
-    const data = await res.json();
-    appState.telemetry = data;
-    renderLiveLogs(data.logs || []);
-    renderCurrentTasks();
-  } catch (err) {
-    console.error('Failed to fetch telemetry', err);
-  }
-}
-
-async function fetchGates() {
-  try {
-    const res = await fetch('/api/gates');
-    const data = await res.json();
-    appState.gates = data.gates || [];
-    renderApprovalRequests();
-    renderDecisionGates();
-    const pendingCount = appState.gates.filter(g => (g.status || '').includes('PENDING')).length;
-    const badge = document.getElementById('gates-tab-badge');
-    if (badge) badge.innerText = pendingCount;
-    const metric = document.getElementById('metric-pending-gates');
-    if (metric) metric.innerText = pendingCount;
-    const approvalPendingCounter = document.getElementById('approval-pending-counter');
-    if (approvalPendingCounter) approvalPendingCounter.innerText = `${pendingCount} AWAITING SIGN`;
-  } catch (err) {
-    console.error('Failed to fetch gates', err);
-  }
-}
-
-async function fetchDirectives() {
-  try {
-    const res = await fetch('/api/directives');
-    const data = await res.json();
-    appState.directives = data.directives || [];
-    renderDirectives();
-    const metric = document.getElementById('metric-directives');
-    if (metric) metric.innerText = appState.directives.length;
-  } catch (err) {
-    console.error('Failed to fetch directives', err);
-  }
-}
-
-async function fetchTools() {
-  try {
-    const res = await fetch('/api/tools');
-    const data = await res.json();
-    appState.tools = data.tools || [];
-    renderTools(appState.tools);
-    renderRightPanelDock();
-  } catch (err) {
-    console.error('Failed to fetch tools', err);
-  }
-}
-
-async function fetchRoadmap() {
-  try {
-    const res = await fetch('/api/roadmap');
-    const data = await res.json();
-    if (data && data.items) {
-      appState.roadmap = data;
-      updateRoadmapSummary(data);
-      renderPendingTasks();
-      renderCompletedTasks();
-      renderRoadmap();
-    }
-  } catch (err) {
-    console.error('Failed to fetch roadmap', err);
-  }
-}
-
-async function fetchFinances() {
-  try {
-    const res = await fetch('/api/finances');
-    const data = await res.json();
-    appState.finances = data;
-    renderFinancials();
-  } catch (err) {
-    console.error('Failed to fetch finances', err);
-  }
-}
-
-async function fetchIncubator() {
-  try {
-    const res = await fetch('/api/incubator');
-    const data = await res.json();
-    appState.incubator = data.proposals || [];
-    renderBusinessIncubator();
-  } catch (err) {
-    console.error('Failed to fetch incubator', err);
-  }
-}
-
-async function fetchCommunications() {
-  try {
-    const res = await fetch('/api/communications');
-    const data = await res.json();
-    appState.communications = data;
-    renderWatercoolerChat();
-    renderProjectSyncs();
-    renderRightPanelDock();
-  } catch (err) {
-    console.error('Failed to fetch communications', err);
-  }
-}
-
-async function pollTelemetry() {
-  try {
-    const tRes = await fetch('/api/telemetry');
-    const tData = await tRes.json();
-    appState.telemetry = tData;
-    renderLiveLogs(tData.logs || []);
-
-    const sRes = await fetch('/api/status');
-    const sData = await sRes.json();
-    appState.status = sData;
-    updateStatusRibbon(sData);
-
-    const cRes = await fetch('/api/communications');
-    const cData = await cRes.json();
-    if (cData.watercooler && cData.watercooler.length !== appState.communications.watercooler.length) {
-      appState.communications.watercooler = cData.watercooler;
-      renderWatercoolerChat();
-      renderRightPanelDock();
-    }
-    if (cData.project_sync) {
-      appState.communications.project_sync = cData.project_sync;
-      if (appState.commChannel === 'sync') renderProjectSyncs();
-    }
-  } catch (e) {}
-}
-
-function updateStatusRibbon(data) {
-  if (!data || !data.stats) return;
-  const activeAgentsEl = document.getElementById('metric-active-agents');
-  if (activeAgentsEl) activeAgentsEl.innerText = data.stats.total_agents || 10;
-  
-  const subEl = document.getElementById('metric-agents-sub');
-  if (subEl && data.stats.active_agents !== undefined) {
-    subEl.innerText = `${data.stats.active_agents} Online • ${data.stats.standby_agents || 0} Standby`;
+    return h;
   }
 
-  const counterBadge = document.getElementById('agents-online-counter');
-  if (counterBadge && data.stats.active_agents !== undefined) {
-    counterBadge.innerText = `${data.stats.active_agents} ACTIVE • ${data.stats.standby_agents || 0} STANDBY`;
+  const PALETTE = ['#E07A5F', '#3D5A80', '#EE6C4D', '#293241', '#98C1D9', '#588B76', '#F2CC8F', '#81B29A', '#9B5DE5', '#F15BB5'];
+
+  function getAgentPersona(agent) {
+    const h = hashStr(agent.id || agent.key || agent.name || 'agent');
+    return {
+      id: agent.id,
+      name: agent.name,
+      role: agent.title,
+      shirt: agent.color || PALETTE[(h >>> 6) % PALETTE.length],
+      shape: (h >>> 3) % 5,
+      acc: (h >>> 9) % 6,
+      eye: (h >>> 12) % 3,
+      glasses: ((h >>> 15) % 4) === 0,
+      scene: (h >>> 18) % 8,
+      prop: (h >>> 21) % 3,
+      acc2: PALETTE[(h >>> 24) % PALETTE.length],
+      gid: 'p' + (h >>> 0).toString(36),
+      lead: agent.tier === 'c-suite' || agent.id === 'agent-ceo'
+    };
   }
 
-  const ollamaBadge = document.getElementById('ollama-status-badge');
-  if (ollamaBadge && data.ollama) {
-    ollamaBadge.innerText = `Local Engine: ${data.ollama.model} (${data.ollama.status})`;
-  }
-}
-
-function renderAllComponents() {
-  renderFinancials();
-  renderCurrentTasks();
-  renderEmployees();
-  renderApprovalRequests();
-  renderPendingTasks();
-  renderCompletedTasks();
-  renderBusinessIncubator();
-  renderRightPanelDock();
-  renderWatercoolerChat();
-  renderProjectSyncs();
-}
-
-// --- Tab Switching ---
-function switchTab(tabId) {
-  appState.activeTab = tabId;
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  const tabs = ['progress', 'floor', 'ecosystem', 'communication', 'roadmap', 'ventures', 'shorts', 'governance', 'tools', 'settings'];
-  tabs.forEach(t => {
-    const btn = document.getElementById(`tab-btn-${t}`);
-    const content = document.getElementById(`tab-content-${t}`);
-    if (t === tabId) {
-      btn?.classList.add('active');
-      content?.classList.remove('hidden');
-    } else {
-      btn?.classList.remove('active');
-      content?.classList.add('hidden');
-    }
-  });
-
-  // Also toggle header settings button highlight
-  const headerSettingsBtn = document.getElementById('header-btn-settings');
-  if (headerSettingsBtn) {
-    if (tabId === 'settings') {
-      headerSettingsBtn.classList.add('border-amber-400', 'bg-amber-500/20', 'text-amber-300');
-    } else {
-      headerSettingsBtn.classList.remove('border-amber-400', 'bg-amber-500/20', 'text-amber-300');
-    }
-  }
-
-  if (tabId === 'progress') {
-    renderAllComponents();
-  } else if (tabId === 'floor') {
-    initOfficeFloor();
-  } else if (tabId === 'ecosystem') {
-    loadEcosystemHosts();
-  } else if (tabId === 'communication') {
-    switchCommChannel(appState.commChannel);
-  } else if (tabId === 'roadmap') {
-    renderRoadmap();
-  } else if (tabId === 'shorts') {
-    renderShortsStudio();
-  } else if (tabId === 'governance') {
-    renderDecisionGates();
-    renderDirectives();
-  } else if (tabId === 'tools') {
-    renderTools(appState.tools);
-  } else if (tabId === 'settings') {
-    loadSettings();
-  }
-}
-
-// ============================================================================
-// MAIN PAGE RENDERERS (8 Components + Right Dock)
-// ============================================================================
-
-// 1. Subsidiary Earnings & Financial Portfolio
-function renderFinancials() {
-  const container = document.getElementById('finance-ventures-container');
-  if (!container || !appState.finances || !appState.finances.ventures) return;
-
-  const totalGrossEl = document.getElementById('finance-total-gross');
-  const totalProfitEl = document.getElementById('finance-total-profit');
-  if (totalGrossEl && appState.finances.summary) totalGrossEl.innerText = appState.finances.summary.monthly_gross_revenue;
-  if (totalProfitEl && appState.finances.summary) totalProfitEl.innerText = appState.finances.summary.monthly_net_profit;
-
-  container.innerHTML = appState.finances.ventures.map(v => {
-    return `
-      <div class="bg-slate-900/50 p-3.5 rounded-xl border border-slate-800/80 hover:border-amber-500/40 transition-all flex flex-col justify-between">
-        <div>
-          <div class="flex items-center justify-between gap-2 mb-1.5">
-            <h4 class="text-xs font-bold text-white tracking-wide">${v.name}</h4>
-            <span class="badge-green text-[9px] font-mono">${v.status}</span>
-          </div>
-          <p class="text-[10px] text-slate-400 mb-2">${v.sector}</p>
-          <div class="grid grid-cols-2 gap-2 bg-slate-950/60 p-2.5 rounded-lg border border-slate-800 text-[11px] mb-2">
-            <div>
-              <span class="text-[9px] uppercase font-mono text-slate-500 block">Monthly Revenue</span>
-              <span class="font-bold text-amber-300 font-mono">${v.monthly_revenue}</span>
-            </div>
-            <div>
-              <span class="text-[9px] uppercase font-mono text-slate-500 block">Net Margin</span>
-              <span class="font-bold text-emerald-400 font-mono">${v.margin}</span>
-            </div>
-          </div>
-        </div>
-        <div class="text-[10px] text-slate-400 flex items-center justify-between pt-2 border-t border-slate-800/60">
-          <span>Top Product: <strong class="text-slate-300">${v.top_product}</strong></span>
-          <button onclick="openTreasuryWithVenture('${v.id}')" class="btn-ghost text-[10px] py-1 px-2.5 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-950/40 flex items-center gap-1 font-mono font-bold" title="Open Instant Payment Rail">
-            <span>💳</span> Checkout Rail
-          </button>
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-// 2. Current Active Tasks (Live Work in Flight)
-function renderCurrentTasks() {
-  const container = document.getElementById('current-tasks-container');
-  if (!container || !appState.telemetry || !appState.telemetry.streams) return;
-
-  container.innerHTML = appState.telemetry.streams.map(s => {
-    return `
-      <div class="bg-slate-900/50 p-3 rounded-xl border border-slate-800/80 hover:border-sky-500/30 transition-all">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
-          <div class="flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full ${s.status === 'COMPLETED' ? 'bg-emerald-400' : 'bg-sky-400 animate-pulse'}"></span>
-            <h4 class="text-xs font-bold text-white">${s.task}</h4>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="text-[10px] font-mono text-slate-400">${s.agent_name} (${s.department.split('(')[0]})</span>
-            <span class="badge-blue text-[9px] font-mono">${s.status}</span>
-          </div>
-        </div>
-        <p class="text-[11px] text-slate-300 mb-2 leading-relaxed">${s.details}</p>
-        <div class="flex items-center gap-3">
-          <div class="flex-1 progress-track bg-slate-950">
-            <div class="progress-fill" style="width: ${s.progress}%;"></div>
-          </div>
-          <span class="font-mono text-[10px] font-bold text-amber-300 shrink-0">${s.progress}%</span>
-          <span class="text-[9px] text-slate-500 shrink-0 font-mono">ETA: ${s.eta}</span>
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-// 3. Employees Active & Non-Active (Standby)
-function filterEmployeeRoster(filter) {
-  appState.employeeStatusFilter = filter;
-  document.querySelectorAll('.employee-filter-btn').forEach(btn => {
-    if (btn.getAttribute('data-filter') === filter) {
-      btn.className = 'employee-filter-btn px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/40';
-    } else {
-      btn.className = 'employee-filter-btn px-2.5 py-1 rounded-lg text-xs font-medium text-slate-300 hover:bg-slate-800 border border-transparent';
-    }
-  });
-  renderEmployees();
-}
-
-function renderEmployees() {
-  const container = document.getElementById('employees-grid-container');
-  if (!container || !appState.agents) return;
-
-  const filter = appState.employeeStatusFilter || 'all';
-  const filtered = appState.agents.filter(a => {
-    if (filter === 'online') return a.status === 'ONLINE';
-    if (filter === 'standby') return a.status === 'STANDBY';
-    return true;
-  });
-
-  container.innerHTML = filtered.map(a => {
-    const isOnline = a.status === 'ONLINE';
-    const statusPill = isOnline ? '<span class="status-pill-online">● ACTIVE ONLINE</span>' : '<span class="status-pill-standby">💤 STANDBY</span>';
-
-    return `
-      <div class="card-glass p-3.5 flex flex-col justify-between border border-slate-800/80 hover:border-amber-500/40 transition-all">
-        <div>
-          <div class="flex items-start justify-between gap-2.5 mb-2.5">
-            <div class="flex items-center gap-2.5">
-              <div class="relative">
-                <img src="${a.avatar_img}" alt="${a.name}" class="w-11 h-11 rounded-full object-cover border border-amber-500/40">
-                <span class="absolute bottom-0 right-0 w-3 h-3 rounded-full ${isOnline ? 'bg-emerald-400' : 'bg-slate-400'} border-2 border-slate-900"></span>
-              </div>
-              <div>
-                <h4 class="text-xs font-bold text-white">${a.name}</h4>
-                <p class="text-[10px] text-amber-300 font-semibold">${a.title.split('(')[0]}</p>
-                <p class="text-[9px] text-slate-400 font-mono">Age ${a.age} • ${a.origin.split('/')[0]}</p>
-              </div>
-            </div>
-            ${statusPill}
-          </div>
-          <p class="text-[11px] text-slate-300 mb-2 italic line-clamp-2">"${a.personality}"</p>
-          <div class="bg-slate-950/50 p-2 rounded-lg border border-slate-800/70 text-[10px] mb-2.5">
-            <span class="text-slate-500 block uppercase font-mono text-[9px]">Current Focus</span>
-            <span class="text-slate-300">${a.current_task || a.focus}</span>
-          </div>
-        </div>
-
-        <div class="flex items-center justify-between gap-2 pt-2 border-t border-slate-800/60">
-          <button onclick="directMessageAgent('${a.key}')" class="btn-ghost text-[11px] py-1 px-2.5 text-amber-300 flex items-center gap-1">
-            <span>💬</span> Chat
-          </button>
-          <button onclick="handleToggleAgentStatus('${a.id}')" class="text-[10px] font-mono py-1 px-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300">
-            ${isOnline ? 'Set Standby' : 'Wake Up'}
-          </button>
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-async function handleToggleAgentStatus(agentId) {
-  try {
-    const res = await fetch('/api/agents/toggle', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ agent_id: agentId })
-    });
-    const data = await res.json();
-    if (data.success && data.agents) {
-      appState.agents = data.agents;
-      renderEmployees();
-      fetchStatus();
-    }
-  } catch (err) {
-    console.error('Failed to toggle agent status', err);
-  }
-}
-
-// 4. Task Requests for Approval (Chairperson Decision Gates)
-function renderApprovalRequests() {
-  const container = document.getElementById('approval-requests-container');
-  if (!container || !appState.gates) return;
-
-  const pending = appState.gates.filter(g => (g.status || '').includes('PENDING'));
-  if (pending.length === 0) {
-    container.innerHTML = `
-      <div class="col-span-full bg-slate-900/40 p-4 rounded-xl text-center text-xs text-slate-400">
-        ✓ No pending approval requests. All conglomerate decisions ratified.
-      </div>
-    `;
-    return;
-  }
-
-  container.innerHTML = pending.map(gate => {
-    return `
-      <div class="card-glass p-3.5 flex flex-col justify-between border border-amber-500/40 bg-amber-950/10">
-        <div>
-          <div class="flex items-center justify-between gap-2 mb-1.5">
-            <span class="badge-gold text-[9px] font-mono">${gate.gate_id}</span>
-            <span class="badge-rose text-[9px] uppercase font-mono">${gate.urgency || 'HIGH'} PRIORITY</span>
-          </div>
-          <h4 class="text-xs font-bold text-white mb-1">${gate.title}</h4>
-          <p class="text-[10px] text-amber-300 font-semibold mb-2">${gate.business_unit} • Sponsor: ${gate.proposer}</p>
-          <p class="text-[11px] text-slate-300 mb-3 leading-relaxed">${gate.description}</p>
-        </div>
-        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
-          <button onclick="handleRejectGate('${gate.gate_id}')" class="btn-ghost text-[11px] py-1 px-3 text-rose-400 hover:bg-rose-950/40">
-            ✗ Reject
-          </button>
-          <button onclick="handleApproveGate('${gate.gate_id}')" class="btn-gold text-[11px] py-1 px-3">
-            ✓ Ratify & Sign
-          </button>
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-async function handleApproveGate(gateId) {
-  try {
-    const res = await fetch('/api/gates/approve', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ gate_id: gateId })
-    });
-    const data = await res.json();
-    if (data.success) {
-      await fetchGates();
-      await fetchStatus();
-    }
-  } catch (err) {
-    console.error('Approval failed', err);
-  }
-}
-
-async function handleRejectGate(gateId) {
-  const reason = prompt('Specify rejection or revision decree for this gate:', 'Requires revised cost projection');
-  if (reason === null) return;
-  try {
-    const res = await fetch('/api/gates/reject', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ gate_id: gateId, reason: reason })
-    });
-    const data = await res.json();
-    if (data.success) {
-      await fetchGates();
-      await fetchStatus();
-    }
-  } catch (err) {
-    console.error('Rejection failed', err);
-  }
-}
-
-// 5 & 6. Pending Tasks & Completed Tasks
-function renderPendingTasks() {
-  const container = document.getElementById('pending-tasks-list');
-  if (!container || !appState.roadmap || !appState.roadmap.items) return;
-
-  const pending = appState.roadmap.items.filter(i => i.status === 'IN_PROGRESS' || i.status === 'SCHEDULED' || i.status === 'PENDING_APPROVAL');
-  const badge = document.getElementById('pending-tasks-badge');
-  if (badge) badge.innerText = `${pending.length} IN QUEUE`;
-
-  container.innerHTML = pending.slice(0, 6).map(item => {
-    return `
-      <div class="bg-slate-900/50 p-2.5 rounded-lg border border-slate-800/80 flex items-center justify-between gap-2 text-xs">
-        <div class="truncate">
-          <div class="flex items-center gap-1.5">
-            <span class="font-mono text-[10px] text-amber-400 font-bold">${item.id}</span>
-            <span class="font-semibold text-white truncate">${item.title}</span>
-          </div>
-          <p class="text-[10px] text-slate-400 truncate">${item.owner} • ETA: ${item.eta}</p>
-        </div>
-        <span class="font-mono text-[10px] font-bold text-sky-400 shrink-0">${item.progress}%</span>
-      </div>
-    `;
-  }).join('');
-}
-
-function renderCompletedTasks() {
-  const container = document.getElementById('completed-tasks-list');
-  if (!container || !appState.roadmap || !appState.roadmap.items) return;
-
-  const completed = appState.roadmap.items.filter(i => i.status === 'COMPLETED');
-  const badge = document.getElementById('completed-tasks-badge');
-  if (badge) badge.innerText = `${completed.length} VERIFIED`;
-
-  container.innerHTML = completed.slice(0, 6).map(item => {
-    return `
-      <div class="bg-slate-900/50 p-2.5 rounded-lg border border-slate-800/80 flex items-center justify-between gap-2 text-xs">
-        <div class="truncate">
-          <div class="flex items-center gap-1.5">
-            <span class="text-emerald-400 font-bold">✓</span>
-            <span class="font-semibold text-white truncate">${item.title}</span>
-          </div>
-          <p class="text-[10px] text-slate-400 truncate">${item.owner} • Verified Production Milestone</p>
-        </div>
-        <span class="badge-green text-[9px] font-mono shrink-0">100%</span>
-      </div>
-    `;
-  }).join('');
-}
-
-// 7. Continuous Autonomous Business Incubator & Startup Debates
-function renderBusinessIncubator() {
-  const container = document.getElementById('incubator-proposals-container');
-  if (!container || !appState.incubator) return;
-
-  container.innerHTML = appState.incubator.map(p => {
-    const isFinalized = p.status === 'FINALIZED_FOR_STARTUP';
-    const isRatified = p.status === 'UNANIMOUS_COUNCIL_RATIFICATION' || isFinalized;
-    const cr = p.council_rounds;
-    const fin = p.final_ratified_proposal;
-
-    return `
-      <div class="card-glass p-5 border ${isFinalized ? 'border-emerald-500/50' : 'border-purple-500/40'} flex flex-col gap-4 shadow-xl">
-        
-        <!-- Header & Action Ribbon -->
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
-          <div>
-            <div class="flex items-center gap-2.5 flex-wrap">
-              <span class="font-mono text-xs font-bold text-purple-400 bg-purple-950/60 px-2 py-0.5 rounded border border-purple-500/40">${p.id}</span>
-              <h4 class="text-sm font-bold text-white tracking-wide">${p.title}</h4>
-              <span class="${isRatified ? 'badge-green' : 'badge-gold'} text-[10px] font-mono">
-                ${isFinalized ? '✓ CLEARED FOR LAUNCH' : (isRatified ? '🏆 UNANIMOUS COUNCIL CONSENSUS' : 'UNDER ACTIVE DEBATE')}
-              </span>
-            </div>
-            <p class="text-[11px] text-slate-400 mt-1">
-              <span class="text-amber-300 font-semibold">${p.category}</span> • Initiator: <strong class="text-slate-200">${p.initiator}</strong>
-            </p>
-          </div>
-
-          <div class="flex items-center gap-2 shrink-0">
-            <button onclick="handleChallengeProposal('${p.id}')" class="btn-ghost text-[11px] py-1.5 px-3 flex items-center gap-1 border border-red-500/40 text-red-300 hover:bg-red-950/30" title="Inject a tough objection or edge case to challenge the Council">
-              <span>🔥</span> Challenge Debators
-            </button>
-            ${!isFinalized ? `
-              <button onclick="handleFinalizeStartup('${p.id}')" class="btn-gold text-[11px] py-1.5 px-3.5 flex items-center gap-1">
-                <span>🚀</span> Finalize for Startup
-              </button>
-            ` : '<span class="badge-green text-xs font-bold px-3 py-1">✓ Live Startup Mandate</span>'}
-          </div>
-        </div>
-
-        <!-- Financial & Risk Projections Ribbon -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 bg-slate-950/70 p-3 rounded-xl border border-slate-800 text-[11px]">
-          <div>
-            <span class="text-[9px] uppercase font-mono text-slate-400 block">Upfront Capital Required</span>
-            <span class="font-bold text-amber-300 font-mono text-xs">${p.investment_required ? p.investment_required.split('(')[0] : '₹35,000'}</span>
-          </div>
-          <div>
-            <span class="text-[9px] uppercase font-mono text-slate-400 block">Projected Revenue</span>
-            <span class="font-bold text-emerald-400 font-mono text-xs">${p.projected_monthly_revenue || '₹2,50,000 / mo'}</span>
-          </div>
-          <div>
-            <span class="text-[9px] uppercase font-mono text-slate-400 block">Stress-Tested Net Margin</span>
-            <span class="font-bold text-sky-400 font-mono text-xs">${p.projected_net_margin || '78%'}</span>
-          </div>
-          <div>
-            <span class="text-[9px] uppercase font-mono text-slate-400 block">Capital Payback Period</span>
-            <span class="font-bold text-purple-300 font-mono text-xs">${p.payback_period || '28 Days'}</span>
-          </div>
-        </div>
-
-        <!-- Executive Verdict / Summary -->
-        <div class="bg-slate-900/40 p-3 rounded-xl border border-slate-800/80 text-xs text-slate-300 leading-relaxed">
-          <strong class="text-amber-300 uppercase text-[10px] font-mono tracking-wider block mb-1">Council Verdict & Executive Summary:</strong>
-          ${p.debate_summary}
-        </div>
-
-        <!-- STRATEGIC INTELLIGENCE MATRICES (5-Yr Trajectory, Demographics, Ongoing Cash Flow, or Zero-Loss Trading) -->
-        ${(() => {
-          const si = p.strategic_intelligence;
-          const meta = p.meeting_meta;
-          if (!si) return '';
-
-          // 1. New Product Archetype
-          if (si.five_year_trajectory) {
-            const fyt = si.five_year_trajectory;
-            const demo = si.target_audience_demographics;
-            const mkt = si.market_size_and_value;
-            const ident = si.product_identity;
-
-            return `
-              <div class="bg-purple-950/20 rounded-xl p-3.5 border border-purple-900/40 space-y-3">
-                <div class="flex items-center justify-between border-b border-purple-900/30 pb-2">
-                  <div class="flex items-center gap-2">
-                    <span class="text-sm">📊</span>
-                    <strong class="text-xs text-white uppercase font-mono tracking-wider">Strategic Product Viability & 5-Year Trajectory</strong>
-                  </div>
-                  <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-purple-900/40 text-purple-300 border border-purple-500/30">${fyt.graph_curve_type || 'Exponential S-Curve'}</span>
-                </div>
-
-                <!-- Product Identity & Market TAM -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
-                  <div class="bg-slate-950/70 p-2.5 rounded-lg border border-slate-800">
-                    <span class="text-[9px] font-mono uppercase text-slate-400 block mb-0.5">Product Novelty & Classification</span>
-                    <div class="text-amber-300 font-bold">${ident ? ident.classification : 'Category Innovator'}</div>
-                    <div class="text-slate-300 text-[10px] mt-0.5">${ident ? ident.is_new_or_version : 'New Solution'}</div>
-                  </div>
-                  <div class="bg-slate-950/70 p-2.5 rounded-lg border border-slate-800">
-                    <span class="text-[9px] font-mono uppercase text-slate-400 block mb-0.5">Market Opportunity (TAM / SAM / SOM)</span>
-                    <div class="text-emerald-400 font-bold">${mkt ? mkt.tam : '₹18,500 Cr TAM'}</div>
-                    <div class="text-slate-300 text-[10px] mt-0.5">${mkt ? mkt.som : '₹24 Cr Year 1-2 SOM'}</div>
-                  </div>
-                </div>
-
-                <!-- 5-Year Growth Graph & Milestones -->
-                ${fyt.graph_data ? `
-                  <div class="space-y-1.5">
-                    <span class="text-[10px] font-mono uppercase font-bold text-slate-300 block">📈 5-Year Revenue & Customer Growth Graph:</span>
-                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-[11px]">
-                      ${fyt.graph_data.map(g => `
-                        <div class="bg-slate-950/80 p-2 rounded-lg border border-purple-900/30 flex flex-col justify-between">
-                          <div class="flex items-center justify-between text-[9px] font-mono text-slate-400 mb-1">
-                            <span class="font-bold text-purple-300">${g.year}</span>
-                            <span class="text-emerald-400 font-bold">${g.revenue}</span>
-                          </div>
-                          <div class="text-[10px] text-white font-semibold mb-1">${g.users}</div>
-                          <div class="text-[9px] text-slate-400 leading-tight">${g.milestone}</div>
-                        </div>
-                      `).join('')}
-                    </div>
-                  </div>
-                ` : ''}
-
-                <!-- Demographics & Audience Profiling -->
-                ${demo ? `
-                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] pt-1">
-                    <!-- Age Groups -->
-                    <div class="bg-slate-950/70 p-2.5 rounded-lg border border-slate-800 space-y-1">
-                      <span class="text-[9px] font-mono uppercase text-slate-400 block font-bold">🎯 Target Age Groups</span>
-                      ${(demo.age_groups || []).map(a => `
-                        <div class="flex items-center justify-between text-[10px]">
-                          <span class="text-slate-300">${a.range.split('(')[0]}</span>
-                          <span class="font-mono font-bold text-amber-300">${a.percentage}%</span>
-                        </div>
-                        <div class="w-full bg-slate-800 h-1 rounded-full overflow-hidden mb-1">
-                          <div class="bg-amber-400 h-full" style="width: ${a.percentage}%"></div>
-                        </div>
-                      `).join('')}
-                    </div>
-
-                    <!-- Gender Distribution -->
-                    <div class="bg-slate-950/70 p-2.5 rounded-lg border border-slate-800 space-y-1.5">
-                      <span class="text-[9px] font-mono uppercase text-slate-400 block font-bold">⚧️ Gender Distribution</span>
-                      <div class="flex items-center justify-between text-xs font-mono font-bold">
-                        <span class="text-sky-300">♂ Male: ${demo.gender_distribution?.male || 60}%</span>
-                        <span class="text-pink-300">♀ Female: ${demo.gender_distribution?.female || 36}%</span>
-                      </div>
-                      <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden flex">
-                        <div class="bg-sky-400 h-full" style="width: ${demo.gender_distribution?.male || 60}%"></div>
-                        <div class="bg-pink-400 h-full" style="width: ${demo.gender_distribution?.female || 36}%"></div>
-                        <div class="bg-purple-400 h-full" style="width: 4%"></div>
-                      </div>
-                      <div class="text-[10px] text-slate-400 leading-snug mt-1">
-                        <strong class="text-slate-300">Trigger:</strong> ${demo.purchase_trigger || 'Decision clarity & automated time savings.'}
-                      </div>
-                    </div>
-
-                    <!-- Profession Breakdown -->
-                    <div class="bg-slate-950/70 p-2.5 rounded-lg border border-slate-800 space-y-1">
-                      <span class="text-[9px] font-mono uppercase text-slate-400 block font-bold">💼 Target Professions</span>
-                      ${(demo.professions || []).map(pr => `
-                        <div class="flex items-center justify-between text-[10px] py-0.5 border-b border-slate-800/60 last:border-0">
-                          <span class="text-slate-200 truncate pr-1">${pr.title.split('&')[0]}</span>
-                          <span class="font-mono font-bold text-sky-400 shrink-0">${pr.share}%</span>
-                        </div>
-                      `).join('')}
-                    </div>
-                  </div>
-                ` : ''}
-
-              </div>
-            `;
-          }
-
-          // 2. Ongoing Product Review Archetype
-          if (si.ongoing_performance) {
-            const op = si.ongoing_performance;
-            const rec = si.recent_features_added || [];
-            const chg = si.what_needs_to_be_changed_next || [];
-            const rmap = si.ongoing_development_roadmap || [];
-
-            return `
-              <div class="bg-blue-950/20 rounded-xl p-3.5 border border-blue-900/40 space-y-3">
-                <div class="flex items-center justify-between border-b border-blue-900/30 pb-2">
-                  <div class="flex items-center gap-2">
-                    <span class="text-sm">🔄</span>
-                    <strong class="text-xs text-white uppercase font-mono tracking-wider">Executive Performance & Operational Scaling Audit</strong>
-                  </div>
-                  <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-900/40 text-emerald-300 border border-emerald-500/30">CURRENT CASH FLOW: ${op.monthly_revenue}</span>
-                </div>
-
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px]">
-                  <div class="bg-slate-950/70 p-2 rounded-lg border border-slate-800">
-                    <span class="text-[9px] font-mono uppercase text-slate-400 block">Monthly Revenue</span>
-                    <span class="text-emerald-400 font-bold font-mono">${op.monthly_revenue}</span>
-                  </div>
-                  <div class="bg-slate-950/70 p-2 rounded-lg border border-slate-800">
-                    <span class="text-[9px] font-mono uppercase text-slate-400 block">ARR Run-Rate</span>
-                    <span class="text-amber-300 font-bold font-mono">${op.annualized_run_rate}</span>
-                  </div>
-                  <div class="bg-slate-950/70 p-2 rounded-lg border border-slate-800">
-                    <span class="text-[9px] font-mono uppercase text-slate-400 block">Active Users Volume</span>
-                    <span class="text-sky-300 font-bold font-mono">${op.active_users_volume}</span>
-                  </div>
-                  <div class="bg-slate-950/70 p-2 rounded-lg border border-slate-800">
-                    <span class="text-[9px] font-mono uppercase text-slate-400 block">MoM Growth Rate</span>
-                    <span class="text-purple-300 font-bold font-mono">${op.growth_velocity}</span>
-                  </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
-                  <div class="bg-slate-950/70 p-2.5 rounded-lg border border-slate-800 space-y-1">
-                    <span class="text-[9px] font-mono uppercase text-emerald-400 block font-bold">⚡ Recent Features Added:</span>
-                    ${rec.map(r => `<div class="text-slate-300 text-[10px] flex items-start gap-1.5"><span class="text-emerald-400">✓</span><span>${r}</span></div>`).join('')}
-                  </div>
-                  <div class="bg-slate-950/70 p-2.5 rounded-lg border border-slate-800 space-y-1">
-                    <span class="text-[9px] font-mono uppercase text-amber-400 block font-bold">🛠️ What Needs to Change Next:</span>
-                    ${chg.map(c => `<div class="text-slate-300 text-[10px] flex items-start gap-1.5"><span class="text-amber-400">⚠</span><span>${c}</span></div>`).join('')}
-                  </div>
-                </div>
-
-                ${rmap.length ? `
-                  <div class="bg-slate-950/70 p-2.5 rounded-lg border border-slate-800 space-y-1.5">
-                    <span class="text-[9px] font-mono uppercase text-sky-400 block font-bold">🗺️ Ongoing Development Sprint Roadmap:</span>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                      ${rmap.map(m => `
-                        <div class="bg-slate-900/80 p-2 rounded border border-slate-800">
-                          <span class="text-[9px] font-mono font-bold text-sky-300 block">${m.milestone}</span>
-                          <span class="text-[10px] text-slate-300 leading-tight">${m.target}</span>
-                        </div>
-                      `).join('')}
-                    </div>
-                  </div>
-                ` : ''}
-
-              </div>
-            `;
-          }
-
-          // 3. Investment / Trading Archetype
-          if (si.chairperson_mandate || si.strategy_and_bot_diligence) {
-            const cm = si.chairperson_mandate || {};
-            const sd = si.strategy_and_bot_diligence || {};
-            const fr = si.financial_returns_projection || {};
-
-            return `
-              <div class="bg-amber-950/20 rounded-xl p-3.5 border border-amber-900/40 space-y-3">
-                <div class="flex items-center justify-between border-b border-amber-900/30 pb-2">
-                  <div class="flex items-center gap-2">
-                    <span class="text-sm">🛡️</span>
-                    <strong class="text-xs text-amber-300 uppercase font-mono tracking-wider">Zero-Loss Capital Preservation & Trading Diligence</strong>
-                  </div>
-                  <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-900/40 text-emerald-300 border border-emerald-500/30">REAL CAPITAL AT RISK: ₹0.00 (PAPER ONLY)</span>
-                </div>
-
-                <!-- Chairperson Mandate Ribbon -->
-                <div class="bg-slate-950/80 p-2.5 rounded-lg border border-amber-500/30 flex items-center justify-between flex-wrap gap-2 text-xs">
-                  <div class="flex items-center gap-2">
-                    <span class="text-base">🔒</span>
-                    <div>
-                      <strong class="text-white text-[11px] block">CHAIRPERSON MANDATE ENFORCED:</strong>
-                      <span class="text-amber-300 text-[10px] font-mono font-semibold">${cm.core_rule || 'Absolute Capital Preservation First'}</span>
-                    </div>
-                  </div>
-                  <span class="badge-green text-[9px] font-mono">100% PAPER SIMULATION LOCKOUT ACTIVE</span>
-                </div>
-
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px]">
-                  <div class="bg-slate-950/70 p-2 rounded-lg border border-slate-800">
-                    <span class="text-[9px] font-mono uppercase text-slate-400 block">Backtest Sharpe Ratio</span>
-                    <span class="text-emerald-400 font-bold font-mono">${sd.backtest_sharpe_ratio || '2.42'}</span>
-                  </div>
-                  <div class="bg-slate-950/70 p-2 rounded-lg border border-slate-800">
-                    <span class="text-[9px] font-mono uppercase text-slate-400 block">Max Simulated Drawdown</span>
-                    <span class="text-sky-300 font-bold font-mono">${sd.max_simulated_drawdown || '1.7%'}</span>
-                  </div>
-                  <div class="bg-slate-950/70 p-2 rounded-lg border border-slate-800">
-                    <span class="text-[9px] font-mono uppercase text-slate-400 block">Projected Monthly Yield</span>
-                    <span class="text-amber-300 font-bold font-mono">${fr.projected_monthly_return || '3.2% - 4.5%'}</span>
-                  </div>
-                  <div class="bg-slate-950/70 p-2 rounded-lg border border-slate-800">
-                    <span class="text-[9px] font-mono uppercase text-slate-400 block">Capital Shielding Score</span>
-                    <span class="text-purple-300 font-bold font-mono">${fr.capital_preservation_score || '99.2%'}</span>
-                  </div>
-                </div>
-
-                <div class="bg-slate-950/70 p-2.5 rounded-lg border border-slate-800 space-y-1 text-[11px]">
-                  <span class="text-[9px] font-mono uppercase text-slate-400 block font-bold">🤖 Algorithmic Architecture & Risk Defense:</span>
-                  <div class="text-slate-300 text-[10px]"><strong>Engines:</strong> ${sd.primary_engines || 'Freqtrade + TradingAgents'}</div>
-                  <div class="text-slate-300 text-[10px]"><strong>Hedging:</strong> ${sd.hedging_mechanics || 'Market-neutral delta hedging'}</div>
-                  <div class="text-slate-300 text-[10px]"><strong>Stop-Loss:</strong> ${sd.stop_loss_architecture || 'Hard 1.2% circuit breaker with trailing stop'}</div>
-                </div>
-
-              </div>
-            `;
-          }
-
-          return '';
-        })()}
-
-        <!-- LLM COUNCIL MULTI-ROUND ADVERSARIAL DEBATE FEED -->
-        ${cr ? `
-          <div class="space-y-3 pt-1">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
-              <span class="text-[11px] font-bold uppercase font-mono text-slate-300 flex items-center gap-1.5">
-                <span>⚔️</span> Karpathy LLM Council & Swarm Adversarial Debate
-              </span>
-              <span class="text-[10px] font-mono text-purple-400">8 Debators • No Yes-Men</span>
-            </div>
-
-            <!-- ROUND 1: Flaw Interrogation & Radical Alternates -->
-            <details class="modern-accordion" open>
-              <summary class="text-[11px] font-mono font-bold uppercase text-red-400 hover:text-red-300">
-                <div class="flex items-center gap-2">
-                  <span class="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_6px_#ef4444]"></span>
-                  <span>ROUND 1: Flaw Interrogation & Alternate Options (${(cr.round_1 || []).length} Critical Arguments)</span>
-                </div>
-                <span class="text-[10px] text-slate-400 font-mono font-normal">Toggle View</span>
-              </summary>
-              <div class="p-3 pt-1 space-y-2 text-xs border-t border-red-900/30">
-                ${(cr.round_1 || []).map(d => `
-                  <div class="bg-slate-950/80 p-2.5 rounded-lg border border-red-900/30 space-y-1.5">
-                    <div class="flex items-center justify-between gap-2">
-                      <div class="flex items-center gap-2">
-                        <img src="${d.avatar}" alt="${d.debator}" class="w-6 h-6 rounded-full object-cover shrink-0 border border-slate-700">
-                        <strong class="text-white text-[11px]">${d.debator}</strong>
-                        <span class="text-[10px] text-slate-400 font-mono">(${d.role})</span>
-                      </div>
-                      <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded ${d.badge_color || 'border border-red-500/40 text-red-400 bg-red-950/40'}">
-                        ${d.stance ? d.stance.replace(/_/g, ' ') : 'CRITICAL FLAW'}
-                      </span>
-                    </div>
-                    <p class="text-slate-300 text-[11px] leading-relaxed pl-8">
-                      <strong class="text-red-400 font-semibold">Flaw:</strong> ${d.critique}
-                    </p>
-                    ${d.alternate_proposal ? `
-                      <div class="ml-8 p-2 rounded bg-emerald-950/30 border border-emerald-500/30 text-[11px] text-emerald-300 leading-relaxed">
-                        <strong class="text-emerald-400 font-bold block mb-0.5">⚡ Alternate Option Proposed:</strong>
-                        ${d.alternate_proposal}
-                      </div>
-                    ` : ''}
-                  </div>
-                `).join('')}
-              </div>
-            </details>
-
-            <!-- ROUND 2: Cross-Examination & Stress-Testing -->
-            <details class="modern-accordion">
-              <summary class="text-[11px] font-mono font-bold uppercase text-amber-400 hover:text-amber-300">
-                <div class="flex items-center gap-2">
-                  <span class="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_6px_#f59e0b]"></span>
-                  <span>ROUND 2: Cross-Examination & Stress-Testing (${(cr.round_2 || []).length} Evaluations)</span>
-                </div>
-                <span class="text-[10px] text-slate-400 font-mono font-normal">Toggle View</span>
-              </summary>
-              <div class="p-3 pt-1 space-y-2 text-xs border-t border-amber-900/30">
-                ${(cr.round_2 || []).map(d => `
-                  <div class="bg-slate-950/80 p-2.5 rounded-lg border border-amber-900/30 space-y-1">
-                    <div class="flex items-center justify-between gap-2">
-                      <div class="flex items-center gap-2">
-                        <img src="${d.avatar}" alt="${d.debator}" class="w-6 h-6 rounded-full object-cover shrink-0 border border-slate-700">
-                        <strong class="text-white text-[11px]">${d.debator}</strong>
-                        <span class="text-[10px] text-slate-400 font-mono">(${d.role})</span>
-                      </div>
-                      <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded ${d.badge_color || 'border border-amber-500/40 text-amber-400 bg-amber-950/40'}">
-                        ${d.stance ? d.stance.replace(/_/g, ' ') : 'STRESS-TEST'}
-                      </span>
-                    </div>
-                    <p class="text-slate-300 text-[11px] leading-relaxed pl-8">
-                      ${d.critique}
-                    </p>
-                    ${d.refinement ? `
-                      <div class="ml-8 p-1.5 rounded bg-sky-950/30 border border-sky-500/30 text-[11px] text-sky-300 leading-relaxed">
-                        <strong class="text-sky-400 font-bold">Refinement Adopted:</strong> ${d.refinement}
-                      </div>
-                    ` : ''}
-                  </div>
-                `).join('')}
-              </div>
-            </details>
-
-            <!-- ROUND 3: Convergence & Consensus Ratification -->
-            <details class="modern-accordion">
-              <summary class="text-[11px] font-mono font-bold uppercase text-emerald-400 hover:text-emerald-300">
-                <div class="flex items-center gap-2">
-                  <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_#10b981]"></span>
-                  <span>ROUND 3: Consensus Convergence & Ratification (${(cr.round_3 || []).length} Votes)</span>
-                </div>
-                <span class="text-[10px] text-slate-400 font-mono font-normal">Toggle View</span>
-              </summary>
-              <div class="p-3 pt-1 space-y-2 text-xs border-t border-emerald-900/30">
-                ${(cr.round_3 || []).map(d => `
-                  <div class="bg-slate-950/80 p-2.5 rounded-lg border border-emerald-900/30 flex items-start gap-2">
-                    <img src="${d.avatar}" alt="${d.debator}" class="w-6 h-6 rounded-full object-cover shrink-0 mt-0.5 border border-slate-700">
-                    <div class="flex-1 text-[11px] leading-relaxed">
-                      <div class="flex items-center gap-2 mb-0.5">
-                        <strong class="text-white">${d.debator}:</strong>
-                        <span class="badge-green text-[9px] font-mono">${d.vote ? d.vote.replace(/_/g, ' ') : 'RATIFIED'}</span>
-                      </div>
-                      <span class="text-emerald-300/90">${d.statement || d.critique}</span>
-                    </div>
-                  </div>
-                `).join('')}
-              </div>
-            </details>
-
-            <!-- FINAL RATIFIED BLUEPRINT (If available) -->
-            ${fin ? `
-              <div class="bg-slate-900/80 p-3.5 rounded-xl border border-amber-500/30 space-y-3 text-xs">
-                
-                ${fin.flaws_caught_and_mitigated ? `
-                  <div>
-                    <div class="flex items-center justify-between text-[10px] font-mono font-bold uppercase text-amber-300 border-b border-slate-800 pb-1 mb-2">
-                      <span>🛡️ Critical Flaws Caught & Mitigated by Council</span>
-                      <span class="badge-gold text-[9px]">Verified Viable</span>
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
-                      ${fin.flaws_caught_and_mitigated.map(f => `
-                        <div class="bg-slate-950/70 p-2 rounded-lg border border-slate-800">
-                          <div class="text-red-400 font-bold text-[10px] uppercase">❌ Caught Flaw:</div>
-                          <div class="text-slate-300 mb-1">${f.flaw}</div>
-                          <div class="text-emerald-400 font-bold text-[10px] uppercase">✅ Adopted Mitigation:</div>
-                          <div class="text-emerald-300">${f.mitigation}</div>
-                        </div>
-                      `).join('')}
-                    </div>
-                  </div>
-                ` : ''}
-
-                ${fin.day_one_action_plan && fin.day_one_action_plan.length ? `
-                  <div class="pt-2 border-t border-slate-800/80">
-                    <div class="flex items-center justify-between text-[10px] font-mono font-bold uppercase text-emerald-400 mb-2">
-                      <span>🚀 Day 1 Zero-Touch Execution Action Plan</span>
-                      <span class="badge-green text-[9px]">Autonomy Ready</span>
-                    </div>
-                    <div class="space-y-1.5">
-                      ${fin.day_one_action_plan.map((step, idx) => `
-                        <div class="bg-slate-950/60 p-2 rounded-lg border border-slate-800/80 flex items-start gap-2 text-[11px]">
-                          <span class="w-4 h-4 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-mono font-bold flex items-center justify-center shrink-0 mt-0.5">${idx + 1}</span>
-                          <span class="text-slate-200">${step}</span>
-                        </div>
-                      `).join('')}
-                    </div>
-                  </div>
-                ` : ''}
-
-                ${fin.unit_economics ? `
-                  <div class="pt-2 border-t border-slate-800/80">
-                    <div class="text-[10px] font-mono font-bold uppercase text-sky-400 mb-1.5">
-                      <span>📊 Ratified Unit Economics & Payback Model</span>
-                    </div>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10px] font-mono">
-                      <div class="bg-slate-950/70 p-2 rounded border border-slate-800 text-center">
-                        <span class="text-slate-400 block text-[9px]">Gross Margin</span>
-                        <span class="text-emerald-400 font-bold text-xs">${fin.unit_economics.gross_margin || '84%'}</span>
-                      </div>
-                      <div class="bg-slate-950/70 p-2 rounded border border-slate-800 text-center">
-                        <span class="text-slate-400 block text-[9px]">Net Operating Margin</span>
-                        <span class="text-sky-400 font-bold text-xs">${fin.unit_economics.net_operating_margin || '73%'}</span>
-                      </div>
-                      <div class="bg-slate-950/70 p-2 rounded border border-slate-800 text-center">
-                        <span class="text-slate-400 block text-[9px]">Break-Even Units</span>
-                        <span class="text-amber-300 font-bold text-xs">${fin.unit_economics.break_even_units || '32 Units'}</span>
-                      </div>
-                      <div class="bg-slate-950/70 p-2 rounded border border-slate-800 text-center">
-                        <span class="text-slate-400 block text-[9px]">Capital Payback</span>
-                        <span class="text-purple-300 font-bold text-xs">${fin.unit_economics.payback_period || '24 Days'}</span>
-                      </div>
-                    </div>
-                  </div>
-                ` : ''}
-
-              </div>
-            ` : ''}
-
-          </div>
-        ` : `
-          <!-- Fallback Legacy Debate Transcript -->
-          <div class="bg-slate-900/50 p-3 rounded-xl border border-slate-800 space-y-2">
-            <div class="text-[10px] font-mono font-bold uppercase text-slate-400 flex items-center justify-between">
-              <span>🗣️ Active Swarm Debate & Analysis</span>
-              <span class="text-purple-400">Multi-Perspective Verification</span>
-            </div>
-            <div class="space-y-1.5 text-xs">
-              ${(p.debate_transcript || []).map(d => `
-                <div class="flex items-start gap-2">
-                  <img src="${d.avatar}" alt="${d.agent}" class="w-5 h-5 rounded-full object-cover shrink-0 mt-0.5 border border-slate-700">
-                  <div class="leading-relaxed">
-                    <strong class="text-white text-[11px]">${d.agent}:</strong>
-                    <span class="text-slate-300 text-[11px]">${d.comment}</span>
-                  </div>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-        `}
-
-      </div>
-    `;
-  }).join('');
-}
-
-async function handleChallengeProposal(id) {
-  const challenge = prompt("Enter a specific flaw, risk, or constraint to challenge the LLM Council with (e.g. 'What if courier rates spike 40%?', 'How do we prevent scraping bans?', 'What happens if refund rate is 20%?'):");
-  if (!challenge || !challenge.trim()) return;
-
-  try {
-    const res = await fetch('/api/incubator/challenge', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: id, challenge: challenge.trim() })
-    });
-    const data = await res.json();
-    if (data.success && data.proposals) {
-      appState.incubator = data.proposals;
-      renderBusinessIncubator();
-    }
-  } catch (err) {
-    alert(`Challenge Error: ${err.message}`);
-  }
-}
-
-function updatePitchPlaceholder() {
-  const select = document.getElementById('incubator-meeting-type');
-  const input = document.getElementById('incubator-pitch-input');
-  if (!select || !input) return;
-  const val = select.value;
-  if (val === 'NEW_PRODUCT') {
-    input.placeholder = "E.g. AI-Powered Dropshipping Diagnostic Tool: 5-year graph, TAM & demographic breakdown...";
-  } else if (val === 'ONGOING_REVIEW') {
-    input.placeholder = "E.g. Review ongoing performance of TITAN Labs electronics engine, current revenue & next sprint...";
-  } else if (val === 'INVESTMENT_TRADING') {
-    input.placeholder = "E.g. Deploy Freqtrade market-neutral paper-trading bot on BTC/USDT with zero-loss safeguard...";
-  } else {
-    input.placeholder = "Post new product idea, ongoing review mandate, or capital investment proposal...";
-  }
-}
-
-async function handlePitchIdea(e) {
-  e.preventDefault();
-  const input = document.getElementById('incubator-pitch-input');
-  const typeSelect = document.getElementById('incubator-meeting-type');
-  const btn = document.getElementById('incubator-pitch-btn');
-  const idea = input.value.trim();
-  if (!idea) return;
-  const meetingType = typeSelect ? typeSelect.value : 'AUTO';
-
-  btn.disabled = true;
-  btn.innerHTML = '<span>🏛️ Convening Strategic Meeting...</span>';
-
-  try {
-    const res = await fetch('/api/incubator/pitch', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ idea: idea, meeting_type: meetingType })
-    });
-    const data = await res.json();
-    if (data.success && data.proposals) {
-      appState.incubator = data.proposals;
-      renderBusinessIncubator();
-      input.value = '';
-    }
-  } catch (err) {
-    console.error('Pitch failed', err);
-    alert(`Meeting Convening Failed: ${err.message}`);
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = '<span>Convene Strategic Meeting</span> ➔';
-  }
-}
-
-async function handleFinalizeStartup(id) {
-  if (!confirm(`Ratify and finalize [${id}] for immediate commercial startup?`)) return;
-  try {
-    const res = await fetch('/api/incubator/finalize', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: id })
-    });
-    const data = await res.json();
-    if (data.success) {
-      await fetchIncubator();
-      await fetchGates();
-      await fetchRoadmap();
-    }
-  } catch (err) {
-    console.error('Finalize startup failed', err);
-  }
-}
-
-// 8. Right-Hand Fixed Short Panel (Quick Dock)
-function renderRightPanelDock() {
-  // Quick Watercooler feed
-  const qcContainer = document.getElementById('quick-watercooler-feed');
-  if (qcContainer && appState.communications.watercooler) {
-    const latest = appState.communications.watercooler.slice(-2);
-    qcContainer.innerHTML = latest.map(m => `
-      <div class="bg-slate-900/60 p-2 rounded-lg border border-slate-800">
-        <div class="flex items-center justify-between text-[10px] text-slate-400 mb-0.5">
-          <strong class="text-amber-300 font-semibold">${m.sender_name}</strong>
-          <span>${m.time}</span>
-        </div>
-        <p class="text-[11px] text-slate-300 line-clamp-2">${m.text}</p>
-      </div>
-    `).join('');
-  }
-
-  // Active Agent Pulse
-  const pulseContainer = document.getElementById('agent-pulse-list');
-  if (pulseContainer && appState.agents) {
-    pulseContainer.innerHTML = appState.agents.map(a => `
-      <div class="flex items-center justify-between text-[11px] py-0.5">
-        <div class="flex items-center gap-2 truncate">
-          <span class="w-2 h-2 rounded-full ${a.status === 'ONLINE' ? 'bg-emerald-400 shadow-sm shadow-emerald-400/50' : 'bg-slate-500'}"></span>
-          <span class="text-white truncate font-medium">${a.name}</span>
-        </div>
-        <span class="text-[9px] font-mono text-slate-400 shrink-0">${a.status === 'ONLINE' ? '12ms' : 'Standby'}</span>
-      </div>
-    `).join('');
-  }
-
-  // 69-Tool Directory Quick List
-  const toolContainer = document.getElementById('quick-tools-list');
-  if (toolContainer && appState.tools) {
-    renderQuickToolList(appState.tools.slice(0, 6));
-  }
-}
-
-function renderQuickToolList(tools) {
-  const toolContainer = document.getElementById('quick-tools-list');
-  if (!toolContainer) return;
-  toolContainer.innerHTML = tools.map(t => `
-    <div onclick="switchTab('tools')" class="p-1.5 rounded-lg bg-slate-900/40 hover:bg-slate-800/80 border border-slate-800/80 flex items-center justify-between text-[10px] cursor-pointer transition-all">
-      <span class="font-bold text-slate-200">${t.name}</span>
-      <span class="text-[9px] text-amber-300 font-mono">${t.stars}</span>
-    </div>
-  `).join('');
-}
-
-function handleQuickToolSearch(query) {
-  if (!appState.tools) return;
-  const q = query.toLowerCase();
-  const filtered = appState.tools.filter(t => t.name.toLowerCase().includes(q) || t.category.toLowerCase().includes(q));
-  renderQuickToolList(filtered.slice(0, 6));
-}
-
-async function handleSendQuickWatercooler(e) {
-  e.preventDefault();
-  const input = document.getElementById('quick-watercooler-input');
-  const btn = document.getElementById('quick-watercooler-btn');
-  const text = input.value.trim();
-  if (!text) return;
-
-  btn.disabled = true;
-  try {
-    const res = await fetch('/api/communications/post', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ channel: 'watercooler', message: text, user_name: 'Mustafa' })
-    });
-    const data = await res.json();
-    if (data.success && data.watercooler) {
-      appState.communications.watercooler = data.watercooler;
-      input.value = '';
-      renderWatercoolerChat();
-      renderRightPanelDock();
-    }
-  } catch (err) {
-    console.error('Quick chat failed', err);
-  } finally {
-    btn.disabled = false;
-  }
-}
-
-// ============================================================================
-// COMMUNICATIONS HUB (Casual Watercooler + Project Syncs + 1-on-1)
-// ============================================================================
-
-function switchCommChannel(channel) {
-  appState.commChannel = channel;
-  const channels = ['watercooler', 'sync', 'direct'];
-  channels.forEach(c => {
-    const btn = document.getElementById(`comm-chan-btn-${c}`);
-    const el = document.getElementById(`comm-channel-${c}`);
-    if (c === channel) {
-      btn?.classList.add('active');
-      btn?.classList.remove('text-slate-400');
-      el?.classList.remove('hidden');
-    } else {
-      btn?.classList.remove('active');
-      btn?.classList.add('text-slate-400');
-      el?.classList.add('hidden');
-    }
-  });
-
-  if (channel === 'watercooler') {
-    renderWatercoolerChat();
-    setTimeout(() => document.getElementById('watercooler-user-input')?.focus(), 100);
-  } else if (channel === 'sync') {
-    renderProjectSyncs();
-  } else if (channel === 'direct') {
-    renderChatSidebar();
-    renderChatMessages();
-    setTimeout(() => document.getElementById('chat-user-input')?.focus(), 100);
-  }
-}
-
-// Casual Watercooler Group Chat
-function renderWatercoolerChat() {
-  const box = document.getElementById('watercooler-messages-box');
-  if (!box || !appState.communications || !appState.communications.watercooler) return;
-
-  box.innerHTML = appState.communications.watercooler.map(m => {
-    const isUser = m.sender_key === 'user';
-    const bubbleClass = isUser ? 'watercooler-bubble-user ml-auto max-w-[85%]' : 'watercooler-bubble-agent mr-auto max-w-[85%]';
-    return `
-      <div class="${bubbleClass} p-3.5 shadow-md">
-        <div class="flex items-center justify-between gap-3 mb-1.5">
-          <div class="flex items-center gap-2">
-            <img src="${m.avatar}" alt="${m.sender_name}" class="w-6 h-6 rounded-full object-cover border border-amber-500/30">
-            <span class="text-xs font-bold ${isUser ? 'text-amber-300' : 'text-white'}">${m.sender_name}</span>
-          </div>
-          <span class="text-[10px] font-mono text-slate-400">${m.time}</span>
-        </div>
-        <p class="text-xs text-slate-200 leading-relaxed font-sans">${m.text}</p>
-      </div>
-    `;
-  }).join('');
-
-  box.scrollTop = box.scrollHeight;
-}
-
-async function handleSendWatercoolerMessage(e) {
-  e.preventDefault();
-  const input = document.getElementById('watercooler-user-input');
-  const btn = document.getElementById('watercooler-send-btn');
-  const text = input.value.trim();
-  if (!text) return;
-
-  btn.disabled = true;
-  btn.innerHTML = '<span>Sending...</span>';
-
-  try {
-    const res = await fetch('/api/communications/post', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ channel: 'watercooler', message: text, user_name: 'Mustafa' })
-    });
-    const data = await res.json();
-    if (data.success && data.watercooler) {
-      appState.communications.watercooler = data.watercooler;
-      input.value = '';
-      renderWatercoolerChat();
-      renderRightPanelDock();
-    }
-  } catch (err) {
-    console.error('Watercooler chat error', err);
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = '<span>Send to Lounge</span> ➔';
-    input.focus();
-  }
-}
-
-// Transparent Inter-Executive Project Syncs
-function renderProjectSyncs() {
-  const container = document.getElementById('project-syncs-container');
-  if (!container || !appState.communications || !appState.communications.project_sync) return;
-
-  container.innerHTML = appState.communications.project_sync.map(s => {
-    return `
-      <div class="card-glass p-4 border border-slate-800 hover:border-sky-500/30 transition-all flex flex-col gap-3">
-        <!-- Header: Sender ➔ Recipient & Purpose -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
-          <div class="flex items-center gap-3">
-            <div class="flex items-center gap-1.5">
-              <img src="${s.sender.avatar}" alt="${s.sender.name}" class="w-8 h-8 rounded-full object-cover border border-amber-500/30">
-              <div>
-                <span class="text-xs font-bold text-white block">${s.sender.name}</span>
-                <span class="text-[9px] text-amber-300 font-mono block">${s.sender.title}</span>
-              </div>
-            </div>
-            <span class="text-sm font-bold text-sky-400">➔</span>
-            <div class="flex items-center gap-1.5">
-              <img src="${s.recipient.avatar}" alt="${s.recipient.name}" class="w-8 h-8 rounded-full object-cover border border-sky-500/30">
-              <div>
-                <span class="text-xs font-bold text-white block">${s.recipient.name}</span>
-                <span class="text-[9px] text-sky-300 font-mono block">${s.recipient.title}</span>
-              </div>
-            </div>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="badge-gold text-[9px] font-mono">${s.project}</span>
-            <span class="badge-green text-[9px] font-mono">${s.status}</span>
-          </div>
-        </div>
-
-        <!-- Purpose Badge -->
-        <div>
-          <span class="purpose-badge">🎯 PURPOSE: ${s.purpose}</span>
-        </div>
-
-        <!-- Back-and-Forth Dialogue Stream -->
-        <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80 space-y-2.5">
-          ${s.dialogue.map(d => `
-            <div class="text-xs">
-              <div class="flex items-center justify-between text-[10px] text-slate-400 mb-0.5">
-                <strong class="${d.speaker.includes('Mustafa') ? 'text-amber-300' : 'text-slate-200'}">${d.speaker}</strong>
-                <span class="font-mono">${d.time}</span>
-              </div>
-              <p class="text-slate-300 leading-relaxed font-sans">${d.text}</p>
-            </div>
-          `).join('')}
-        </div>
-
-        <!-- Action: Mustafa Chimes In on Sync -->
-        <div class="flex items-center justify-end pt-1">
-          <button onclick="openSyncCommentModal('${s.id}')" class="btn-ghost text-xs py-1 px-3 text-sky-300 flex items-center gap-1">
-            <span>💬</span> Chime In on this Project Thread
-          </button>
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-async function openSyncCommentModal(syncId) {
-  const comment = prompt(`Add your direction or comment to project thread [${syncId}]:`);
-  if (!comment) return;
-
-  try {
-    const res = await fetch('/api/communications/sync_comment', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sync_id: syncId, comment: comment })
-    });
-    const data = await res.json();
-    if (data.success && data.project_sync) {
-      appState.communications.project_sync = data.project_sync;
-      renderProjectSyncs();
-    }
-  } catch (err) {
-    console.error('Comment failed', err);
-  }
-}
-
-// Direct 1-on-1 Chats
-function directMessageAgent(agentKey) {
-  switchTab('communication');
-  switchCommChannel('direct');
-  selectAgent(agentKey);
-}
-
-function renderChatSidebar() {
-  const listEl = document.getElementById('chat-agents-list');
-  if (!listEl || !appState.agents) return;
-
-  listEl.innerHTML = appState.agents.map(agent => {
-    const isSelected = agent.key === appState.selectedAgent;
-    const activeClass = isSelected ? 'bg-amber-500/15 border-amber-500/40 ring-1 ring-amber-500/30' : 'bg-slate-900/40 border-slate-800/80 hover:bg-slate-800/60';
-    return `
-      <div onclick="selectAgent('${agent.key}')" class="p-2.5 rounded-xl border ${activeClass} cursor-pointer transition-all flex items-center justify-between gap-2.5">
-        <div class="flex items-center gap-2.5 truncate">
-          <img src="${agent.avatar_img}" alt="${agent.name}" class="w-9 h-9 rounded-full object-cover border border-amber-500/30 shrink-0">
-          <div class="truncate">
-            <h5 class="text-xs font-bold text-white truncate">${agent.name}</h5>
-            <p class="text-[10px] text-amber-300 font-semibold truncate">${agent.title.split('(')[0]}</p>
-          </div>
-        </div>
-        <div class="w-2 h-2 rounded-full ${agent.status === 'ONLINE' ? 'bg-emerald-400' : 'bg-slate-500'} shrink-0"></div>
-      </div>
-    `;
-  }).join('');
-}
-
-function selectAgent(agentKey) {
-  appState.selectedAgent = agentKey;
-  renderChatSidebar();
-
-  const agent = appState.agents.find(a => a.key === agentKey);
-  if (agent) {
-    document.getElementById('chat-header-name').innerText = agent.name;
-    document.getElementById('chat-header-title').innerText = agent.title;
-    document.getElementById('chat-header-focus').innerText = `Casual Colleague Channel • ${agent.focus}`;
-    document.getElementById('chat-header-avatar').src = agent.avatar_img;
-  }
-
-  renderChatMessages();
-}
-
-function renderChatMessages() {
-  const box = document.getElementById('chat-messages-box');
-  if (!box) return;
-
-  const history = appState.chatHistories[appState.selectedAgent] || [
+  // ------------------------------------------------------------------------
+  // ILLUSTRATED ROOMS & SVG GENERATOR (from agent-standup)
+  // ------------------------------------------------------------------------
+
+  const SCENES = [
+    // 0. Sunrise mountain window
     {
-      sender: 'agent',
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      text: `Hey Mustafa! Good to see you. How is your day going? What are we tackling together?`
+      desk: ['#C98A5A', '#9A6238'],
+      svg: (uid) => `
+        <defs>
+          <linearGradient id="${uid}gs0" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#FFC2A8"/><stop offset=".55" stop-color="#FF93B4"/><stop offset="1" stop-color="#9A7BFF"/>
+          </linearGradient>
+        </defs>
+        <rect width="100" height="75" fill="url(#${uid}gs0)"/>
+        <circle cx="74" cy="31" r="19" fill="#FFF3D0" opacity=".22"/><circle cx="74" cy="31" r="11" fill="#FFF3D0"/>
+        <path d="M0 50Q24 34 48 48T100 44V75H0z" fill="#7B5FD6"/><path d="M0 57Q30 45 62 56T100 53V75H0z" fill="#5B46B8"/>
+        <path d="M18 22q2-3 4 0M26 17q2-3 4 0" stroke="#5A3D8A" stroke-width=".8" fill="none" stroke-linecap="round"/>
+      `
+    },
+    // 1. Cyber night skyline
+    {
+      desk: ['#6B6FA8', '#43467A'],
+      svg: (uid) => `
+        <defs>
+          <linearGradient id="${uid}gs1" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#0D1230"/><stop offset="1" stop-color="#2A2E68"/>
+          </linearGradient>
+        </defs>
+        <rect width="100" height="75" fill="url(#${uid}gs1)"/>
+        <circle cx="80" cy="18" r="7" fill="#FFF4CF"/><circle cx="83" cy="16" r="6.2" fill="#1D2150"/>
+        <g fill="#161A45">
+          <rect x="0" y="40" width="14" height="35"/><rect x="16" y="32" width="12" height="43"/>
+          <rect x="30" y="44" width="15" height="31"/><rect x="48" y="30" width="14" height="45"/>
+          <rect x="64" y="38" width="16" height="37"/><rect x="82" y="34" width="18" height="41"/>
+        </g>
+        <g fill="#FFD36E">
+          <rect x="5" y="46" width="2" height="2"/><rect x="20" y="38" width="2" height="2"/>
+          <rect x="52" y="36" width="2" height="2"/><rect x="68" y="44" width="2" height="2"/>
+          <rect x="86" y="40" width="2" height="2"/>
+        </g>
+      `
+    },
+    // 2. Cozy library with books & succulent
+    {
+      desk: ['#CAA27A', '#9C7650'],
+      svg: (uid) => `
+        <defs>
+          <linearGradient id="${uid}gs2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFEADB"/><stop offset="1" stop-color="#FFD2B5"/></linearGradient>
+          <linearGradient id="${uid}gw2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#BFE9FF"/><stop offset="1" stop-color="#EAF8FF"/></linearGradient>
+        </defs>
+        <rect width="100" height="75" fill="url(#${uid}gs2)"/>
+        <rect x="9" y="9" width="30" height="30" rx="3" fill="#FFF"/><rect x="11" y="11" width="26" height="26" rx="2" fill="url(#${uid}gw2)"/>
+        <path d="M24 11v26M11 24h26" stroke="#FFF" stroke-width="1.6"/>
+        <rect x="62" y="22" width="32" height="2.4" rx="1" fill="#B98A64"/><rect x="62" y="40" width="32" height="2.4" rx="1" fill="#B98A64"/>
+        <rect x="64" y="12" width="3.6" height="10" rx=".8" fill="#FF7A6B"/><rect x="69" y="10" width="3.6" height="12" rx=".8" fill="#4CC3FF"/>
+        <rect x="74" y="14" width="3.6" height="8" rx=".8" fill="#FFD84A"/><rect x="79" y="11" width="3.6" height="11" rx=".8" fill="#7C8CFF"/>
+      `
+    },
+    // 3. Garden terrace & flowers
+    {
+      desk: ['#B9E0C4', '#86BE9A'],
+      svg: (uid) => `
+        <defs>
+          <linearGradient id="${uid}gs3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#BDF1FF"/><stop offset="1" stop-color="#EFFFF6"/></linearGradient>
+        </defs>
+        <rect width="100" height="75" fill="url(#${uid}gs3)"/>
+        <ellipse cx="25" cy="16" rx="10" ry="4" fill="#FFF" opacity=".8"/><ellipse cx="75" cy="22" rx="9" ry="3.5" fill="#FFF" opacity=".8"/>
+        <path d="M0 48Q25 36 52 47T100 42V75H0z" fill="#7DDC9A"/><path d="M0 56Q30 46 64 56T100 52V75H0z" fill="#4FC482"/>
+        <rect x="80" y="30" width="2.6" height="14" fill="#8A5A3A"/><circle cx="81.3" cy="27" r="8" fill="#3FAE6C"/>
+      `
+    },
+    // 4. Beach sunset
+    {
+      desk: ['#E6C48F', '#BF9A63'],
+      svg: (uid) => `
+        <defs>
+          <linearGradient id="${uid}gs4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFE9AE"/><stop offset="1" stop-color="#A4E8FF"/></linearGradient>
+        </defs>
+        <rect width="100" height="75" fill="url(#${uid}gs4)"/>
+        <circle cx="22" cy="22" r="9" fill="#FFF6D6"/>
+        <path d="M0 46Q12 41 24 46T48 46T72 46T100 46V75H0z" fill="#3CB7D9"/>
+        <path d="M0 52Q12 47 24 52T48 52T72 52T100 52V75H0z" fill="#2A95C4"/>
+        <path d="M70 42V26L82 42z" fill="#FFF"/>
+      `
+    },
+    // 5. Retro space synthwave
+    {
+      desk: ['#7A5EA8', '#4D3A7A'],
+      svg: (uid) => `
+        <defs>
+          <linearGradient id="${uid}gs5" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#190F3D"/><stop offset="1" stop-color="#4C2183"/></linearGradient>
+        </defs>
+        <rect width="100" height="75" fill="url(#${uid}gs5)"/>
+        <circle cx="22" cy="26" r="11" fill="#FF9BB8"/>
+        <ellipse cx="22" cy="26" rx="18" ry="3.6" fill="none" stroke="#FFE0A8" stroke-width="1.6" transform="rotate(-18 22 26)"/>
+        <circle cx="80" cy="20" r="6" fill="#6FD3FF"/>
+      `
+    },
+    // 6. Tech operations center
+    {
+      desk: ['#506B73', '#2F4850'],
+      svg: (uid) => `
+        <defs>
+          <linearGradient id="${uid}gs6" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#10282F"/><stop offset="1" stop-color="#18444F"/></linearGradient>
+        </defs>
+        <rect width="100" height="75" fill="url(#${uid}gs6)"/>
+        <rect x="6" y="8" width="26" height="20" rx="2" fill="#0A1A1F" stroke="#2B6A78" stroke-width=".8"/>
+        <polyline points="9,22 15,16 20,18 26,11" fill="none" stroke="#FF9A6B" stroke-width="1.3"/>
+        <rect x="37" y="6" width="26" height="20" rx="2" fill="#0A1A1F" stroke="#2B6A78" stroke-width=".8"/>
+        <polyline points="40,20 46,14 51,17 58,10" fill="none" stroke="#4FD1A5" stroke-width="1.3"/>
+        <rect x="68" y="8" width="26" height="20" rx="2" fill="#0A1A1F" stroke="#2B6A78" stroke-width=".8"/>
+        <polyline points="71,22 77,15 82,19 89,12" fill="none" stroke="#FFD84A" stroke-width="1.3"/>
+      `
+    },
+    // 7. Warm mahogany library
+    {
+      desk: ['#A87A56', '#7C5438'],
+      svg: (uid) => `
+        <defs>
+          <linearGradient id="${uid}gs7" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3A2B52"/><stop offset="1" stop-color="#6B4A68"/></linearGradient>
+        </defs>
+        <rect width="100" height="75" fill="url(#${uid}gs7)"/>
+        <circle cx="82" cy="30" r="18" fill="#FFD98A" opacity=".35"/><circle cx="82" cy="30" r="10" fill="#FFD98A"/>
+        <path d="M82 54V36" stroke="#2A2233" stroke-width="1.6"/>
+        <rect x="12" y="10" width="22" height="16" rx="1.5" fill="#2A2233"/><rect x="14" y="12" width="18" height="12" rx="1" fill="#FF9A8B"/>
+      `
     }
   ];
 
-  box.innerHTML = history.map(msg => {
-    const isUser = msg.sender === 'user';
-    const bubbleClass = isUser ? 'chat-bubble-user ml-auto max-w-[85%]' : 'chat-bubble-agent mr-auto max-w-[85%]';
-    const senderName = isUser ? 'Mustafa' : (appState.agents.find(a => a.key === appState.selectedAgent)?.name || 'Colleague');
-
-    return `
-      <div class="${bubbleClass} p-3 shadow-md">
-        <div class="flex items-center justify-between gap-4 mb-1 text-[10px] font-mono opacity-75">
-          <span class="font-bold">${senderName}</span>
-          <span>${msg.time}</span>
-        </div>
-        <div class="chat-markdown text-xs leading-relaxed font-sans">${formatMarkdown(msg.text)}</div>
-      </div>
-    `;
-  }).join('');
-
-  box.scrollTop = box.scrollHeight;
-}
-
-async function handleSendChatMessage(e) {
-  e.preventDefault();
-  const input = document.getElementById('chat-user-input');
-  const btn = document.getElementById('chat-send-btn');
-  const message = input.value.trim();
-  if (!message) return;
-
-  const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-  if (!appState.chatHistories[appState.selectedAgent]) {
-    appState.chatHistories[appState.selectedAgent] = [];
-  }
-  appState.chatHistories[appState.selectedAgent].push({
-    sender: 'user',
-    time: now,
-    text: message
-  });
-
-  input.value = '';
-  renderChatMessages();
-
-  btn.disabled = true;
-  btn.innerHTML = `<span>⏳</span> Chatting...`;
-
-  try {
-    const res = await fetch('/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        agent: appState.selectedAgent,
-        message: message
-      })
-    });
-    const data = await res.json();
-    
-    appState.chatHistories[appState.selectedAgent].push({
-      sender: 'agent',
-      time: data.time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      text: data.reply || "Got it Mustafa!"
-    });
-
-    renderChatMessages();
-    fetchTelemetry();
-  } catch (err) {
-    appState.chatHistories[appState.selectedAgent].push({
-      sender: 'agent',
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      text: `Hey Mustafa, looks like the local service blipped: ${err.message}`
-    });
-    renderChatMessages();
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = `<span>Send</span> ➔`;
-    input.focus();
-  }
-}
-
-// --- Roadmap Functions ---
-function filterRoadmap(cat, status) {
-  if (cat !== null) {
-    appState.roadmapCategory = cat;
-    document.querySelectorAll('.roadmap-filter-btn').forEach(btn => {
-      if (btn.getAttribute('data-cat') === cat) {
-        btn.className = 'roadmap-filter-btn px-3 py-1 rounded-lg text-xs font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/40';
-      } else {
-        btn.className = 'roadmap-filter-btn px-3 py-1 rounded-lg text-xs font-medium text-slate-300 hover:bg-slate-800 border border-transparent';
-      }
-    });
-  }
-  if (status !== null) {
-    appState.roadmapStatus = status;
-    const sel = document.getElementById('roadmap-status-select');
-    if (sel && sel.value !== status) sel.value = status;
-  }
-  renderRoadmap();
-}
-
-function updateRoadmapSummary(data) {
-  if (!data || !data.summary) return;
-  const s = data.summary;
-  const badge = document.getElementById('roadmap-tab-badge');
-  if (badge) badge.innerText = s.total_initiatives;
-
-  const progVal = document.getElementById('metric-roadmap-progress-val');
-  const progBar = document.getElementById('metric-roadmap-progress-bar');
-  if (progVal) progVal.innerText = `${s.overall_progress}%`;
-  if (progBar) progBar.style.width = `${s.overall_progress}%`;
-
-  const compEl = document.getElementById('metric-roadmap-completed');
-  const inProgEl = document.getElementById('metric-roadmap-inprogress');
-  const pendEl = document.getElementById('metric-roadmap-pending');
-  const schedEl = document.getElementById('metric-roadmap-scheduled');
-
-  if (compEl) compEl.innerText = s.completed;
-  if (inProgEl) inProgEl.innerText = s.in_progress;
-  if (pendEl) pendEl.innerText = s.pending_ratification;
-  if (schedEl) schedEl.innerText = s.scheduled;
-}
-
-function renderRoadmap() {
-  const container = document.getElementById('roadmap-items-container');
-  if (!container || !appState.roadmap || !appState.roadmap.items) return;
-
-  const catFilter = appState.roadmapCategory || 'all';
-  const statFilter = appState.roadmapStatus || 'all';
-
-  const items = appState.roadmap.items.filter(item => {
-    const matchCat = catFilter === 'all' || item.category === catFilter;
-    const matchStat = statFilter === 'all' || item.status === statFilter;
-    return matchCat && matchStat;
-  });
-
-  if (items.length === 0) {
-    container.innerHTML = `
-      <div class="card-glass p-8 text-center text-slate-400">
-        <p class="text-sm">No initiatives matching the active filter.</p>
-      </div>
-    `;
-    return;
-  }
-
-  container.innerHTML = items.map(item => {
-    const priorityBadge = item.priority === 'CRITICAL' ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40' :
-                         (item.priority === 'HIGH' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' :
-                         (item.priority === 'MEDIUM' ? 'bg-sky-500/20 text-sky-300 border border-sky-500/40' :
-                         'bg-slate-800 text-slate-400 border border-slate-700'));
-
-    const statusBadge = item.status === 'COMPLETED' ? 'badge-green' :
-                       (item.status === 'IN_PROGRESS' ? 'badge-blue' :
-                       (item.status === 'PENDING_APPROVAL' ? 'badge-gold' : 'badge-ghost'));
-
-    return `
-      <div class="card-glass p-4 transition-all hover:border-amber-500/30">
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-800 pb-2.5 mb-2.5">
-          <div class="flex flex-wrap items-center gap-2">
-            <span class="font-mono text-xs font-bold text-amber-400">${item.id}</span>
-            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${priorityBadge}">${item.priority}</span>
-            <h4 class="text-sm font-bold text-white">${item.title}</h4>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="${statusBadge} text-[10px]">${item.status.replace('_', ' ')}</span>
-            <span class="text-[11px] text-slate-400 font-mono">ETA: ${item.eta}</span>
-          </div>
-        </div>
-
-        <p class="text-xs text-slate-300 mb-3 leading-relaxed">${item.description}</p>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3 bg-slate-900/50 p-2.5 rounded-xl border border-slate-800/80">
-          <div>
-            <span class="text-[10px] uppercase font-mono text-slate-400">Executive Owner:</span>
-            <div class="text-xs font-semibold text-slate-200">${item.owner}</div>
-          </div>
-          <div>
-            <span class="text-[10px] uppercase font-mono text-slate-400">Action Required:</span>
-            <div class="text-xs text-amber-300 font-medium">${item.action_required}</div>
-          </div>
-        </div>
-
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-1">
-          <div class="flex-1 w-full flex items-center gap-3">
-            <span class="text-xs font-mono text-slate-400 w-16">Progress:</span>
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value="${item.progress}"
-              onchange="handleRoadmapProgressChange('${item.id}', this.value)"
-              class="w-full accent-amber-500 cursor-pointer"
-            >
-            <span class="font-mono text-xs font-bold text-amber-400 w-10 text-right">${item.progress}%</span>
-          </div>
-
-          <div class="flex items-center gap-2 self-end sm:self-auto shrink-0">
-            <select
-              onchange="handleRoadmapStatusChange('${item.id}', this.value)"
-              class="bg-slate-900 border border-slate-700 text-xs rounded-lg px-2 py-1 text-slate-300 focus:border-amber-400"
-            >
-              <option value="IN_PROGRESS" ${item.status === 'IN_PROGRESS' ? 'selected' : ''}>In Progress</option>
-              <option value="PENDING_APPROVAL" ${item.status === 'PENDING_APPROVAL' ? 'selected' : ''}>Pending Ratification</option>
-              <option value="COMPLETED" ${item.status === 'COMPLETED' ? 'selected' : ''}>Completed</option>
-              <option value="SCHEDULED" ${item.status === 'SCHEDULED' ? 'selected' : ''}>Scheduled</option>
-            </select>
-            <button
-              onclick="toggleRoadmapComplete('${item.id}', '${item.status}')"
-              class="${item.status === 'COMPLETED' ? 'btn-ghost' : 'btn-gold'} text-[11px] py-1 px-2.5 cursor-pointer"
-            >
-              ${item.status === 'COMPLETED' ? '↺ Reopen' : '✓ Mark Done'}
-            </button>
-          </div>
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-async function handleRoadmapProgressChange(id, value) {
-  const newStatus = parseInt(value) === 100 ? 'COMPLETED' : undefined;
-  await updateRoadmapItem(id, newStatus, value);
-}
-
-async function handleRoadmapStatusChange(id, status) {
-  const newProgress = status === 'COMPLETED' ? 100 : undefined;
-  await updateRoadmapItem(id, status, newProgress);
-}
-
-async function toggleRoadmapComplete(id, currentStatus) {
-  if (currentStatus === 'COMPLETED') {
-    await updateRoadmapItem(id, 'IN_PROGRESS', 75);
-  } else {
-    await updateRoadmapItem(id, 'COMPLETED', 100);
-  }
-}
-
-async function updateRoadmapItem(id, status, progress) {
-  try {
-    const payload = { id };
-    if (status !== undefined) payload.status = status;
-    if (progress !== undefined) payload.progress = parseInt(progress);
-
-    const res = await fetch('/api/roadmap/update', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    const data = await res.json();
-    if (data.success && data.roadmap) {
-      appState.roadmap = data.roadmap;
-      updateRoadmapSummary(data.roadmap);
-      renderPendingTasks();
-      renderCompletedTasks();
-      renderRoadmap();
-    }
-  } catch (err) {
-    console.error('Failed to update roadmap item', err);
-  }
-}
-
-// --- Board Governance ---
-function renderDecisionGates() {
-  const container = document.getElementById('gates-list-container');
-  if (!container || !appState.gates) return;
-
-  container.innerHTML = appState.gates.map(gate => {
-    const isApproved = gate.status === 'APPROVED_BY_CHAIRPERSON';
-    return `
-      <div class="card-glass p-4 flex flex-col justify-between border ${isApproved ? 'border-emerald-500/30' : 'border-amber-500/30'}">
-        <div>
-          <div class="flex items-start justify-between gap-3 mb-2">
-            <div>
-              <span class="badge-gold text-[10px] font-mono">${gate.gate_id}</span>
-              <h4 class="text-sm font-bold text-white mt-1">${gate.title}</h4>
-              <p class="text-[11px] text-amber-300 font-semibold">${gate.business_unit} • Sponsor: ${gate.proposer}</p>
-            </div>
-            <span class="${isApproved ? 'badge-green' : 'badge-gold'} text-[10px]">
-              ${isApproved ? 'RATIFIED' : 'AWAITING SIGN'}
-            </span>
-          </div>
-          <p class="text-xs text-slate-300 leading-relaxed mb-3">${gate.description}</p>
-        </div>
-        <div class="flex items-center justify-between pt-2 border-t border-slate-800 text-[11px]">
-          <span class="text-slate-400 font-mono">${gate.created_at.split('T')[0]}</span>
-          ${!isApproved ? `
-            <div class="flex items-center gap-1.5">
-              <button onclick="handleRejectGate('${gate.gate_id}')" class="btn-ghost text-xs py-1 px-2.5 text-rose-400">Reject</button>
-              <button onclick="handleApproveGate('${gate.gate_id}')" class="btn-gold text-xs py-1 px-2.5">Approve</button>
-            </div>
-          ` : '<span class="text-emerald-400 font-bold">✓ Signed by Chairperson</span>'}
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-function renderDirectives() {
-  const container = document.getElementById('directives-list-container');
-  if (!container || !appState.directives) return;
-
-  container.innerHTML = appState.directives.map(d => `
-    <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
-      <div class="flex items-center justify-between text-xs mb-1">
-        <span class="font-mono text-amber-400 font-bold">${d.directive_id} ➔ ${d.target}</span>
-        <span class="badge-green text-[9px]">ENACTED</span>
-      </div>
-      <h5 class="text-xs font-bold text-white mb-1">${d.title}</h5>
-      <p class="text-[11px] text-slate-300 leading-relaxed">${d.mandate}</p>
-    </div>
-  `).join('');
-}
-
-// --- Tools Directory ---
-function renderTools(tools) {
-  const container = document.getElementById('tools-grid-container');
-  if (!container) return;
-
-  container.innerHTML = tools.map(tool => `
-    <div class="card-glass p-3.5 border border-slate-800 hover:border-amber-500/40 transition-all flex flex-col justify-between">
-      <div>
-        <div class="flex items-center justify-between gap-2 mb-1.5">
-          <h4 class="text-xs font-bold text-white tracking-wide">${tool.name}</h4>
-          <span class="badge-gold text-[9px] font-mono">${tool.stars}</span>
-        </div>
-        <span class="text-[9px] font-mono text-sky-400 uppercase block mb-1.5">${tool.category}</span>
-        <p class="text-[11px] text-slate-300 leading-relaxed mb-2">${tool.desc}</p>
-      </div>
-      <div class="text-[10px] font-mono text-slate-500 pt-2 border-t border-slate-800">
-        ${tool.path}
-      </div>
-    </div>
-  `).join('');
-}
-
-function handleToolSearch(q) {
-  const query = q.toLowerCase();
-  const filtered = (appState.tools || []).filter(t => t.name.toLowerCase().includes(query) || t.category.toLowerCase().includes(query) || t.desc.toLowerCase().includes(query));
-  renderTools(filtered);
-}
-
-// --- Live Logs ---
-function renderLiveLogs(logs) {
-  const container = document.getElementById('live-logs-container');
-  if (!container) return;
-
-  container.innerHTML = logs.map(l => {
-    const color = l.level === 'SUCCESS' ? 'text-emerald-400' : (l.level === 'WARN' ? 'text-amber-400' : 'text-slate-300');
-    return `
-      <div class="flex items-start gap-2 py-0.5">
-        <span class="text-slate-500 shrink-0">[${l.time}]</span>
-        <span class="text-amber-400/90 font-bold shrink-0">${l.agent}:</span>
-        <span class="${color}">${l.msg}</span>
-      </div>
-    `;
-  }).join('');
-}
-
-// --- Modal Handlers ---
-function openDirectiveModal() {
-  document.getElementById('modal-directive')?.classList.remove('hidden');
-}
-function closeDirectiveModal() {
-  document.getElementById('modal-directive')?.classList.add('hidden');
-}
-
-async function handleCreateDirective(e) {
-  e.preventDefault();
-  const target = document.getElementById('modal-directive-target').value;
-  const title = document.getElementById('modal-directive-title').value.trim();
-  const mandate = document.getElementById('modal-directive-mandate').value.trim();
-  if (!title || !mandate) return;
-
-  try {
-    const res = await fetch('/api/directives', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ target, title, mandate })
-    });
-    const data = await res.json();
-    if (data.success) {
-      closeDirectiveModal();
-      document.getElementById('modal-directive-title').value = '';
-      document.getElementById('modal-directive-mandate').value = '';
-      await fetchDirectives();
-      await fetchStatus();
-    }
-  } catch (err) {
-    console.error('Create directive failed', err);
-  }
-}
-
-function openBriefingModal() {
-  const modal = document.getElementById('modal-briefing');
-  const content = document.getElementById('briefing-content');
-  if (!modal || !content) return;
-  modal.classList.remove('hidden');
-
-  content.innerHTML = `
-    <div class="text-center py-10 animate-pulse text-amber-400 font-sans">
-      Synthesizing executive intelligence across SB Fragrance, TITAN Labs, Alfann Art, and AdWell...
-    </div>
-  `;
-
-  fetch('/api/briefing', { method: 'POST' })
-    .then(r => r.json())
-    .then(d => {
-      content.innerHTML = formatMarkdown(d.content || 'Briefing synthesized.');
-    })
-    .catch(e => {
-      content.innerHTML = `<div class="text-rose-400">Failed to generate briefing: ${e.message}</div>`;
-    });
-}
-function closeBriefingModal() {
-  document.getElementById('modal-briefing')?.classList.add('hidden');
-}
-
-// --- TITAN Web Actions ---
-async function triggerTitanBuild() {
-  const btn = document.getElementById('btn-titan-build');
-  if (btn) btn.innerHTML = '<span>⏳</span> Compiling...';
-  try {
-    const res = await fetch('/api/titan/build', { method: 'POST' });
-    const data = await res.json();
-    alert(`TITAN Build Complete: ${data.message || 'Success'}`);
-  } catch (err) {
-    alert(`Build Error: ${err.message}`);
-  } finally {
-    if (btn) btn.innerHTML = '<span>⚡</span> Rebuild Web App';
-  }
-}
-
-async function triggerTitanSync() {
-  try {
-    const res = await fetch('/api/titan/sync', { method: 'POST' });
-    const data = await res.json();
-    alert(`TITAN Sync: ${data.message || 'Synced'}`);
-  } catch (err) {
-    alert(`Sync Error: ${err.message}`);
-  }
-}
-
-// Remotion Viral Reel Generator Handler
-async function handleGenerateReel(event) {
-  event.preventDefault();
-  const topic = document.getElementById('reel-topic').value;
-  const badge = document.getElementById('reel-badge').value;
-  const hook = document.getElementById('reel-hook').value;
-  const frames = document.getElementById('reel-duration').value;
-  const btn = document.getElementById('btn-render-reel');
-  const statusMsg = document.getElementById('reel-status-msg');
-
-  if (btn) btn.innerHTML = '<span>⏳</span> Rendering Remotion...';
-  if (statusMsg) {
-    statusMsg.classList.remove('hidden');
-    statusMsg.innerText = `[REMOTION 4.0] Launching 9:16 vertical render for "${topic}" (${frames} frames)...`;
-  }
-
-  try {
-    const res = await fetch('/api/reels/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ topic, badge, hook, frames })
-    });
-    const data = await res.json();
-    if (statusMsg) {
-      statusMsg.innerText = `[✓] Render Queued: ${data.message}. Video will be saved to c:\\AI_Ecosystem\\media-generation\\output\\`;
-    }
-    setTimeout(loadReelsArchive, 4000);
-  } catch (err) {
-    if (statusMsg) statusMsg.innerText = `[-] Render error: ${err.message}`;
-  } finally {
-    if (btn) btn.innerHTML = '<span>🎬</span> Render 1080x1920 MP4';
-  }
-}
-
-// Load Rendered Reels Archive
-async function loadReelsArchive() {
-  try {
-    const res = await fetch('/api/reels');
-    const data = await res.json();
-    const countBadge = document.getElementById('reels-count-badge');
-    if (countBadge) countBadge.innerText = `${data.total || 0} RENDERED`;
-
-    const list = document.getElementById('reels-archive-list');
-    if (list && data.reels && data.reels.length > 0) {
-      list.innerHTML = data.reels.map(r => `
-        <div class="flex items-center justify-between bg-slate-950/80 p-2.5 rounded-lg border border-slate-800 text-xs">
-          <div>
-            <strong class="text-white">${r.topic}</strong>
-            <div class="text-[10px] text-slate-400">${r.duration_seconds}s • ${r.size_mb} MB • ${r.platforms ? r.platforms.join(' / ') : 'Reels / Shorts'}</div>
-          </div>
-          <span class="badge-green text-[9px] font-mono">${r.status}</span>
-        </div>
-      `).join('');
-    }
-  } catch (e) {}
-}
-
-// Tayyār Sticker Pack Deployment Handler
-async function handleDeployStkr() {
-  const btn = document.getElementById('btn-deploy-stkr');
-  const feedback = document.getElementById('stkr-deploy-feedback');
-  if (btn) btn.innerHTML = '<span>⏳</span> Preparing Storefront...';
-
-  try {
-    const res = await fetch('/api/stkr/deploy', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
-    const data = await res.json();
-    if (feedback) {
-      feedback.classList.remove('hidden');
-      const qUrl = data.manifest && data.manifest.quick_setup_url ? data.manifest.quick_setup_url : 'https://gumroad.com';
-      feedback.innerHTML = `
-        <strong>[✓] Tayyār Sticker Pack Manifest Ready!</strong><br>
-        Asset: ${data.manifest?.digital_asset || 'Tayyar_Sticker_Pack_Vol1_Bundle.zip'} (${data.manifest?.asset_size_mb || 6.06} MB)<br>
-        Price: $3.99 / ₹299 (91.5% profit margin)<br>
-        <a href="${qUrl}" target="_blank" class="text-amber-300 underline font-bold mt-1 inline-block">➔ Click to Open Pre-Filled Gumroad Product Creation</a>
-      `;
-    }
-  } catch (err) {
-    if (feedback) {
-      feedback.classList.remove('hidden');
-      feedback.innerText = `[-] Error: ${err.message}`;
-    }
-  } finally {
-    if (btn) btn.innerHTML = '<span>🚀</span> Deploy Storefront / Pre-fill Setup';
-  }
-}
-
-// Initialize reels archive on start
-document.addEventListener('DOMContentLoaded', () => {
-  setTimeout(loadReelsArchive, 1500);
-});
-
-// Simple Markdown Formatter
-function formatMarkdown(text) {
-  if (!text) return '';
-  return text
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.*?)\*/g, '<em>$1</em>')
-    .replace(/`(.*?)`/g, '<code class="bg-slate-800 px-1 rounded text-amber-300 font-mono text-[11px]">$1</code>')
-    .replace(/\n/g, '<br>');
-}
-
-// ============================================================================
-// SOVEREIGN TREASURY & PAYMENT GATEWAYS (RAZORPAY & PAYPAL)
-// ============================================================================
-
-async function fetchTreasuryStatus(notify = false) {
-  try {
-    const res = await fetch('/api/treasury/status');
-    const data = await res.json();
-    appState.treasury = data;
-
-    // Update status pills in UI
-    const rzpPill = document.getElementById('rzp-status-pill');
-    if (rzpPill && data.gateways && data.gateways.razorpay) {
-      const g = data.gateways.razorpay;
-      if (g.configured) {
-        rzpPill.className = g.mode === 'live' ? 'badge-green text-[10px] font-mono' : 'badge-blue text-[10px] font-mono';
-        rzpPill.innerText = g.mode === 'live' ? '● RAZORPAY LIVE' : '● RAZORPAY TEST';
-      } else {
-        rzpPill.className = 'badge-gold text-[10px] font-mono';
-        rzpPill.innerText = 'NOT CONFIGURED';
-      }
-    }
-
-    const ppPill = document.getElementById('pp-status-pill');
-    if (ppPill && data.gateways && data.gateways.paypal) {
-      const g = data.gateways.paypal;
-      if (g.configured) {
-        ppPill.className = g.mode === 'live' ? 'badge-green text-[10px] font-mono' : 'badge-blue text-[10px] font-mono';
-        ppPill.innerText = g.mode === 'live' ? '● PAYPAL LIVE' : '● PAYPAL SANDBOX';
-      } else {
-        ppPill.className = 'badge-gold text-[10px] font-mono';
-        ppPill.innerText = 'NOT CONFIGURED';
-      }
-    }
-
-    // Update Balances
-    if (data.treasury_balances) {
-      const inrEl = document.getElementById('ledger-total-inr');
-      const usdEl = document.getElementById('ledger-total-usd');
-      const countEl = document.getElementById('ledger-total-count');
-      if (inrEl) inrEl.innerText = data.treasury_balances.settled_inr;
-      if (usdEl) usdEl.innerText = data.treasury_balances.settled_usd;
-      if (countEl) countEl.innerText = data.treasury_balances.total_conversions;
-    }
-
-    renderTreasuryLedger(data.recent_transactions || []);
-
-    if (notify) {
-      alert('✓ Treasury ledger & payment gateway statuses refreshed successfully.');
-    }
-  } catch (err) {
-    console.error('Failed to fetch treasury status:', err);
-  }
-}
-
-function openTreasuryModal() {
-  const modal = document.getElementById('modal-treasury');
-  if (modal) {
-    modal.classList.remove('hidden');
-    fetchTreasuryStatus();
-  }
-}
-
-function closeTreasuryModal() {
-  const modal = document.getElementById('modal-treasury');
-  if (modal) modal.classList.add('hidden');
-}
-
-function openTreasuryWithVenture(ventureId) {
-  openTreasuryModal();
-  switchTreasuryTab('links');
-  if (ventureId.includes('stkr') || ventureId.includes('tayyar')) {
-    applyPaymentPreset('stkr');
-  } else if (ventureId.includes('titan')) {
-    applyPaymentPreset('titan');
-  } else if (ventureId.includes('alfann')) {
-    applyPaymentPreset('alfann');
-  } else {
-    applyPaymentPreset('custom');
-  }
-}
-
-function switchTreasuryTab(tabKey) {
-  const tabs = ['links', 'config', 'ledger'];
-  tabs.forEach(t => {
-    const btn = document.getElementById(`treasury-tab-btn-${t}`);
-    const panel = document.getElementById(`treasury-panel-${t}`);
-    if (t === tabKey) {
-      btn?.classList.remove('text-slate-400', 'border-transparent');
-      btn?.classList.add('bg-emerald-500/20', 'text-emerald-300', 'border-emerald-500/40');
-      panel?.classList.remove('hidden');
-    } else {
-      btn?.classList.remove('bg-emerald-500/20', 'text-emerald-300', 'border-emerald-500/40');
-      btn?.classList.add('text-slate-400', 'border-transparent');
-      panel?.classList.add('hidden');
-    }
-  });
-
-  if (tabKey === 'ledger') {
-    fetchTreasuryStatus();
-  }
-}
-
-function applyPaymentPreset(preset) {
-  const title = document.getElementById('link-title');
-  const amount = document.getElementById('link-amount');
-  const gateway = document.getElementById('link-gateway');
-  const label = document.getElementById('link-amount-label');
-
-  if (preset === 'stkr') {
-    if (title) title.value = 'Tayyār Islamic Sticker Pack Vol 1';
-    if (gateway && gateway.value === 'PAYPAL') {
-      if (amount) amount.value = '3.99';
-    } else {
-      if (amount) amount.value = '299';
-    }
-  } else if (preset === 'titan') {
-    if (title) title.value = 'TITAN Pro Price Intelligence Arbitrage Pass';
-    if (gateway && gateway.value === 'PAYPAL') {
-      if (amount) amount.value = '9.99';
-    } else {
-      if (amount) amount.value = '499';
-    }
-  } else if (preset === 'alfann') {
-    if (title) title.value = 'Alfann Art Bespoke LED Acrylic Light Deposit';
-    if (gateway && gateway.value === 'PAYPAL') {
-      if (amount) amount.value = '29.00';
-    } else {
-      if (amount) amount.value = '1850';
-    }
-  } else {
-    if (title) title.value = 'SB Group Venture Order';
-    if (amount) amount.value = '999';
-  }
-}
-
-function updateGatewayCurrency() {
-  const gateway = document.getElementById('link-gateway')?.value;
-  const label = document.getElementById('link-amount-label');
-  const amount = document.getElementById('link-amount');
-  if (gateway === 'PAYPAL') {
-    if (label) label.innerText = 'Amount (USD $)';
-    if (amount && Number(amount.value) > 100) {
-      amount.value = '3.99';
-    }
-  } else {
-    if (label) label.innerText = 'Amount (INR ₹)';
-    if (amount && Number(amount.value) < 50) {
-      amount.value = '299';
-    }
-  }
-}
-
-async function handleGeneratePaymentLink(e) {
-  e.preventDefault();
-  const gateway = document.getElementById('link-gateway').value;
-  const title = document.getElementById('link-title').value;
-  const amount = parseFloat(document.getElementById('link-amount').value);
-  const custName = document.getElementById('link-customer-name').value;
-  const custEmail = document.getElementById('link-customer-email').value;
-  const btn = document.getElementById('link-submit-btn');
-
-  if (btn) btn.innerHTML = '<span>⏳</span> Generating Live Rail...';
-
-  try {
-    const res = await fetch('/api/treasury/create_link', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        gateway,
-        title,
-        amount,
-        customer_name: custName,
-        customer_email: custEmail,
-        reference_id: `TXN-${Date.now()}`
-      })
-    });
-    const data = await res.json();
-
-    const resultBox = document.getElementById('treasury-link-result');
-    const resultUrl = document.getElementById('link-result-url');
-    const resultQr = document.getElementById('link-result-qr');
-    const openBtn = document.getElementById('link-open-btn');
-    const badge = document.getElementById('link-result-gateway-badge');
-
-    if (resultBox) resultBox.classList.remove('hidden');
-    const finalUrl = data.short_url || data.approve_url || `https://rzp.io/l/sbgroup_${data.reference_id?.toLowerCase()}`;
-    if (resultUrl) resultUrl.value = finalUrl;
-    if (openBtn) openBtn.href = finalUrl;
-
-    if (badge) {
-      badge.innerText = `${data.gateway} • ${data.mode?.toUpperCase()}`;
-      badge.className = data.mode === 'live' ? 'badge-green text-[10px] font-mono' : 'badge-gold text-[10px] font-mono';
-    }
-
-    // Generate high-contrast QR code
-    if (resultQr) {
-      const qrTarget = data.qr_data || finalUrl;
-      resultQr.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(qrTarget)}`;
-    }
-
-    // Scroll down to result inside modal
-    resultBox?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  } catch (err) {
-    alert(`Link Generation Error: ${err.message}`);
-  } finally {
-    if (btn) btn.innerHTML = '<span>⚡</span> Generate Live Payment Link & QR';
-  }
-}
-
-function copyPaymentLink() {
-  const input = document.getElementById('link-result-url');
-  const btn = document.getElementById('link-copy-btn');
-  if (!input) return;
-  navigator.clipboard.writeText(input.value).then(() => {
-    if (btn) {
-      const orig = btn.innerText;
-      btn.innerText = '✓ Copied!';
-      btn.classList.add('text-emerald-400');
-      setTimeout(() => {
-        btn.innerText = orig;
-        btn.classList.remove('text-emerald-400');
-      }, 2000);
-    }
-  });
-}
-
-async function handleSimulateVerifyPayment() {
-  const btn = document.getElementById('link-verify-btn');
-  const gateway = document.getElementById('link-gateway').value;
-  const title = document.getElementById('link-title').value;
-  const amount = parseFloat(document.getElementById('link-amount').value);
-  const custName = document.getElementById('link-customer-name').value || 'Verified Customer';
-  const custEmail = document.getElementById('link-customer-email').value || 'buyer@sbgroup.com';
-
-  if (btn) btn.innerText = 'Verifying Settlement...';
-
-  try {
-    const res = await fetch('/api/treasury/verify_payment', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        gateway,
-        venture: title.includes('TITAN') ? 'TITAN Labs' : (title.includes('Alfann') ? 'Alfann Art Studio' : 'Tayyār Digital Commerce'),
-        product: title,
-        amount,
-        customer_name: custName,
-        customer_email: custEmail,
-        reference_id: `VERIFY-${Date.now()}`
-      })
-    });
-    const data = await res.json();
-    if (data.success) {
-      if (btn) btn.innerText = '✓ Settled & Delivered!';
-      fetchTreasuryStatus();
-      fetchFinances();
-      setTimeout(() => {
-        switchTreasuryTab('ledger');
-        if (btn) btn.innerText = '✓ Clear & Settle Funds';
-      }, 1200);
-    }
-  } catch (err) {
-    alert(`Verification failed: ${err.message}`);
-    if (btn) btn.innerText = '✓ Clear & Settle Funds';
-  }
-}
-
-async function handleSaveTreasuryCredentials(e) {
-  e.preventDefault();
-  const btn = document.getElementById('save-gateways-btn');
-  const rzpKeyId = document.getElementById('cfg-rzp-key-id').value.trim();
-  const rzpKeySecret = document.getElementById('cfg-rzp-key-secret').value.trim();
-  const rzpWebhookSecret = document.getElementById('cfg-rzp-webhook-secret').value.trim();
-  const rzpMode = document.getElementById('cfg-rzp-mode').value;
-
-  const ppClientId = document.getElementById('cfg-pp-client-id').value.trim();
-  const ppClientSecret = document.getElementById('cfg-pp-client-secret').value.trim();
-  const ppMode = document.getElementById('cfg-pp-mode').value;
-
-  if (btn) btn.innerHTML = '<span>⏳</span> Securing Credentials...';
-
-  try {
-    const res = await fetch('/api/treasury/configure', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        RAZORPAY_KEY_ID: rzpKeyId,
-        RAZORPAY_KEY_SECRET: rzpKeySecret,
-        RAZORPAY_WEBHOOK_SECRET: rzpWebhookSecret,
-        RAZORPAY_MODE: rzpMode,
-        PAYPAL_CLIENT_ID: ppClientId,
-        PAYPAL_CLIENT_SECRET: ppClientSecret,
-        PAYPAL_MODE: ppMode
-      })
-    });
-    const data = await res.json();
-    if (data.success) {
-      alert('✓ Credentials saved to sovereign local file c:\\AI_Ecosystem\\.env.treasury!');
-      fetchTreasuryStatus();
-      
-      const resBox = document.getElementById('cfg-test-results');
-      if (resBox && data.tests) {
-        resBox.classList.remove('hidden');
-        resBox.innerHTML = `
-          <div class="text-white font-bold border-b border-slate-800 pb-1 mb-1">Instant Credential Validation:</div>
-          <div class="${data.tests.razorpay?.success ? 'text-emerald-400' : 'text-slate-400'}">
-            Razorpay: ${data.tests.razorpay?.message || 'Keys not set or skipped'}
-          </div>
-          <div class="${data.tests.paypal?.success ? 'text-emerald-400' : 'text-slate-400'}">
-            PayPal: ${data.tests.paypal?.message || 'Keys not set or skipped'}
-          </div>
-        `;
-      }
-    }
-  } catch (err) {
-    alert(`Configuration Error: ${err.message}`);
-  } finally {
-    if (btn) btn.innerHTML = '<span>💾</span> Save Credentials to Sovereign Vault';
-  }
-}
-
-async function handleTestGatewayConnections() {
-  const btn = document.getElementById('test-gateways-btn');
-  const resBox = document.getElementById('cfg-test-results');
-  if (btn) btn.innerHTML = '<span>⏳</span> Testing Latency...';
-
-  const rzpKeyId = document.getElementById('cfg-rzp-key-id').value.trim();
-  const rzpKeySecret = document.getElementById('cfg-rzp-key-secret').value.trim();
-  const ppClientId = document.getElementById('cfg-pp-client-id').value.trim();
-  const ppClientSecret = document.getElementById('cfg-pp-client-secret').value.trim();
-  const ppMode = document.getElementById('cfg-pp-mode').value;
-
-  try {
-    const res = await fetch('/api/treasury/test', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        gateway: 'all',
-        razorpay_key_id: rzpKeyId,
-        razorpay_key_secret: rzpKeySecret,
-        paypal_client_id: ppClientId,
-        paypal_client_secret: ppClientSecret,
-        paypal_mode: ppMode
-      })
-    });
-    const data = await res.json();
-    if (resBox && data.results) {
-      resBox.classList.remove('hidden');
-      const rzp = data.results.razorpay;
-      const pp = data.results.paypal;
-      resBox.innerHTML = `
-        <div class="text-white font-bold border-b border-slate-800 pb-1 mb-1">Live Connection Telemetry:</div>
-        <div class="${rzp?.success ? 'text-emerald-400' : 'text-rose-400'}">
-          🇮🇳 Razorpay: ${rzp?.message || rzp?.error || 'Pending credentials'}
-        </div>
-        <div class="${pp?.success ? 'text-emerald-400' : 'text-rose-400'}">
-          🌐 PayPal: ${pp?.message || pp?.error || 'Pending credentials'}
-        </div>
-      `;
-    }
-  } catch (err) {
-    if (resBox) {
-      resBox.classList.remove('hidden');
-      resBox.innerHTML = `<span class="text-rose-400">Test Error: ${err.message}</span>`;
-    }
-  } finally {
-    if (btn) btn.innerHTML = '<span>🔄</span> Test Live Connection';
-  }
-}
-
-function renderTreasuryLedger(transactions) {
-  const tbody = document.getElementById('ledger-table-body');
-  if (!tbody) return;
-
-  if (!transactions || transactions.length === 0) {
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="7" class="text-center py-6 text-slate-500">
-          No live transactions recorded yet. Generate a payment link to receive funds.
-        </td>
-      </tr>
-    `;
-    return;
-  }
-
-  tbody.innerHTML = transactions.map(t => {
-    const isINR = t.currency === 'INR';
-    const amountStr = isINR ? `₹${Number(t.amount).toLocaleString('en-IN')}` : `$${Number(t.amount).toFixed(2)}`;
-    return `
-      <tr class="hover:bg-slate-900/60 transition-colors">
-        <td class="p-2.5 font-mono text-slate-300">
-          <div class="text-amber-300 font-bold">${t.id}</div>
-          <div class="text-[9px] text-slate-500">${t.timestamp}</div>
-        </td>
-        <td class="p-2.5 font-mono">
-          <span class="${t.gateway === 'RAZORPAY' ? 'text-sky-400' : 'text-indigo-400'} font-bold">${t.gateway}</span>
-          <div class="text-[9px] text-slate-400">${t.mode || 'live'}</div>
-        </td>
-        <td class="p-2.5">
-          <div class="text-white font-semibold">${t.venture}</div>
-          <div class="text-[10px] text-slate-400 truncate max-w-xs">${t.product || ''}</div>
-        </td>
-        <td class="p-2.5 font-mono font-bold ${isINR ? 'text-emerald-400' : 'text-sky-400'}">
-          ${amountStr}
-        </td>
-        <td class="p-2.5 text-slate-300">
-          <div>${t.customer_name || 'Customer'}</div>
-          <div class="text-[10px] text-slate-500">${t.customer_email || ''}</div>
-        </td>
-        <td class="p-2.5">
-          <span class="badge-green text-[9px] font-mono">${t.status}</span>
-        </td>
-        <td class="p-2.5">
-          <span class="text-[10px] text-purple-300 font-mono font-semibold">✓ ${t.fulfillment_status || 'DELIVERED'}</span>
-        </td>
-      </tr>
-    `;
-  }).join('');
-}
-
-// ============================================================================
-// CORTEX AI SHORTS STUDIO & RLHF HUMAN APPROVAL QUEUE
-// ============================================================================
-
-async function fetchShortsStatus(render = false) {
-  try {
-    const res = await fetch('/api/shorts/status');
-    const data = await res.json();
-    appState.shortsStatus = data;
-
-    // Update nav badge
-    const badge = document.getElementById('shorts-pending-badge');
-    if (badge) {
-      badge.innerText = `${data.pending_count || 0}`;
-      badge.style.display = data.pending_count > 0 ? 'inline-block' : 'none';
-    }
-
-    const readinessVal = document.getElementById('shorts-readiness-val');
-    const readinessBar = document.getElementById('shorts-readiness-bar');
-    const levelBadge = document.getElementById('shorts-level-badge');
-    if (readinessVal) readinessVal.innerText = `${data.autonomy_readiness_pct}%`;
-    if (readinessBar) readinessBar.style.width = `${data.autonomy_readiness_pct}%`;
-    if (levelBadge) {
-      if (data.autonomy_readiness_pct >= 85) {
-        levelBadge.className = 'badge-gold text-[10px]';
-        levelBadge.innerText = 'Level 3: Full Autopilot Ready';
-      } else if (data.autonomy_readiness_pct >= 50) {
-        levelBadge.className = 'badge-green text-[10px]';
-        levelBadge.innerText = 'Level 2: Semi-Autonomous';
-      } else {
-        levelBadge.className = 'badge-blue text-[10px]';
-        levelBadge.innerText = 'Level 1: Supervised';
-      }
-    }
-
-    const revEl = document.getElementById('shorts-metric-reviews');
-    const appEl = document.getElementById('shorts-metric-approved');
-    if (revEl) revEl.innerText = data.total_reviews;
-    if (appEl) appEl.innerText = data.total_approvals;
-
-    const autoBadge = document.getElementById('shorts-autopilot-badge');
-    const toggleBtnLabel = document.getElementById('label-toggle-autopilot');
-    if (autoBadge) {
-      autoBadge.className = data.autopilot_enabled ? 'badge-green text-[10px] font-mono' : 'badge-blue text-[10px] font-mono';
-      autoBadge.innerText = data.autopilot_enabled ? 'AUTOPILOT: ACTIVE 🔥' : 'AUTOPILOT: STANDBY';
-    }
-    if (toggleBtnLabel) {
-      toggleBtnLabel.innerText = data.autopilot_enabled ? 'Disable Autopilot' : 'Enable Autopilot Mode';
-    }
-
-    if (render) {
-      renderShortsStudio();
-    }
-  } catch (err) {
-    console.error('Failed to fetch shorts status', err);
-  }
-}
-
-async function renderShortsStudio() {
-  await Promise.all([
-    fetchShortsStatus(),
-    fetchShortsPending(),
-    fetchShortsAlgoWeights(),
-    fetchShortsAgents(),
-    fetchShortsCollabLog(),
-    fetchShortsSchedule()
-  ]);
-}
-
-async function fetchShortsPending() {
-  const container = document.getElementById('shorts-pending-grid');
-  const countBadge = document.getElementById('shorts-queue-count-badge');
-  if (!container) return;
-
-  try {
-    const res = await fetch('/api/shorts/pending');
-    const clips = await res.json();
-    const pendingClips = clips.filter(c => c.status === 'PENDING_APPROVAL');
-
-    if (countBadge) {
-      countBadge.innerText = `${pendingClips.length} CANDIDATES WAITING`;
-    }
-
-    if (pendingClips.length === 0) {
-      container.innerHTML = `
-        <div class="col-span-full bg-slate-950/60 p-8 rounded-xl border border-slate-800 text-center">
-          <div class="text-3xl mb-2">🎉</div>
-          <h4 class="text-sm font-bold text-white mb-1">Queue Cleared — All Shorts Reviewed!</h4>
-          <p class="text-xs text-slate-400 mb-4">Click below to command Lyra Vance & Kaelen Cross to discover and clip the next trending AI moment.</p>
-          <button onclick="handleGenerateShortSample()" class="btn-gold text-xs py-2 px-4 inline-flex items-center gap-1.5 shadow-lg">
-            <span>✨</span> Discover & Clip Next AI Short
-          </button>
-        </div>
-      `;
-      return;
-    }
-
-    container.innerHTML = pendingClips.map(clip => {
-      const score = Number(clip.predicted_virality || 90).toFixed(1);
-      return `
-        <div class="card-glass p-4 rounded-xl border border-slate-700/70 hover:border-purple-500/50 transition-all flex flex-col justify-between relative group shadow-lg">
-          
-          <!-- Top Badge & Score -->
-          <div class="flex items-center justify-between gap-2 mb-2.5">
-            <span class="badge-gold text-[9px] font-mono tracking-wider">${clip.virality_badge || 'VIRAL BREAKOUT 🔥'}</span>
-            <div class="bg-purple-950/60 border border-purple-500/40 px-2 py-0.5 rounded-full text-[11px] font-mono font-bold text-purple-300">
-              ⚡ ${score}/100 VIRAL
-            </div>
-          </div>
-
-          <!-- Hook Headline & Title -->
-          <div class="mb-3">
-            <div class="bg-slate-950/80 border border-amber-500/30 rounded-lg p-2 mb-2 text-center">
-              <span class="text-[10px] text-amber-400/90 font-mono font-bold uppercase block tracking-wider">Hook Headline</span>
-              <span class="text-xs font-black text-amber-300 uppercase tracking-wide leading-tight block">"${clip.hook_headline}"</span>
-            </div>
-            <h4 class="text-xs font-bold text-white leading-snug line-clamp-2">${clip.title}</h4>
-          </div>
-
-          <!-- Speaker & Meta Pill -->
-          <div class="flex items-center gap-2.5 p-2 bg-slate-900/70 rounded-lg border border-slate-800/80 mb-3">
-            <img src="${clip.thumbnail_url || '/assets/avatars/lyra_vance.jpg'}" class="w-8 h-8 rounded-full border border-purple-400/40 object-cover shrink-0" alt="${clip.speaker}">
-            <div class="min-w-0 flex-1">
-              <div class="text-xs font-bold text-white truncate">${clip.speaker}</div>
-              <div class="text-[10px] text-slate-400 truncate">${clip.podcast_name} • ${clip.duration_sec}s (${clip.wpm} WPM)</div>
-            </div>
-          </div>
-
-          <!-- Captions Snippet -->
-          <div class="bg-slate-950/90 rounded-lg p-2.5 border border-slate-800 text-[11px] text-slate-300 italic mb-3 font-sans line-clamp-3">
-            "${clip.captions_sample || ''}"
-          </div>
-
-          <!-- Target Platforms & Pinned Affiliate -->
-          <div class="space-y-1.5 mb-3.5 text-[10px] font-mono">
-            <div class="flex flex-wrap gap-1">
-              ${(clip.target_platforms || ['YouTube Shorts', 'TikTok', 'Instagram Reels']).map(p => `
-                <span class="bg-slate-800/90 text-slate-300 px-1.5 py-0.5 rounded text-[9px]">${p}</span>
-              `).join('')}
-            </div>
-            <div class="text-emerald-400/90 truncate text-[9px]">
-              💰 Pinned: ${clip.pinned_affiliate || 'https://sbgroup.corp/titan-pro'}
-            </div>
-          </div>
-
-          <!-- Watch Rendered Video Button -->
-          <div class="mb-3">
-            <button onclick="openShortVideoModal('${clip.video_preview_url || '/assets/previews/test_aiclip_short.mp4'}', '${(clip.hook_headline || clip.title).replace(/'/g, "\\'")}')" class="w-full py-1.5 px-2.5 rounded-lg bg-purple-950/60 hover:bg-purple-900/80 border border-purple-500/50 text-purple-200 text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm">
-              <span class="text-amber-400">▶</span> Watch Rendered 9:16 Short
-            </button>
-          </div>
-
-          <!-- Approval / Rejection Action Buttons -->
-          <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800/80">
-            <button onclick="openShortRejectModal('${clip.id}')" class="btn-ghost text-xs py-2 px-2 border border-rose-500/40 text-rose-300 hover:bg-rose-950/40 flex items-center justify-center gap-1 font-bold">
-              <span>❌</span> Reject & Teach
-            </button>
-            <button onclick="handleApproveShort('${clip.id}')" class="btn-gold text-xs py-2 px-2 flex items-center justify-center gap-1 font-bold shadow-md">
-              <span>✅</span> Approve & Queue
-            </button>
-          </div>
-
-        </div>
-      `;
-    }).join('');
-  } catch (err) {
-    console.error('Failed to fetch pending shorts', err);
-  }
-}
-
-async function fetchShortsAlgoWeights() {
-  try {
-    const res = await fetch('/api/shorts/algo_weights');
-    const data = await res.json();
-    const st = data.algo_state || {};
-
-    // Speakers list
-    const spkEl = document.getElementById('algo-speakers-list');
-    if (spkEl && st.speaker_affinity) {
-      spkEl.innerHTML = Object.entries(st.speaker_affinity).slice(0, 6).map(([spk, w]) => {
-        const pct = Math.round(w * 100);
-        return `
-          <div class="space-y-0.5">
-            <div class="flex justify-between text-[11px]">
-              <span class="text-slate-300 truncate">${spk}</span>
-              <span class="text-amber-400 font-mono font-bold">${pct}%</span>
-            </div>
-            <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
-              <div class="h-full bg-amber-400 rounded-full" style="width: ${pct}%;"></div>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    // Topics list
-    const topEl = document.getElementById('algo-topics-list');
-    if (topEl && st.topic_affinity) {
-      topEl.innerHTML = Object.entries(st.topic_affinity).slice(0, 5).map(([tpc, w]) => {
-        const pct = Math.round(w * 100);
-        return `
-          <div class="space-y-0.5">
-            <div class="flex justify-between text-[11px]">
-              <span class="text-slate-300 truncate">${tpc}</span>
-              <span class="text-sky-400 font-mono font-bold">${pct}%</span>
-            </div>
-            <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
-              <div class="h-full bg-sky-400 rounded-full" style="width: ${pct}%;"></div>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    // Hooks list & pacing
-    const hookEl = document.getElementById('algo-hooks-list');
-    if (hookEl && st.hook_style_affinity) {
-      const hooksHtml = Object.entries(st.hook_style_affinity).slice(0, 4).map(([hk, w]) => {
-        const pct = Math.round(w * 100);
-        return `
-          <div class="flex justify-between text-[11px] items-center">
-            <span class="text-slate-300 truncate">${hk}</span>
-            <span class="badge-gold text-[9px] font-mono">${pct}%</span>
-          </div>
-        `;
-      }).join('');
-
-      hookEl.innerHTML = `
-        <div class="space-y-1.5">
-          ${hooksHtml}
-          <div class="pt-2 border-t border-slate-800 flex justify-between items-center text-[11px]">
-            <span class="text-purple-300 font-semibold">Target Pacing:</span>
-            <span class="text-white font-mono font-bold bg-slate-900 px-2 py-0.5 rounded">${st.target_pacing_wpm || 168} WPM</span>
-          </div>
-          <div class="flex justify-between items-center text-[11px]">
-            <span class="text-purple-300 font-semibold">Highlight Color:</span>
-            <span class="font-mono text-xs px-2 py-0.5 rounded font-bold" style="background: ${st.preferred_accent_color || '#FFE600'}; color: #000;">${st.preferred_accent_color || '#FFE600'}</span>
-          </div>
-        </div>
-      `;
-    }
-  } catch (err) {
-    console.error('Failed to fetch algo weights', err);
-  }
-}
-
-async function fetchShortsAgents() {
-  const container = document.getElementById('shorts-agents-grid');
-  if (!container) return;
-
-  try {
-    const res = await fetch('/api/shorts/agents');
-    const agents = await res.json();
-
-    container.innerHTML = agents.map(a => {
-      return `
-        <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800 hover:border-purple-500/40 transition-all flex flex-col justify-between">
-          <div>
-            <div class="relative w-full aspect-square mb-2 rounded-lg overflow-hidden border border-slate-700/80 shadow-md">
-              <img src="${a.avatar_img}" class="w-full h-full object-cover" alt="${a.name}">
-              <div class="absolute top-2 right-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 block shadow-lg"></span>
-              </div>
-            </div>
-            <h4 class="text-xs font-bold text-white leading-tight">${a.name}</h4>
-            <div class="text-[10px] text-purple-300 font-semibold mt-0.5">${a.title}</div>
-            <p class="text-[10px] text-slate-400 mt-1 line-clamp-3 leading-relaxed">${a.strict_role}</p>
-          </div>
-          <div class="mt-2 pt-2 border-t border-slate-800 text-[9px] text-amber-400/90 font-mono">
-            ⚡ ${a.current_task}
-          </div>
-        </div>
-      `;
-    }).join('');
-  } catch (err) {
-    console.error('Failed to fetch studio agents', err);
-  }
-}
-
-async function fetchShortsCollabLog() {
-  const container = document.getElementById('shorts-collab-dialogues');
-  if (!container) return;
-
-  try {
-    const res = await fetch('/api/shorts/collab_log');
-    const data = await res.json();
-    const dialogues = data.dialogues || [];
-
-    if (dialogues.length === 0) {
-      container.innerHTML = `<div class="text-center py-4 text-slate-500">No recent inter-agent messages.</div>`;
-      return;
-    }
-
-    container.innerHTML = dialogues.slice(-8).reverse().map(d => {
-      return `
-        <div class="p-2.5 rounded-xl bg-slate-900/70 border border-slate-800 hover:border-slate-700 transition-all flex items-start gap-2.5">
-          <img src="${d.from_avatar}" class="w-7 h-7 rounded-full border border-purple-400/50 object-cover shrink-0 mt-0.5" alt="${d.from}">
-          <div class="flex-1 min-w-0">
-            <div class="flex items-center justify-between gap-2 mb-0.5">
-              <span class="font-bold text-white text-[11px]">${d.from} <span class="text-slate-500 font-normal">➔</span> <span class="text-purple-300">${d.to}</span></span>
-              <span class="text-[9px] text-slate-500 font-mono">${d.timestamp}</span>
-            </div>
-            <div class="text-[10px] font-mono text-amber-400/90 mb-1">[TASK: ${d.task_type}]</div>
-            <p class="text-[11px] text-slate-300 leading-relaxed">${d.content}</p>
-          </div>
-        </div>
-      `;
-    }).join('');
-  } catch (err) {
-    console.error('Failed to fetch collab log', err);
-  }
-}
-
-async function fetchShortsSchedule() {
-  const container = document.getElementById('shorts-schedule-list');
-  if (!container) return;
-
-  try {
-    const res = await fetch('/api/shorts/schedule');
-    const data = await res.json();
-    const queue = data.recent_queue || [];
-
-    if (queue.length === 0) {
-      container.innerHTML = `<div class="p-4 text-center text-slate-500 text-xs">No scheduled posts yet. Approve clips above to schedule automatically.</div>`;
-      return;
-    }
-
-    container.innerHTML = queue.map(q => {
-      return `
-        <div class="p-3 bg-slate-950/70 rounded-xl border border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
-          <div class="space-y-1">
-            <div class="flex items-center gap-2">
-              <span class="badge-green text-[9px] font-mono">${q.status || 'QUEUED'}</span>
-              <span class="font-bold text-white">${q.title}</span>
-            </div>
-            <div class="text-[10px] text-slate-400 flex items-center gap-3">
-              <span>🕒 Scheduled: <strong class="text-amber-300 font-mono">${q.scheduled_time}</strong></span>
-              <span>🎙️ ${q.speaker}</span>
-              <span>📈 Est. Reach: <strong class="text-sky-300">${q.estimated_reach || '50K+'}</strong></span>
-            </div>
-          </div>
-          <div class="flex items-center gap-1.5 shrink-0">
-            ${(q.platforms || []).map(p => `
-              <span class="bg-slate-900 border border-slate-700 text-slate-300 px-2 py-0.5 rounded text-[10px] font-mono">${p}</span>
-            `).join('')}
-          </div>
-        </div>
-      `;
-    }).join('');
-  } catch (err) {
-    console.error('Failed to fetch shorts schedule', err);
-  }
-}
-
-async function handleApproveShort(clipId) {
-  try {
-    const res = await fetch('/api/shorts/approve', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ clip_id: clipId })
-    });
-    const result = await res.json();
-    alert(`✅ Clip Approved! Feature weights boosted (+12%). Staged for Omni-Channel distribution. New Autonomy Readiness: ${result.new_autonomy_readiness || '78.5'}%`);
-    renderShortsStudio();
-  } catch (err) {
-    alert(`Error approving clip: ${err.message}`);
-  }
-}
-
-function openShortRejectModal(clipId) {
-  const modal = document.getElementById('modal-shorts-reject');
-  const targetIdInput = document.getElementById('reject-target-clip-id');
-  if (targetIdInput) targetIdInput.value = clipId;
-  if (modal) modal.classList.remove('hidden');
-}
-
-function closeShortRejectModal() {
-  const modal = document.getElementById('modal-shorts-reject');
-  if (modal) modal.classList.add('hidden');
-}
-
-async function submitShortRejection() {
-  const clipId = document.getElementById('reject-target-clip-id')?.value;
-  const checkboxes = document.querySelectorAll('#reject-reasons-group input[type="checkbox"]:checked');
-  const reasons = Array.from(checkboxes).map(c => c.value);
-  const notes = document.getElementById('reject-custom-notes')?.value || '';
-
-  if (reasons.length === 0 && !notes) {
-    alert('Please select at least one rejection reason or enter a directive so Orion Stark can tune the algorithm.');
-    return;
-  }
-
-  try {
-    const res = await fetch('/api/shorts/reject', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        clip_id: clipId,
-        rejection_reasons: reasons,
-        custom_notes: notes
-      })
-    });
-    const result = await res.json();
-    closeShortRejectModal();
-    alert(`🧬 Algorithm trained! Penalized matching feature weights. Orion Stark has logged your feedback to adapt all future clipping.`);
-    renderShortsStudio();
-  } catch (err) {
-    alert(`Error submitting rejection: ${err.message}`);
-  }
-}
-
-async function handleGenerateShortSample() {
-  const btn = document.getElementById('btn-discover-short');
-  if (btn) btn.innerHTML = '<span>⏳</span> Scouting Podcasts...';
-
-  try {
-    const res = await fetch('/api/shorts/generate_sample', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({})
-    });
-    const data = await res.json();
-    if (data.success) {
-      alert(`✨ New Short Discovered & Staged!\n"${data.clip.title}"\nVirality Score: ${data.clip.predicted_virality}/100`);
-      renderShortsStudio();
-    }
-  } catch (err) {
-    alert(`Error generating sample: ${err.message}`);
-  } finally {
-    if (btn) btn.innerHTML = '<span>✨</span> Discover & Clip Next Short';
-  }
-}
-
-async function handleToggleAutopilot() {
-  try {
-    const res = await fetch('/api/shorts/toggle_autopilot', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({})
-    });
-    const data = await res.json();
-    const isAuto = data.autopilot_enabled;
-    alert(isAuto ? '⚡ Autonomous Autopilot ACTIVATED!\nThe agents will autonomously source, clip, render, and schedule daily AI shorts based on your learned preference weights.' : '⏸️ Autopilot Mode Paused. Returned to Human Approval Queue mode.');
-    fetchShortsStatus();
-  } catch (err) {
-    alert(`Error toggling autopilot: ${err.message}`);
-  }
-}
-
-function openShortsConfigModal() {
-  const modal = document.getElementById('modal-shorts-config');
-  if (modal) modal.classList.remove('hidden');
-}
-
-function closeShortsConfigModal() {
-  const modal = document.getElementById('modal-shorts-config');
-  if (modal) modal.classList.add('hidden');
-}
-
-async function handleSaveShortsKeys(event) {
-  event.preventDefault();
-  const keys = {
-    YOUTUBE_API_KEY: document.getElementById('cfg-yt-key')?.value || '',
-    X_API_KEY: document.getElementById('cfg-x-key')?.value || '',
-    TIKTOK_CLIENT_KEY: document.getElementById('cfg-tt-key')?.value || '',
-    INSTAGRAM_ACCESS_TOKEN: document.getElementById('cfg-ig-key')?.value || ''
-  };
-
-  try {
-    const res = await fetch('/api/shorts/configure_keys', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(keys)
-    });
-    const data = await res.json();
-    closeShortsConfigModal();
-    alert('🔑 Sovereign credentials saved securely to local .env.shorts!');
-    fetchShortsSchedule();
-  } catch (err) {
-    alert(`Failed to save keys: ${err.message}`);
-  }
-}
-
-function openShortVideoModal(videoUrl, title) {
-  const modal = document.getElementById('modal-short-video');
-  const player = document.getElementById('short-video-player');
-  const source = document.getElementById('short-video-source');
-  const titleEl = document.getElementById('video-modal-title');
-  if (!modal || !player || !source) return;
-
-  if (titleEl && title) titleEl.innerText = title;
-  source.src = videoUrl || '/assets/previews/test_aiclip_short.mp4';
-  player.load();
-  player.play().catch(() => {});
-  modal.classList.remove('hidden');
-}
-
-function closeShortVideoModal() {
-  const modal = document.getElementById('modal-short-video');
-  const player = document.getElementById('short-video-player');
-  if (player) player.pause();
-  if (modal) modal.classList.add('hidden');
-}
-
-// ============================================================================
-// EXECUTIVE SETTINGS & SOVEREIGN API VAULT
-// ============================================================================
-
-let currentSettingsData = null;
-let activeSettingsSubtab = 'account';
-let currentKeysCategoryFilter = 'ALL';
-let keysSearchQuery = '';
-let revealedKeysCache = {};
-
-function switchSettingsSubtab(subtabName) {
-  activeSettingsSubtab = subtabName;
-  const subtabs = ['account', 'apikeys', 'privacy', 'security', 'swarm', 'ui'];
-  subtabs.forEach(st => {
-    const btn = document.getElementById(`subtab-btn-${st}`);
-    const pane = document.getElementById(`subtab-content-${st}`);
-    if (st === subtabName) {
-      btn?.classList.remove('bg-slate-900/60', 'border-slate-700/60', 'text-slate-300');
-      btn?.classList.add('bg-amber-500/20', 'border-amber-500/50', 'text-amber-300');
-      pane?.classList.remove('hidden');
-    } else {
-      btn?.classList.remove('bg-amber-500/20', 'border-amber-500/50', 'text-amber-300');
-      btn?.classList.add('bg-slate-900/60', 'border-slate-700/60', 'text-slate-300');
-      pane?.classList.add('hidden');
-    }
-  });
-}
-
-async function loadSettings() {
-  try {
-    const res = await fetch('/api/settings');
-    const data = await res.json();
-    currentSettingsData = data;
-
-    // Update killswitch status banner & button
-    const killswitchActive = !!data.emergency_killswitch;
-    const ksBtn = document.getElementById('settings-killswitch-btn');
-    const ksLabel = document.getElementById('killswitch-label');
-    const ksIcon = document.getElementById('killswitch-icon');
-    const ksActionLabel = document.getElementById('killswitch-action-label');
-
-    if (ksBtn && ksLabel) {
-      if (killswitchActive) {
-        ksBtn.className = 'btn-ghost text-xs py-2 px-3 border border-emerald-500/60 text-emerald-300 bg-emerald-950/60 flex items-center gap-1.5 shadow-md';
-        ksLabel.innerText = 'DISENGAGE EMERGENCY STOP';
-        if (ksIcon) ksIcon.innerText = '✅';
-        if (ksActionLabel) ksActionLabel.innerText = 'Disengage Emergency Stop (Resume Operations)';
-      } else {
-        ksBtn.className = 'btn-ghost text-xs py-2 px-3 border border-rose-500/50 text-rose-300 hover:bg-rose-950/50 flex items-center gap-1.5 shadow-md';
-        ksLabel.innerText = 'Emergency Stop Swarm';
-        if (ksIcon) ksIcon.innerText = '🚨';
-        if (ksActionLabel) ksActionLabel.innerText = 'Engage Emergency Stop';
-      }
-    }
-
-    // Populate Account
-    if (data.account) {
-      const acc = data.account;
-      if (document.getElementById('set-acc-name')) document.getElementById('set-acc-name').value = acc.full_name || '';
-      if (document.getElementById('set-acc-title')) document.getElementById('set-acc-title').value = acc.executive_title || '';
-      if (document.getElementById('set-acc-org')) document.getElementById('set-acc-org').value = acc.organization || '';
-      if (document.getElementById('set-acc-email')) document.getElementById('set-acc-email').value = acc.email || '';
-      if (document.getElementById('set-acc-tz')) document.getElementById('set-acc-tz').value = acc.timezone || 'Asia/Kolkata (IST, UTC+05:30)';
-      if (document.getElementById('set-acc-cur-pri')) document.getElementById('set-acc-cur-pri').value = acc.primary_currency || 'INR (₹)';
-      if (document.getElementById('set-acc-cur-sec')) document.getElementById('set-acc-cur-sec').value = acc.secondary_currency || 'USD ($)';
-
-      const subsContainer = document.getElementById('set-acc-subs-list');
-      if (subsContainer && acc.subsidiaries) {
-        subsContainer.innerHTML = acc.subsidiaries.map(s => `
-          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-950/40 border border-amber-500/30 text-amber-300 text-[11px] font-semibold">
-            <span>🏛️</span> ${s}
-          </span>
-        `).join('');
-      }
-    }
-
-    // Populate Privacy
-    if (data.privacy) {
-      const priv = data.privacy;
-      if (document.getElementById('set-priv-offline')) document.getElementById('set-priv-offline').checked = !!priv.offline_sovereign_inference;
-      if (document.getElementById('set-priv-zero-telem')) document.getElementById('set-priv-zero-telem').checked = !!priv.zero_telemetry_enforced;
-      if (document.getElementById('set-priv-anon-aff')) document.getElementById('set-priv-anon-aff').checked = !!priv.anonymize_affiliate_fingerprints;
-      if (document.getElementById('set-priv-local-strict')) document.getElementById('set-priv-local-strict').checked = !!priv.local_storage_strict;
-      if (document.getElementById('set-priv-purge-days')) document.getElementById('set-priv-purge-days').value = String(priv.auto_purge_temp_media_days ?? 7);
-    }
-
-    // Populate Security
-    if (data.security) {
-      const sec = data.security;
-      if (document.getElementById('set-sec-hmac')) document.getElementById('set-sec-hmac').checked = !!sec.webhook_hmac_sha256_enforced;
-      if (document.getElementById('set-sec-localhost')) document.getElementById('set-sec-localhost').checked = !!sec.localhost_origin_lockdown;
-      if (document.getElementById('set-sec-pin')) document.getElementById('set-sec-pin').checked = !!sec.require_session_pin;
-    }
-
-    // Populate Swarm
-    if (data.swarm) {
-      const sw = data.swarm;
-      if (document.getElementById('set-swarm-model')) document.getElementById('set-swarm-model').value = sw.default_llm_model || 'qwen2.5-coder:7b-instruct';
-      if (document.getElementById('set-swarm-ollama-url')) document.getElementById('set-swarm-ollama-url').value = sw.ollama_base_url || 'http://localhost:11434';
-      if (document.getElementById('set-swarm-rigor')) document.getElementById('set-swarm-rigor').value = sw.council_debate_rigor || 'standard_3_rounds';
-      if (document.getElementById('set-swarm-threshold')) document.getElementById('set-swarm-threshold').value = String(sw.autopilot_readiness_threshold || 90);
-      if (document.getElementById('set-swarm-strict-roles')) document.getElementById('set-swarm-strict-roles').checked = !!sw.strict_agent_roles_enforced;
-    }
-
-    // Populate UI
-    if (data.ui) {
-      const ui = data.ui;
-      if (document.getElementById('set-ui-theme')) document.getElementById('set-ui-theme').value = ui.theme || 'obsidian_dark';
-      if (document.getElementById('set-ui-logo')) document.getElementById('set-ui-logo').value = ui.brand_logo || 'sb_group_crest';
-      if (document.getElementById('set-ui-refresh')) document.getElementById('set-ui-refresh').value = String(ui.telemetry_refresh_sec || 5);
-      if (document.getElementById('set-ui-chimes')) document.getElementById('set-ui-chimes').checked = !!ui.executive_audio_chimes;
-    }
-
-    // Keys badge count
-    const totalKeysBadge = document.getElementById('settings-total-keys-badge');
-    if (totalKeysBadge && data.api_keys) {
-      totalKeysBadge.innerText = data.api_keys.length;
-    }
-
-    // Render API keys list
-    renderApiKeys();
-  } catch (err) {
-    console.error('Failed to load settings:', err);
-  }
-}
-
-function setKeysCategoryFilter(cat) {
-  currentKeysCategoryFilter = cat;
-  const buttons = document.querySelectorAll('.keys-cat-btn');
-  buttons.forEach(btn => {
-    if (btn.innerText.trim() === cat || (cat === 'ALL' && btn.innerText.trim() === 'ALL')) {
-      btn.className = 'keys-cat-btn px-2.5 py-1 rounded-md text-[11px] font-mono bg-purple-500/20 border border-purple-500/50 text-purple-300 shrink-0';
-    } else {
-      btn.className = 'keys-cat-btn px-2.5 py-1 rounded-md text-[11px] font-mono bg-slate-900 border border-slate-800 text-slate-400 hover:text-white shrink-0';
-    }
-  });
-  renderApiKeys();
-}
-
-function filterApiKeys() {
-  keysSearchQuery = document.getElementById('set-keys-search')?.value.toLowerCase().trim() || '';
-  renderApiKeys();
-}
-
-function renderApiKeys() {
-  const container = document.getElementById('settings-keys-grid');
-  if (!container || !currentSettingsData?.api_keys) return;
-
-  const filtered = currentSettingsData.api_keys.filter(k => {
-    // Category match
-    const catMatch = currentKeysCategoryFilter === 'ALL' || k.category === currentKeysCategoryFilter;
-    // Query match
-    const qMatch = !keysSearchQuery ||
-      k.name.toLowerCase().includes(keysSearchQuery) ||
-      k.env_var.toLowerCase().includes(keysSearchQuery) ||
-      (k.description && k.description.toLowerCase().includes(keysSearchQuery));
-    return catMatch && qMatch;
-  });
-
-  if (filtered.length === 0) {
-    container.innerHTML = `
-      <div class="col-span-full p-8 text-center bg-slate-950/60 rounded-xl border border-slate-800">
-        <div class="text-3xl mb-2">🔍</div>
-        <div class="text-sm font-bold text-white">No API keys match '${keysSearchQuery}' in ${currentKeysCategoryFilter}</div>
-        <p class="text-xs text-slate-400 mt-1">Click '+ Add Custom API Key' to register this platform in the sovereign vault.</p>
-      </div>
-    `;
-    return;
-  }
-
-  container.innerHTML = filtered.map(k => {
-    const isSet = k.is_set;
-    const isCustom = !!k.is_custom;
-    const isRevealed = !!revealedKeysCache[k.id];
-    const displayVal = isRevealed ? (revealedKeysCache[k.id] || '(empty)') : (k.masked_value || '••••••••••••••••');
-
-    return `
-      <div class="card-glass p-4 rounded-xl border ${isSet ? 'border-purple-500/40' : 'border-slate-800/90'} flex flex-col justify-between hover:border-amber-500/50 transition-all shadow-md relative group">
-        <div>
-          <!-- Header: Category & Status Badge -->
-          <div class="flex items-center justify-between gap-2 mb-2">
-            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-900 border border-slate-700/80 text-purple-300 font-bold">${k.category}</span>
-            <span class="${isSet ? 'badge-green' : 'bg-slate-800 text-slate-400'} text-[10px] font-mono">
-              ${isSet ? '🟢 CONFIGURED' : '⚪ NOT SET'}
-            </span>
-          </div>
-
-          <!-- Name & Env Var -->
-          <h4 class="text-xs font-bold text-white leading-snug mb-1">${k.name}</h4>
-          <div class="inline-block bg-slate-950 px-2 py-0.5 rounded text-[10px] text-amber-300 font-mono font-bold mb-2 border border-slate-800">
-            ${k.env_var}
-          </div>
-
-          <!-- Description -->
-          <p class="text-[11px] text-slate-400 line-clamp-2 mb-3 leading-relaxed">
-            ${k.description || 'Sovereign integration credential.'}
-          </p>
-        </div>
-
-        <!-- Secret Display & Controls -->
-        <div>
-          <div class="bg-slate-950/90 border border-slate-800 rounded-lg p-2 mb-3 flex items-center justify-between gap-2">
-            <div class="font-mono text-xs ${isSet ? 'text-emerald-400 font-bold' : 'text-slate-500 italic'} truncate flex-1 select-all" id="key-display-${k.id}">
-              ${isSet ? displayVal : 'Not set in vault'}
-            </div>
-            ${isSet ? `
-              <div class="flex items-center gap-1 shrink-0">
-                <button onclick="toggleRevealApiKey('${k.id}')" class="text-[10px] p-1 text-slate-400 hover:text-white rounded hover:bg-slate-800" title="Toggle Show/Hide">
-                  ${isRevealed ? '🙈' : '👁️'}
-                </button>
-                <button onclick="copyApiKey('${k.id}')" class="text-[10px] p-1 text-slate-400 hover:text-amber-300 rounded hover:bg-slate-800" title="Copy to clipboard">
-                  📋
-                </button>
-              </div>
-            ` : ''}
-          </div>
-
-          <!-- Action Buttons -->
-          <div class="flex items-center justify-between pt-2 border-t border-slate-800/80 text-xs">
-            <button onclick="openEditApiKeyModal('${k.id}')" class="btn-ghost text-[11px] py-1 px-2.5 flex items-center gap-1 text-amber-300 hover:bg-amber-950/40 border border-amber-500/30 font-semibold">
-              <span>✏️</span> Edit Key
-            </button>
-            ${isCustom ? `
-              <button onclick="handleDeleteApiKey('${k.id}')" class="btn-ghost text-[11px] py-1 px-2 text-rose-400 hover:bg-rose-950/40 border border-rose-500/30" title="Delete custom key">
-                <span>🗑️</span> Delete
-              </button>
-            ` : `
-              <span class="text-[9px] font-mono text-slate-500">CORE INTEGRATION</span>
-            `}
-          </div>
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-async function toggleRevealApiKey(keyId) {
-  if (revealedKeysCache[keyId]) {
-    delete revealedKeysCache[keyId];
-    renderApiKeys();
-    return;
-  }
-  try {
-    const res = await fetch('/api/settings/reveal_key', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: keyId })
-    });
-    const data = await res.json();
-    if (data.value) {
-      revealedKeysCache[keyId] = data.value;
-      renderApiKeys();
-    }
-  } catch (err) {
-    alert(`Could not reveal key: ${err.message}`);
-  }
-}
-
-async function copyApiKey(keyId) {
-  try {
-    let val = revealedKeysCache[keyId];
-    if (!val) {
-      const res = await fetch('/api/settings/reveal_key', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: keyId })
-      });
-      const data = await res.json();
-      val = data.value;
-    }
-    if (val) {
-      await navigator.clipboard.writeText(val);
-      alert(`📋 API Key copied to clipboard!`);
-    } else {
-      alert('Key value is empty.');
-    }
-  } catch (err) {
-    alert(`Failed to copy key: ${err.message}`);
-  }
-}
-
-function openAddApiKeyModal() {
-  document.getElementById('modal-add-api-key')?.classList.remove('hidden');
-}
-
-function closeAddApiKeyModal() {
-  document.getElementById('modal-add-api-key')?.classList.add('hidden');
-}
-
-async function handleSaveCustomApiKey(event) {
-  event.preventDefault();
-  const payload = {
-    name: document.getElementById('add-key-name')?.value.trim(),
-    env_var: document.getElementById('add-key-env')?.value.trim(),
-    category: document.getElementById('add-key-cat')?.value,
-    value: document.getElementById('add-key-val')?.value.trim(),
-    description: document.getElementById('add-key-desc')?.value.trim()
-  };
-
-  try {
-    const res = await fetch('/api/settings/save_key', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    const data = await res.json();
-    if (data.status === 'SUCCESS') {
-      closeAddApiKeyModal();
-      alert(`✅ Custom key '${payload.name}' registered and synced to .env.ecosystem!`);
-      loadSettings();
-    } else {
-      alert(`Error saving key: ${data.error || 'Unknown error'}`);
-    }
-  } catch (err) {
-    alert(`Failed to save custom key: ${err.message}`);
-  }
-}
-
-async function openEditApiKeyModal(keyId) {
-  const item = currentSettingsData?.api_keys?.find(k => k.id === keyId);
-  if (!item) return;
-
-  document.getElementById('edit-key-id').value = item.id;
-  document.getElementById('edit-key-name').value = item.name;
-  document.getElementById('edit-key-env').value = item.env_var;
-  document.getElementById('edit-key-cat').value = item.category || 'Custom Tools';
-  document.getElementById('edit-key-desc').value = item.description || '';
-  document.getElementById('edit-key-val').value = '';
-  document.getElementById('edit-key-subtitle').innerText = `Editing credential for ${item.env_var}`;
-
-  // If already revealed, populate
-  if (revealedKeysCache[item.id]) {
-    document.getElementById('edit-key-val').value = revealedKeysCache[item.id];
-  } else if (item.is_set) {
-    try {
-      const res = await fetch('/api/settings/reveal_key', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: item.id })
-      });
-      const data = await res.json();
-      if (data.value) {
-        document.getElementById('edit-key-val').value = data.value;
-      }
-    } catch (_) {}
-  }
-
-  document.getElementById('modal-edit-api-key')?.classList.remove('hidden');
-}
-
-function closeEditApiKeyModal() {
-  document.getElementById('modal-edit-api-key')?.classList.add('hidden');
-}
-
-async function handleSaveEditedApiKey(event) {
-  event.preventDefault();
-  const keyId = document.getElementById('edit-key-id').value;
-  const payload = {
-    id: keyId,
-    name: document.getElementById('edit-key-name')?.value.trim(),
-    env_var: document.getElementById('edit-key-env')?.value.trim(),
-    category: document.getElementById('edit-key-cat')?.value,
-    value: document.getElementById('edit-key-val')?.value.trim(),
-    description: document.getElementById('edit-key-desc')?.value.trim()
-  };
-
-  try {
-    const res = await fetch('/api/settings/save_key', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    const data = await res.json();
-    if (data.status === 'SUCCESS') {
-      delete revealedKeysCache[keyId];
-      closeEditApiKeyModal();
-      alert(`✅ Credential for '${payload.name}' updated in sovereign vault!`);
-      loadSettings();
-    } else {
-      alert(`Error updating key: ${data.error || 'Unknown error'}`);
-    }
-  } catch (err) {
-    alert(`Failed to update key: ${err.message}`);
-  }
-}
-
-async function handleDeleteApiKey(keyId) {
-  if (!confirm(`Are you sure you want to permanently delete custom API key '${keyId}' from the sovereign vault?`)) {
-    return;
-  }
-  try {
-    const res = await fetch('/api/settings/delete_key', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: keyId })
-    });
-    const data = await res.json();
-    if (data.status === 'DELETED') {
-      delete revealedKeysCache[keyId];
-      alert(`🗑️ Custom key deleted.`);
-      loadSettings();
-    } else {
-      alert(`Could not delete key: ${data.status}`);
-    }
-  } catch (err) {
-    alert(`Failed to delete key: ${err.message}`);
-  }
-}
-
-async function handleSaveAccountSettings(event) {
-  event.preventDefault();
-  const payload = {
-    section: 'account',
-    values: {
-      full_name: document.getElementById('set-acc-name')?.value.trim(),
-      executive_title: document.getElementById('set-acc-title')?.value.trim(),
-      organization: document.getElementById('set-acc-org')?.value.trim(),
-      email: document.getElementById('set-acc-email')?.value.trim(),
-      timezone: document.getElementById('set-acc-tz')?.value,
-      primary_currency: document.getElementById('set-acc-cur-pri')?.value.trim(),
-      secondary_currency: document.getElementById('set-acc-cur-sec')?.value.trim()
-    }
-  };
-
-  try {
-    const res = await fetch('/api/settings/update_section', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    const data = await res.json();
-    if (data.status === 'SUCCESS') {
-      alert('👤 Chairperson Account Profile successfully updated!');
-      loadSettings();
-    }
-  } catch (err) {
-    alert(`Failed to save account settings: ${err.message}`);
-  }
-}
-
-async function handleSavePrivacySettings(event) {
-  event.preventDefault();
-  const payload = {
-    section: 'privacy',
-    values: {
-      offline_sovereign_inference: document.getElementById('set-priv-offline')?.checked,
-      zero_telemetry_enforced: document.getElementById('set-priv-zero-telem')?.checked,
-      anonymize_affiliate_fingerprints: document.getElementById('set-priv-anon-aff')?.checked,
-      local_storage_strict: document.getElementById('set-priv-local-strict')?.checked,
-      auto_purge_temp_media_days: Number(document.getElementById('set-priv-purge-days')?.value || 7)
-    }
-  };
-
-  try {
-    const res = await fetch('/api/settings/update_section', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    const data = await res.json();
-    if (data.status === 'SUCCESS') {
-      alert('🛡️ Data Sovereignty & Privacy safeguards locked in!');
-      loadSettings();
-    }
-  } catch (err) {
-    alert(`Failed to save privacy settings: ${err.message}`);
-  }
-}
-
-async function handleSaveSecuritySettings(event) {
-  event.preventDefault();
-  const payload = {
-    section: 'security',
-    values: {
-      webhook_hmac_sha256_enforced: document.getElementById('set-sec-hmac')?.checked,
-      localhost_origin_lockdown: document.getElementById('set-sec-localhost')?.checked,
-      require_session_pin: document.getElementById('set-sec-pin')?.checked
-    }
-  };
-
-  try {
-    const res = await fetch('/api/settings/update_section', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    const data = await res.json();
-    if (data.status === 'SUCCESS') {
-      alert('🔒 Security & Access policies updated!');
-      loadSettings();
-    }
-  } catch (err) {
-    alert(`Failed to save security settings: ${err.message}`);
-  }
-}
-
-async function handleSaveSwarmSettings(event) {
-  event.preventDefault();
-  const payload = {
-    section: 'swarm',
-    values: {
-      default_llm_model: document.getElementById('set-swarm-model')?.value,
-      ollama_base_url: document.getElementById('set-swarm-ollama-url')?.value.trim(),
-      council_debate_rigor: document.getElementById('set-swarm-rigor')?.value,
-      autopilot_readiness_threshold: Number(document.getElementById('set-swarm-threshold')?.value || 90),
-      strict_agent_roles_enforced: document.getElementById('set-swarm-strict-roles')?.checked
-    }
-  };
-
-  try {
-    const res = await fetch('/api/settings/update_section', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    const data = await res.json();
-    if (data.status === 'SUCCESS') {
-      alert('🤖 Autonomous Swarm & Council parameters updated!');
-      loadSettings();
-    }
-  } catch (err) {
-    alert(`Failed to save swarm settings: ${err.message}`);
-  }
-}
-
-async function handleSaveUiSettings(event) {
-  event.preventDefault();
-  const payload = {
-    section: 'ui',
-    values: {
-      theme: document.getElementById('set-ui-theme')?.value,
-      brand_logo: document.getElementById('set-ui-logo')?.value,
-      telemetry_refresh_sec: Number(document.getElementById('set-ui-refresh')?.value || 5),
-      executive_audio_chimes: document.getElementById('set-ui-chimes')?.checked
-    }
-  };
-
-  try {
-    const res = await fetch('/api/settings/update_section', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    const data = await res.json();
-    if (data.status === 'SUCCESS') {
-      alert('🎨 Interface & Alert preferences saved!');
-      loadSettings();
-    }
-  } catch (err) {
-    alert(`Failed to save UI settings: ${err.message}`);
-  }
-}
-
-async function handleToggleEmergencyKillswitch() {
-  const current = !!currentSettingsData?.emergency_killswitch;
-  const target = !current;
-  const confirmMsg = target
-    ? '⚠️ ENGAGE EMERGENCY STOP: This will immediately freeze all 10 corporate agents, halt video rendering queues, and lock payment auto-settlements. Proceed?'
-    : '✅ DISENGAGE EMERGENCY STOP: Resume all autonomous agents and background pipelines?';
-
-  if (!confirm(confirmMsg)) return;
-
-  try {
-    const res = await fetch('/api/settings/toggle_killswitch', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ active: target })
-    });
-    const data = await res.json();
-    alert(`🚨 Emergency Killswitch ${data.emergency_killswitch ? 'ACTIVATED' : 'DISENGAGED'}.`);
-    loadSettings();
-  } catch (err) {
-    alert(`Failed to toggle killswitch: ${err.message}`);
-  }
-}
-
-async function handleExportSettingsBackup() {
-  try {
-    const res = await fetch('/api/settings/export_backup', { method: 'POST' });
-    const data = await res.json();
-    const str = JSON.stringify(data, null, 2);
-    const blob = new Blob([str], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `SB_Group_Vault_Backup_${new Date().toISOString().slice(0, 10)}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  } catch (err) {
-    alert(`Failed to export backup: ${err.message}`);
-  }
-}
-
-function handlePurgeTempCache() {
-  if (confirm('🧹 Clean temporary audio clips and scratch video frames from cache?')) {
-    alert('Temporary cache cleared. Zero persistent media lost.');
-  }
-}
-
-function togglePasswordVisibility(inputId) {
-  const el = document.getElementById(inputId);
-  if (el) {
-    el.type = el.type === 'password' ? 'text' : 'password';
-  }
-}
-
-// ============================================================================
-// UNIFIED SOVEREIGN LOCALHOST ECOSYSTEM FUNCTIONS
-// ============================================================================
-
-async function loadEcosystemHosts(force = false) {
-  try {
-    const res = await fetch('/api/ecosystem/hosts');
-    if (!res.ok) return;
-    const data = await res.json();
-    if (!data || !data.hosts) return;
-
-    appState.ecosystem.hosts = data.hosts;
-    appState.ecosystem.lastChecked = new Date();
-
-    renderHeaderLocalhostPills(data.hosts);
-    renderEcosystemCards(data.hosts);
-    updateEcosystemMeshBadge(data.online_hosts, data.total_hosts);
-  } catch (err) {
-    console.error('Failed to load ecosystem hosts:', err);
-  }
-}
-
-function updateEcosystemMeshBadge(online, total) {
-  const badge = document.getElementById('ecosystem-mesh-badge');
-  const tabBadge = document.getElementById('ecosystem-tab-badge');
-  const text = `${online}/${total} ONLINE`;
-
-  if (badge) {
-    badge.innerText = text;
-    if (online === total) {
-      badge.className = 'badge-green text-[10px] font-mono';
-    } else {
-      badge.className = 'badge-gold text-[10px] font-mono';
-    }
-  }
-  if (tabBadge) {
-    tabBadge.innerText = text;
-  }
-}
-
-function renderHeaderLocalhostPills(hosts) {
-  hosts.forEach(h => {
-    const pill = document.getElementById(`host-pill-${h.port}`);
-    if (pill) {
-      const isOnline = h.status === 'ONLINE';
-      pill.className = `host-pill ${isOnline ? 'online' : 'standby'}`;
-      pill.title = `${h.name} (${h.port}) • ${h.status} • ${h.latency_ms}ms`;
-      pill.innerHTML = `<span class="host-dot"></span>${h.port}`;
-    }
-  });
-}
-
-function renderEcosystemCards(hosts) {
-  const container = document.getElementById('ecosystem-cards-grid');
-  if (!container) return;
-
-  const cardsHtml = hosts.map(h => {
-    const isOnline = h.status === 'ONLINE';
-    const isActiveViewport = appState.ecosystem.activeViewport === h.key;
-    const borderAccent = isOnline ? (h.accent === 'cyan' ? 'border-cyan-500/40' : h.accent === 'violet' ? 'border-purple-500/40' : h.accent === 'emerald' ? 'border-emerald-500/40' : 'border-amber-500/40') : 'border-slate-800';
-
-    const metricEntries = Object.entries(h.metrics || {}).slice(0, 3).map(([k, v]) => `
-      <div class="flex items-center justify-between text-[11px] py-0.5 border-b border-white/[0.04]">
-        <span class="text-slate-400 font-sans">${k}</span>
-        <span class="font-mono font-semibold text-slate-200">${v}</span>
-      </div>
-    `).join('');
-
-    return `
-      <div class="ecosystem-host-card ${isActiveViewport ? 'active-viewport' : ''} ${borderAccent} flex flex-col justify-between" id="host-card-${h.key}">
-        <div>
-          <!-- Header: Category, Port & Status -->
-          <div class="flex items-center justify-between gap-2 mb-2.5">
-            <span class="text-[9px] uppercase font-mono font-bold tracking-wider px-2 py-0.5 rounded bg-slate-800/80 text-slate-300">${h.category}</span>
-            <div class="flex items-center gap-1.5">
-              <span class="text-[10px] font-mono text-slate-400">${h.latency_ms}ms</span>
-              <span class="inline-flex items-center gap-1 text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-full ${isOnline ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-slate-800 text-slate-400 border border-slate-700'}">
-                <span class="w-1.5 h-1.5 rounded-full ${isOnline ? 'bg-emerald-400 shadow-[0_0_6px_#10b981]' : 'bg-slate-400'}"></span>
-                ${isOnline ? 'ONLINE' : 'STANDBY'}
-              </span>
-            </div>
-          </div>
-
-          <!-- Name & Tagline -->
-          <div class="flex items-start gap-2.5 mb-2">
-            <span class="text-xl shrink-0 mt-0.5">${h.icon}</span>
-            <div>
-              <h3 class="text-sm font-bold text-white leading-tight">${h.name}</h3>
-              <p class="text-[10px] font-mono text-cyan-400 mt-0.5">${h.url}</p>
-            </div>
-          </div>
-          <p class="text-[11px] text-slate-400 line-clamp-2 leading-relaxed mb-3">${h.description}</p>
-
-          <!-- Metrics Table -->
-          <div class="space-y-0.5 bg-slate-950/40 rounded-lg p-2.5 border border-white/[0.05] mb-3">
-            ${metricEntries}
-          </div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="pt-2 border-t border-white/[0.05] flex items-center gap-1.5">
-          ${h.can_embed ? `
-            <button onclick="switchEcosystemViewport('${h.key}')" class="btn-ghost flex-1 text-[11px] py-1.5 px-2 flex items-center justify-center gap-1 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-950/40" title="View inside dashboard viewport">
-              <span>👁️</span> Embed
-            </button>
-          ` : `
-            <button onclick="switchTab('progress')" class="btn-ghost flex-1 text-[11px] py-1.5 px-2 flex items-center justify-center gap-1 border border-amber-500/40 text-amber-300" title="Active Core">
-              <span>🏛️</span> Active
-            </button>
-          `}
-          <a href="${h.url}" target="_blank" rel="noopener" class="btn-ghost text-[11px] py-1.5 px-2.5 flex items-center justify-center gap-1 border border-slate-700 hover:border-slate-500 text-slate-300" title="Open in new window">
-            <span>↗️</span>
-          </a>
-          ${!isOnline ? `
-            <button onclick="startEcosystemService('${h.key}')" class="btn-gold text-[11px] py-1.5 px-2.5 flex items-center justify-center" title="Launch Engine">
-              <span>⚡</span>
-            </button>
-          ` : ''}
-        </div>
-      </div>
-    `;
-  }).join('');
-
-  container.innerHTML = cardsHtml;
-}
-
-function switchEcosystemViewport(hostKey) {
-  appState.ecosystem.activeViewport = hostKey;
-
-  const host = (appState.ecosystem.hosts || []).find(h => h.key === hostKey);
-  if (!host) return;
-
-  // Update tabs highlight
-  ['omniroute', 'worldmonitor', 'titan', 'ollama', 'sb_dashboard'].forEach(k => {
-    const btn = document.getElementById(`viewport-btn-${k}`);
-    if (btn) {
-      if (k === hostKey) {
-        btn.classList.add('active');
-      } else {
-        btn.classList.remove('active');
-      }
-    }
-    const card = document.getElementById(`host-card-${k}`);
-    if (card) {
-      if (k === hostKey) {
-        card.classList.add('active-viewport');
-      } else {
-        card.classList.remove('active-viewport');
-      }
-    }
-  });
-
-  const urlEl = document.getElementById('viewport-active-url');
-  if (urlEl) urlEl.innerText = host.url;
-
-  const iframe = document.getElementById('ecosystem-viewport-iframe');
-  const loader = document.getElementById('viewport-loader');
-
-  if (iframe) {
-    if (loader) loader.classList.remove('hidden');
-    iframe.src = host.embed_url || host.url;
-    iframe.onload = () => {
-      if (loader) loader.classList.add('hidden');
-    };
-  }
-}
-
-function reloadEcosystemViewport() {
-  const iframe = document.getElementById('ecosystem-viewport-iframe');
-  if (iframe) {
-    const loader = document.getElementById('viewport-loader');
-    if (loader) loader.classList.remove('hidden');
-    iframe.src = iframe.src;
-    iframe.onload = () => {
-      if (loader) loader.classList.add('hidden');
-    };
-  }
-}
-
-function popoutEcosystemViewport() {
-  const host = (appState.ecosystem.hosts || []).find(h => h.key === appState.ecosystem.activeViewport);
-  if (host && host.url) {
-    window.open(host.url, '_blank');
-  }
-}
-
-async function startEcosystemService(hostKey) {
-  try {
-    const res = await fetch('/api/ecosystem/action', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ host_key: hostKey, action: 'start' })
-    });
-    const data = await res.json();
-    alert(`[Engine Supervisor]: ${data.message || 'Launch initiated.'}`);
-    setTimeout(() => loadEcosystemHosts(true), 1500);
-  } catch (err) {
-    alert(`Failed to start engine: ${err.message}`);
-  }
-}
-
-async function triggerAllStandbyEngines() {
-  const standbyHosts = (appState.ecosystem.hosts || []).filter(h => h.status !== 'ONLINE');
-  if (standbyHosts.length === 0) {
-    alert('All 5 ecosystem engines are already ONLINE!');
-    return;
-  }
-  for (const h of standbyHosts) {
-    await startEcosystemService(h.key);
-  }
-}
-
-// ============================================================================
-// MUNDER-DIFFLIN ADAPTATION: OFFICE FLOOR CANVAS & HIVE KANBAN ENGINE
-// ============================================================================
-
-let floorState = {
-  activeSubtab: 'canvas', // 'canvas' | 'kanban' | 'feed'
-  zones: [],
-  desks: {},
-  tasks: [],
-  events: [],
-  animFrameId: null,
-  tick: 0,
-  hoveredDeskId: null,
-  selectedDesk: null,
-  cachedAvatars: {}
-};
-
-function switchFloorSubtab(subtab) {
-  floorState.activeSubtab = subtab;
-  const canvasEl = document.getElementById('floor-view-canvas');
-  const kanbanEl = document.getElementById('floor-view-kanban');
-  const feedEl = document.getElementById('floor-view-feed');
-  const canvasBtn = document.getElementById('floor-subtab-canvas-btn');
-  const kanbanBtn = document.getElementById('floor-subtab-kanban-btn');
-  const feedBtn = document.getElementById('floor-subtab-feed-btn');
-
-  // Reset classes
-  [canvasBtn, kanbanBtn, feedBtn].forEach(b => {
-    b?.classList.remove('bg-amber-500/20', 'text-amber-300', 'border', 'border-amber-500/40', 'shadow-sm');
-    b?.classList.add('text-slate-400');
-  });
-
-  const activeBtn = subtab === 'canvas' ? canvasBtn : subtab === 'kanban' ? kanbanBtn : feedBtn;
-  activeBtn?.classList.remove('text-slate-400');
-  activeBtn?.classList.add('bg-amber-500/20', 'text-amber-300', 'border', 'border-amber-500/40', 'shadow-sm');
-
-  canvasEl?.classList.toggle('hidden', subtab !== 'canvas');
-  kanbanEl?.classList.toggle('hidden', subtab !== 'kanban');
-  feedEl?.classList.toggle('hidden', subtab !== 'feed');
-
-  if (subtab === 'canvas') {
-    startOfficeCanvasLoop();
-  } else if (subtab === 'kanban') {
-    loadHiveTasksData();
-  } else if (subtab === 'feed') {
-    loadHiveFeedData();
-  }
-}
-
-async function initOfficeFloor() {
-  try {
-    const res = await fetch('/api/floor/state');
-    const data = await res.json();
-    floorState.zones = data.zones || [];
-    floorState.desks = data.desks || {};
-    
-    // Update active tasks counter
-    const taskCountPill = document.getElementById('floor-task-count-pill');
-    if (taskCountPill) {
-      taskCountPill.textContent = data.active_tasks_count || 5;
-    }
-
-    preloadAvatarImages();
-    startOfficeCanvasLoop();
-    setupOfficeCanvasInteraction();
-    loadHiveTasksData();
-  } catch (err) {
-    console.error('Failed to init office floor:', err);
-  }
-}
-
-function preloadAvatarImages() {
-  Object.values(floorState.desks).forEach(desk => {
-    if (desk.sprite && !floorState.cachedAvatars[desk.sprite]) {
-      const img = new Image();
-      img.src = `/assets/avatars/${desk.sprite}.jpg`;
-      img.onerror = () => {
-        // Fallback to png or default
-        img.src = `/assets/avatars/${desk.sprite}.png`;
-      };
-      floorState.cachedAvatars[desk.sprite] = img;
-    }
-  });
-}
-
-function setupOfficeCanvasInteraction() {
-  const canvas = document.getElementById('office-floor-canvas');
-  if (!canvas || canvas.dataset.listenersBound) return;
-  canvas.dataset.listenersBound = 'true';
-
-  canvas.addEventListener('mousemove', (e) => {
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
-    const mouseX = (e.clientX - rect.left) * scaleX;
-    const mouseY = (e.clientY - rect.top) * scaleY;
-
-    let found = null;
-    for (const [aid, desk] of Object.entries(floorState.desks)) {
-      const dx = desk.desk_x;
-      const dy = desk.desk_y;
-      if (mouseX >= dx && mouseX <= dx + 130 && mouseY >= dy && mouseY <= dy + 100) {
-        found = aid;
+  const SHAPES = [
+    { top: 20, fy: 40, hw: 23 },
+    { top: 14, fy: 35, hw: 19 },
+    { top: 15, fy: 41, hw: 24 },
+    { top: 16, fy: 40, hw: 22 },
+    { top: 22, fy: 40, hw: 22 }
+  ];
+
+  function getBodyShapeSVG(i, fill, dark) {
+    switch (i) {
+      case 0:
+        return `<rect x="27" y="20" width="46" height="56" rx="22" fill="${fill}"/>`;
+      case 1:
+        return `<rect x="31" y="14" width="38" height="64" rx="19" fill="${fill}"/>`;
+      case 2:
+        return `<circle cx="38" cy="36" r="13" fill="${fill}"/><circle cx="50" cy="29" r="15" fill="${fill}"/><circle cx="62" cy="36" r="13" fill="${fill}"/><rect x="26" y="36" width="48" height="40" rx="12" fill="${fill}"/>`;
+      case 3:
+        return `<path d="M28 78V38a22 22 0 0 1 44 0V78z" fill="${fill}"/>`;
+      default:
+        return `<rect x="28" y="22" width="44" height="54" rx="11" fill="${fill}"/><rect x="23.5" y="36" width="4.4" height="11" rx="2.2" fill="${dark}"/><rect x="72.1" y="36" width="4.4" height="11" rx="2.2" fill="${dark}"/><path d="M50 22V13" stroke="${dark}" stroke-width="1.5" stroke-linecap="round"/><circle cx="50" cy="11.4" r="2.8" fill="#8FF0FF"/>`;
+    }
+  }
+
+  function getAccessorySVG(i, top, color, fy, hw, isLead) {
+    let acc = '';
+    switch (i) {
+      case 0: // Sprout
+        acc = `<path d="M50 ${top + 1}v-7" stroke="#3A9D68" stroke-width="1.6" stroke-linecap="round"/><path d="M50 ${top - 5}q-8-1-8-8q7 0 8 8z" fill="#53C98A"/><path d="M50 ${top - 5}q8-1 8-8q-7 0-8 8z" fill="#3FB677"/>`;
         break;
-      }
+      case 1: // Headset
+        acc = `<path d="M${50 - hw - .5} ${fy - 3}Q${50 - hw} ${top - 7} 50 ${top - 7}Q${50 + hw} ${top - 7} ${50 + hw + .5} ${fy - 3}" fill="none" stroke="#2C2F40" stroke-width="3" stroke-linecap="round"/>
+               <rect x="${50 - hw - 4}" y="${fy - 7}" width="7" height="14" rx="3.5" fill="${color}" stroke="#2C2F40" stroke-width="1.4"/>
+               <rect x="${50 + hw - 3}" y="${fy - 7}" width="7" height="14" rx="3.5" fill="${color}" stroke="#2C2F40" stroke-width="1.4"/>`;
+        break;
+      case 2: // Cap
+        acc = `<path d="M30 ${top + 11}Q30 ${top - 9} 50 ${top - 9}Q70 ${top - 9} 70 ${top + 11}z" fill="${color}"/><rect x="29" y="${top + 7}" width="42" height="7" rx="3.5" fill="#2C2F40" opacity=".4"/>`;
+        break;
+      case 3: // Visor
+        acc = `<path d="M31 ${top + 8}Q31 ${top - 8} 50 ${top - 8}Q69 ${top - 8} 69 ${top + 8}z" fill="${color}"/><path d="M45 ${top + 7}q22-3 30 3q-12 3-30-1z" fill="#1A1320" opacity=".5"/>`;
+        break;
+      case 4: // Ribbon
+        acc = `<g transform="translate(60 ${top + 3}) rotate(14)"><path d="M0 0L-9-5V5z" fill="${color}"/><path d="M0 0L9-5V5z" fill="${color}"/><circle r="2.6" fill="#1A1320" opacity=".3"/></g>`;
+        break;
+      default: // Antennas
+        acc = `<path d="M44 ${top + 2}L40 ${top - 8}M56 ${top + 2}L60 ${top - 8}" stroke="#2C2F40" stroke-width="1.2" stroke-linecap="round"/><circle cx="40" cy="${top - 9}" r="2.4" fill="${color}"/><circle cx="60" cy="${top - 9}" r="2.4" fill="${color}"/>`;
+        break;
     }
-    floorState.hoveredDeskId = found;
-    canvas.style.cursor = found ? 'pointer' : 'default';
-  });
-
-  canvas.addEventListener('click', (e) => {
-    if (floorState.hoveredDeskId) {
-      const desk = floorState.desks[floorState.hoveredDeskId];
-      if (desk) {
-        openAgentDeskModal(desk);
-      }
+    if (isLead) {
+      acc += `<path d="M${50 - hw} ${fy + 5}q-2 11 13 12" fill="none" stroke="#2C2F40" stroke-width="1.2" stroke-linecap="round"/><circle cx="${50 - hw + 13}" cy="${fy + 17}" r="2" fill="#F5C04A"/>`;
     }
-  });
-}
-
-function startOfficeCanvasLoop() {
-  if (floorState.animFrameId) cancelAnimationFrame(floorState.animFrameId);
-
-  const canvas = document.getElementById('office-floor-canvas');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-
-  function renderLoop() {
-    if (appState.activeTab !== 'floor' || floorState.activeSubtab !== 'canvas') {
-      return;
-    }
-    floorState.tick++;
-    drawOfficeFloor(ctx, canvas.width, canvas.height);
-    floorState.animFrameId = requestAnimationFrame(renderLoop);
-  }
-  floorState.animFrameId = requestAnimationFrame(renderLoop);
-}
-
-function drawOfficeFloor(ctx, width, height) {
-  const isLight = document.body.classList.contains('light-theme');
-
-  // 1. Draw Wood / Tile Floor Grid
-  ctx.fillStyle = isLight ? '#f1f5f9' : '#080d1a';
-  ctx.fillRect(0, 0, width, height);
-
-  // Subtle isometric / floor tile grid
-  ctx.strokeStyle = isLight ? 'rgba(0,0,0,0.03)' : 'rgba(255,255,255,0.02)';
-  ctx.lineWidth = 1;
-  const tileSize = 24;
-  for (let x = 0; x < width; x += tileSize) {
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, height);
-    ctx.stroke();
-  }
-  for (let y = 0; y < height; y += tileSize) {
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(width, y);
-    ctx.stroke();
+    return acc;
   }
 
-  // 2. Draw Office Zones
-  (floorState.zones || []).forEach(zone => {
-    const b = zone.bounds;
-    ctx.save();
-    
-    // Zone floor tint
-    ctx.fillStyle = isLight ? 'rgba(255,255,255,0.85)' : 'rgba(15, 23, 42, 0.65)';
-    ctx.fillRect(b.x, b.y, b.w, b.h);
+  function renderAgentStandupSVG(p, isSpeaking = false, isWorking = false, isDone = false, uid = '') {
+    const sh = SHAPES[p.shape];
+    const fy = sh.fy;
+    const top = sh.top;
+    const scene = SCENES[p.scene] || SCENES[0];
+    const shirtColor = p.shirt;
+    const darkColor = '#1A1320';
+    const ink = p.shape === 4 ? '#8FF0FF' : '#2A2233';
 
-    // Zone outer border (retro pixelated border feel)
-    ctx.strokeStyle = zone.color || '#d4af37';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(b.x, b.y, b.w, b.h);
+    const eyeX = p.shape === 1 ? [43, 57] : [41.5, 58.5];
+    const my = fy + 10.5;
 
-    // Zone Title Tag (Munder-Difflin room plate style)
-    ctx.fillStyle = zone.color || '#d4af37';
-    ctx.fillRect(b.x + 8, b.y + 8, 12, 12);
-    
-    ctx.fillStyle = isLight ? '#0f172a' : '#f8fafc';
-    ctx.font = 'bold 12px "Inter", sans-serif';
-    ctx.fillText(zone.name.toUpperCase(), b.x + 26, b.y + 19);
-
-    ctx.fillStyle = isLight ? '#64748b' : '#94a3b8';
-    ctx.font = '10px "Inter", sans-serif';
-    ctx.fillText(zone.description, b.x + 26, b.y + 34);
-
-    ctx.restore();
-  });
-
-  // 3. Draw Desks, Characters, and Monitors
-  for (const [aid, desk] of Object.entries(floorState.desks || {})) {
-    drawAgentDesk(ctx, aid, desk, isLight);
-  }
-}
-
-function drawAgentDesk(ctx, aid, desk, isLight) {
-  const x = desk.desk_x;
-  const y = desk.desk_y;
-  const w = 130;
-  const h = 88;
-  const isHovered = floorState.hoveredDeskId === aid;
-
-  ctx.save();
-
-  // Subtle breathing oscillation
-  const breath = Math.sin((floorState.tick + (x * 7)) * 0.05) * 1.5;
-
-  // Desk surface
-  ctx.fillStyle = isLight ? (isHovered ? '#e2e8f0' : '#ffffff') : (isHovered ? 'rgba(30, 41, 59, 0.95)' : 'rgba(18, 28, 54, 0.85)');
-  ctx.strokeStyle = isHovered ? '#f59e0b' : 'rgba(255, 255, 255, 0.15)';
-  ctx.lineWidth = isHovered ? 2 : 1;
-  
-  // Rounded desk rect
-  roundRect(ctx, x, y, w, h, 8);
-  ctx.fill();
-  ctx.stroke();
-
-  // Desk monitor / terminal screen
-  const screenX = x + 70;
-  const screenY = y + 15;
-  const screenW = 46;
-  const screenH = 34;
-
-  ctx.fillStyle = '#050811';
-  ctx.fillRect(screenX, screenY, screenW, screenH);
-  ctx.strokeStyle = '#38bdf8';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(screenX, screenY, screenW, screenH);
-
-  // Monitor glow / code scanlines
-  ctx.fillStyle = (floorState.tick % 60 < 30) ? '#38bdf8' : '#34d399';
-  ctx.fillRect(screenX + 4, screenY + 6, 18, 2);
-  ctx.fillRect(screenX + 4, screenY + 12, 28, 2);
-  ctx.fillRect(screenX + 4, screenY + 18, 22, 2);
-  ctx.fillRect(screenX + 4, screenY + 24, 12, 2);
-
-  // Monitor stand
-  ctx.fillStyle = '#475569';
-  ctx.fillRect(screenX + 18, screenY + screenH, 10, 4);
-  ctx.fillRect(screenX + 14, screenY + screenH + 4, 18, 2);
-
-  // Coffee Mug on desk (Munder-Difflin break room staple!)
-  const mugX = x + 105;
-  const mugY = y + 58;
-  ctx.fillStyle = '#f97316';
-  ctx.fillRect(mugX, mugY, 12, 14);
-  // Mug handle
-  ctx.strokeStyle = '#ea580c';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(mugX + 10, mugY + 2, 4, 10);
-  // Coffee steam
-  if (floorState.tick % 40 < 20) {
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-    ctx.beginPath();
-    ctx.moveTo(mugX + 6, mugY - 2);
-    ctx.quadraticCurveTo(mugX + 3, mugY - 6, mugX + 7, mugY - 10);
-    ctx.stroke();
-  }
-
-  // Draw Avatar / Character
-  const avatarImg = floorState.cachedAvatars[desk.sprite];
-  const charX = x + 12;
-  const charY = y + 14 + breath;
-  const charSize = 44;
-
-  if (avatarImg && avatarImg.complete && avatarImg.naturalWidth > 0) {
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(charX + charSize / 2, charY + charSize / 2, charSize / 2, 0, Math.PI * 2);
-    ctx.clip();
-    ctx.drawImage(avatarImg, charX, charY, charSize, charSize);
-    ctx.restore();
-    // Avatar border ring
-    ctx.strokeStyle = isHovered ? '#f59e0b' : '#38bdf8';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(charX + charSize / 2, charY + charSize / 2, charSize / 2, 0, Math.PI * 2);
-    ctx.stroke();
-  } else {
-    // Pixel/Retro placeholder
-    ctx.fillStyle = '#0284c7';
-    ctx.beginPath();
-    ctx.arc(charX + charSize / 2, charY + charSize / 2, charSize / 2, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 16px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(desk.name ? desk.name[0] : 'A', charX + charSize / 2, charY + charSize / 2 + 6);
-  }
-
-  // Live Status Beacon dot on avatar
-  ctx.fillStyle = '#10b981';
-  ctx.beginPath();
-  ctx.arc(charX + charSize - 4, charY + charSize - 4, 4, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.strokeStyle = '#022c22';
-  ctx.lineWidth = 1;
-  ctx.stroke();
-
-  // Agent Nameplate below desk
-  ctx.fillStyle = isLight ? '#0f172a' : '#f8fafc';
-  ctx.font = 'bold 10px "Inter", sans-serif';
-  ctx.textAlign = 'left';
-  ctx.fillText(desk.name || 'Agent', x + 10, y + 74);
-
-  ctx.fillStyle = isLight ? '#64748b' : '#94a3b8';
-  ctx.font = '9px "Inter", sans-serif';
-  ctx.fillText(desk.role ? desk.role.split('—')[0].trim() : 'Worker', x + 10, y + 84);
-
-  // Floating Speech / Thought Bubble (Munder-Difflin Character Style)
-  if (desk.speech_bubble) {
-    drawSpeechBubble(ctx, x + 65, y - 8, desk.speech_bubble, isLight);
-  }
-
-  ctx.restore();
-}
-
-function drawSpeechBubble(ctx, x, y, text, isLight) {
-  ctx.save();
-  ctx.font = '9px "Inter", sans-serif';
-  const truncated = text.length > 32 ? text.substring(0, 30) + '...' : text;
-  const metrics = ctx.measureText(truncated);
-  const bubbleW = metrics.width + 16;
-  const bubbleH = 20;
-  const bx = x - (bubbleW / 2);
-  const by = y - bubbleH;
-
-  // Bubble background
-  ctx.fillStyle = isLight ? '#ffffff' : '#1e293b';
-  ctx.strokeStyle = 'rgba(212, 175, 55, 0.7)';
-  ctx.lineWidth = 1;
-  roundRect(ctx, bx, by, bubbleW, bubbleH, 6);
-  ctx.fill();
-  ctx.stroke();
-
-  // Little bubble pointer downward
-  ctx.beginPath();
-  ctx.moveTo(x - 4, by + bubbleH);
-  ctx.lineTo(x, by + bubbleH + 4);
-  ctx.lineTo(x + 4, by + bubbleH);
-  ctx.fillStyle = isLight ? '#ffffff' : '#1e293b';
-  ctx.fill();
-  ctx.stroke();
-
-  // Text
-  ctx.fillStyle = isLight ? '#0f172a' : '#fde68a';
-  ctx.textAlign = 'center';
-  ctx.fillText(truncated, x, by + 13);
-
-  ctx.restore();
-}
-
-function roundRect(ctx, x, y, w, h, r) {
-  ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.lineTo(x + w - r, y);
-  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-  ctx.lineTo(x + w, y + h - r);
-  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-  ctx.lineTo(x + r, y + h);
-  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-  ctx.lineTo(x, y + r);
-  ctx.quadraticCurveTo(x, y, x + r, y);
-  ctx.closePath();
-}
-
-// ----------------------------------------------------------------------------
-// AGENT DESK INSPECTOR MODAL
-// ----------------------------------------------------------------------------
-function openAgentDeskModal(desk) {
-  floorState.selectedDesk = desk;
-  const modal = document.getElementById('modal-agent-desk-inspector');
-  if (!modal) return;
-
-  const avatarEl = document.getElementById('desk-modal-avatar');
-  const nameEl = document.getElementById('desk-modal-name');
-  const badgeEl = document.getElementById('desk-modal-badge');
-  const roleEl = document.getElementById('desk-modal-role');
-  const zoneEl = document.getElementById('desk-modal-zone');
-  const statusEl = document.getElementById('desk-modal-status');
-  const coffeeEl = document.getElementById('desk-modal-coffee');
-  const activityEl = document.getElementById('desk-modal-activity');
-  const bubbleEl = document.getElementById('desk-modal-bubble');
-  const targetIdInput = document.getElementById('dispatch-target-agent-id');
-
-  if (avatarEl) avatarEl.src = `/assets/avatars/${desk.sprite}.jpg`;
-  if (nameEl) nameEl.textContent = desk.name;
-  if (badgeEl) badgeEl.textContent = desk.agent_key ? desk.agent_key.toUpperCase() : 'AGENT';
-  if (roleEl) roleEl.textContent = desk.role;
-  if (zoneEl) zoneEl.textContent = `Workstation Zone: ${desk.zone ? desk.zone.replace('_', ' ').toUpperCase() : 'OFFICE'}`;
-  if (statusEl) statusEl.textContent = desk.status || 'BUSY';
-  if (coffeeEl) coffeeEl.textContent = `${desk.coffee_level || 85}% Full`;
-  if (activityEl) activityEl.textContent = desk.current_activity || 'Autonomous execution in progress';
-  if (bubbleEl) bubbleEl.textContent = `"${desk.speech_bubble || 'Autonomous operations running.'}"`;
-  if (targetIdInput) targetIdInput.value = desk.id || desk.agent_key;
-
-  modal.classList.remove('hidden');
-}
-
-function closeAgentDeskModal() {
-  document.getElementById('modal-agent-desk-inspector')?.classList.add('hidden');
-}
-
-async function handleDispatchToAgent(e) {
-  e.preventDefault();
-  const targetId = document.getElementById('dispatch-target-agent-id')?.value;
-  const msgInput = document.getElementById('dispatch-message-input');
-  const msg = msgInput?.value.trim();
-  if (!msg) return;
-
-  try {
-    const res = await fetch('/api/hive/dispatch', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        from: 'Chairperson of the Board',
-        to: targetId,
-        subject: 'Executive Floor Mandate',
-        message: msg
-      })
-    });
-    const data = await res.json();
-    alert(`[Hive Router]: Delivered message to ${floorState.selectedDesk?.name || 'Agent'} outbox.`);
-    msgInput.value = '';
-    closeAgentDeskModal();
-    loadHiveFeedData();
-  } catch (err) {
-    alert(`Failed to dispatch message: ${err.message}`);
-  }
-}
-
-// ----------------------------------------------------------------------------
-// HIVE KANBAN TASKS & FEED
-// ----------------------------------------------------------------------------
-async function loadHiveTasksData() {
-  try {
-    const res = await fetch('/api/hive/tasks');
-    const data = await res.json();
-    floorState.tasks = data.tasks || [];
-    renderHiveKanbanBoard(floorState.tasks);
-  } catch (err) {
-    console.error('Failed to load hive tasks:', err);
-  }
-}
-
-function renderHiveKanbanBoard(tasks) {
-  const cols = {
-    BACKLOG: document.getElementById('kanban-col-backlog'),
-    IN_PROGRESS: document.getElementById('kanban-col-in-progress'),
-    REVIEW: document.getElementById('kanban-col-review'),
-    COMPLETED: document.getElementById('kanban-col-completed')
-  };
-
-  const counts = {
-    BACKLOG: 0,
-    IN_PROGRESS: 0,
-    REVIEW: 0,
-    COMPLETED: 0
-  };
-
-  Object.values(cols).forEach(col => { if (col) col.innerHTML = ''; });
-
-  tasks.forEach(task => {
-    const status = task.status || 'BACKLOG';
-    if (counts[status] !== undefined) counts[status]++;
-
-    const colEl = cols[status];
-    if (!colEl) return;
-
-    const card = document.createElement('div');
-    card.className = 'kanban-task-card flex flex-col gap-2';
-
-    const prioColor = task.priority === 'CRITICAL' ? 'text-red-400 border-red-500/40 bg-red-500/10' :
-                      task.priority === 'HIGH' ? 'text-amber-400 border-amber-500/40 bg-amber-500/10' :
-                      'text-slate-400 border-slate-700 bg-slate-800';
-
-    card.innerHTML = `
-      <div class="flex items-center justify-between gap-1 text-[10px]">
-        <span class="font-mono font-bold text-slate-400">${task.id}</span>
-        <span class="px-1.5 py-0.5 rounded font-mono border ${prioColor}">${task.priority || 'MED'}</span>
-      </div>
-      <h4 class="text-xs font-bold text-white leading-tight">${task.title}</h4>
-      <p class="text-[11px] text-slate-400 line-clamp-2">${task.description || ''}</p>
-      
-      <!-- Progress Bar -->
-      <div class="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden my-0.5">
-        <div class="bg-gradient-to-r from-amber-500 to-emerald-400 h-full rounded-full" style="width: ${task.progress || 0}%"></div>
-      </div>
-
-      <div class="flex items-center justify-between text-[10px] pt-1 border-t border-slate-800/80">
-        <span class="text-amber-300 font-medium">👤 ${task.assignee_name || 'Autonomous'}</span>
-        <div class="flex gap-1">
-          ${status !== 'BACKLOG' ? `<button onclick="moveTask('${task.id}', 'BACKLOG')" class="hover:text-amber-300" title="Move to Backlog">⏮️</button>` : ''}
-          ${status !== 'IN_PROGRESS' ? `<button onclick="moveTask('${task.id}', 'IN_PROGRESS')" class="hover:text-sky-300" title="Move to In Progress">▶️</button>` : ''}
-          ${status !== 'REVIEW' ? `<button onclick="moveTask('${task.id}', 'REVIEW')" class="hover:text-amber-300" title="Move to Board Review">⚖️</button>` : ''}
-          ${status !== 'COMPLETED' ? `<button onclick="moveTask('${task.id}', 'COMPLETED')" class="hover:text-emerald-300" title="Complete Task">✅</button>` : ''}
-        </div>
-      </div>
+    // Face elements
+    const eyes = `
+      <g class="eye">
+        <ellipse cx="${eyeX[0]}" cy="${fy}" rx="3.2" ry="4" fill="${ink}"/>
+        <circle cx="${eyeX[0] + 1}" cy="${fy - 1.5}" r="1.1" fill="#FFF"/>
+      </g>
+      <g class="eye">
+        <ellipse cx="${eyeX[1]}" cy="${fy}" rx="3.2" ry="4" fill="${ink}"/>
+        <circle cx="${eyeX[1] + 1}" cy="${fy - 1.5}" r="1.1" fill="#FFF"/>
+      </g>
     `;
-    colEl.appendChild(card);
-  });
 
-  // Update counts
-  document.getElementById('kanban-count-backlog').textContent = counts.BACKLOG;
-  document.getElementById('kanban-count-in-progress').textContent = counts.IN_PROGRESS;
-  document.getElementById('kanban-count-review').textContent = counts.REVIEW;
-  document.getElementById('kanban-count-completed').textContent = counts.COMPLETED;
-}
+    const happyEyes = `
+      <path d="M${eyeX[0] - 3.6} ${fy + 1.4}Q${eyeX[0]} ${fy - 4.2} ${eyeX[0] + 3.6} ${fy + 1.4}" fill="none" stroke="${ink}" stroke-width="1.7" stroke-linecap="round"/>
+      <path d="M${eyeX[1] - 3.6} ${fy + 1.4}Q${eyeX[1]} ${fy - 4.2} ${eyeX[1] + 3.6} ${fy + 1.4}" fill="none" stroke="${ink}" stroke-width="1.7" stroke-linecap="round"/>
+    `;
 
-async function moveTask(taskId, newStatus) {
-  try {
-    const res = await fetch('/api/hive/tasks/update', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: taskId, status: newStatus })
-    });
-    const data = await res.json();
-    if (data.status === 'SUCCESS') {
-      loadHiveTasksData();
-    }
-  } catch (err) {
-    alert('Failed to update task status: ' + err.message);
+    const eyebrows = `
+      <path class="brow l" d="M${eyeX[0] - 3.6} ${fy - 7}q3.6-2 7.2 0" fill="none" stroke="${ink}" stroke-width="1.4" stroke-linecap="round"/>
+      <path class="brow r" d="M${eyeX[1] - 3.6} ${fy - 7}q3.6-2 7.2 0" fill="none" stroke="${ink}" stroke-width="1.4" stroke-linecap="round"/>
+    `;
+
+    const mouth = isSpeaking ?
+      `<ellipse class="mouth" cx="50" cy="${my + 1}" rx="4.5" ry="3.5" fill="#4B1C2C"/>` :
+      (isDone ?
+        `<path d="M44.5 ${my - .6}q5.5 8 11 0z" fill="#4B1C2C"/>` :
+        `<path d="M46 ${my}q4 3.6 8 0" fill="none" stroke="${ink}" stroke-width="1.6" stroke-linecap="round"/>`
+      );
+
+    const blush = p.shape !== 4 ?
+      `<ellipse cx="${eyeX[0] - 6}" cy="${fy + 6}" rx="3.3" ry="2" fill="#FF6F91" opacity=".35"/><ellipse cx="${eyeX[1] + 6}" cy="${fy + 6}" rx="3.3" ry="2" fill="#FF6F91" opacity=".35"/>` : '';
+
+    const glasses = p.glasses ?
+      `<g fill="rgba(255,255,255,.2)" stroke="#2C2F40" stroke-width="1.1">
+         <circle cx="${eyeX[0]}" cy="${fy}" r="6.2"/><circle cx="${eyeX[1]}" cy="${fy}" r="6.2"/>
+         <path d="M${eyeX[0] + 6.2} ${fy}h${eyeX[1] - eyeX[0] - 12.4}" fill="none"/>
+       </g>` : '';
+
+    const accessory = getAccessorySVG(p.acc, top, p.acc2, fy, sh.hw, p.lead);
+
+    const arms = `
+      <g class="arm l"><ellipse cx="25" cy="56" rx="4.6" ry="9" fill="${shirtColor}" transform="rotate(12 25 56)"/></g>
+      <g class="arm r"><ellipse cx="75" cy="56" rx="4.6" ry="9" fill="${shirtColor}" transform="rotate(-12 75 56)"/></g>
+    `;
+
+    // Props: coffee, books, succulent
+    const propsList = [
+      // Succulent
+      `<path d="M11 62.4l1.6-7.4h7.2l1.6 7.4z" fill="#E07A5F"/><path d="M16 55q-6-8-2-12q5 4 2 12z" fill="#3FBF7F"/><path d="M16 55q6-7 10-5q-1 6-10 5z" fill="#53C98A"/>`,
+      // Steaming coffee mug
+      `<rect x="79" y="55.6" width="7.4" height="6.8" rx="1.6" fill="#F6F2EA"/><path d="M86.2 57q3.2 0 3.2 2.2t-3.2 2.2" fill="none" stroke="#F6F2EA" stroke-width="1.3"/>
+       <g class="steam" fill="none" stroke="#FFF" stroke-width=".8" stroke-linecap="round" opacity=".7"><path d="M81.5 53q-1.4-1.8 0-3.4M84.3 53q-1.4-1.8 0-3.4"/></g>`,
+      // Reference book stack
+      `<rect x="76" y="58.2" width="14" height="4.2" rx="1" fill="#FF7A6B"/><rect x="77.5" y="54.4" width="12" height="3.8" rx="1" fill="#4CC3FF"/><rect x="76.5" y="50.8" width="11" height="3.6" rx="1" fill="#FFD84A"/>`
+    ];
+    const deskProp = propsList[p.prop] || propsList[1];
+
+    // Open laptop with glowing apple logo and typing hands
+    const laptop = `
+      <rect x="33" y="46" width="34" height="18" rx="2.8" fill="#D3D8E6"/>
+      <circle cx="50" cy="55" r="2.3" fill="${p.shirt}"/>
+      <rect x="29.5" y="63.4" width="41" height="3" rx="1.5" fill="#AAB1C2"/>
+    `;
+    const hands = `<circle class="hand l" cx="38" cy="65.6" r="3.1" fill="${shirtColor}"/><circle class="hand r" cx="62" cy="65.6" r="3.1" fill="${shirtColor}"/>`;
+
+    return `
+      <svg viewBox="0 0 100 75" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+        ${scene.svg(uid)}
+        <g class="fig">
+          ${arms}
+          ${getBodyShapeSVG(p.shape, shirtColor, darkColor)}
+          ${blush}
+          ${isDone ? happyEyes : eyes}
+          ${eyebrows}
+          ${mouth}
+          ${glasses}
+          ${accessory}
+        </g>
+        <!-- Desk Surface -->
+        <rect y="62" width="100" height="13" fill="${scene.desk[0]}"/>
+        <rect y="62" width="100" height="1.3" fill="#FFF" opacity=".35"/>
+        <rect y="63.3" width="100" height="2.6" fill="#000" opacity=".12"/>
+        ${deskProp}
+        ${laptop}
+        ${hands}
+      </svg>
+    `;
   }
-}
 
-function openNewHiveTaskModal() {
-  document.getElementById('modal-new-hive-task')?.classList.remove('hidden');
-}
+  // ------------------------------------------------------------------------
+  // ANIMAL CROSSING PROCEDURAL PROCEDURAL VOICE SYNTHESIZER
+  // ------------------------------------------------------------------------
 
-function closeNewHiveTaskModal() {
-  document.getElementById('modal-new-hive-task')?.classList.add('hidden');
-}
+  let audioCtx = null;
 
-async function handleCreateHiveTask(e) {
-  e.preventDefault();
-  const title = document.getElementById('hive-task-title')?.value;
-  const business = document.getElementById('hive-task-business')?.value;
-  const assigneeSelect = document.getElementById('hive-task-assignee');
-  const assignee = assigneeSelect?.value;
-  const assignee_name = assigneeSelect?.options[assigneeSelect.selectedIndex]?.text?.split('(')[0]?.trim();
-  const priority = document.getElementById('hive-task-priority')?.value;
-  const status = document.getElementById('hive-task-status')?.value;
-  const description = document.getElementById('hive-task-desc')?.value;
-
-  try {
-    const res = await fetch('/api/hive/tasks/create', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        title, business, assignee, assignee_name, priority, status, description
-      })
-    });
-    const data = await res.json();
-    if (data.status === 'SUCCESS') {
-      closeNewHiveTaskModal();
-      loadHiveTasksData();
-      alert(`[Hive Ledger]: Dispatched "${title}" to ${assignee_name}.`);
+  function getAudioContext() {
+    if (!audioCtx) {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (AudioContextClass) audioCtx = new AudioContextClass();
     }
-  } catch (err) {
-    alert('Failed to create task: ' + err.message);
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+    return audioCtx;
   }
-}
 
-async function loadHiveFeedData() {
-  try {
-    const res = await fetch('/api/hive/feed');
-    const data = await res.json();
-    floorState.events = data.events || [];
-    const listEl = document.getElementById('hive-feed-list');
-    if (!listEl) return;
-    listEl.innerHTML = '';
+  function playBlip(baseFreq = 420) {
+    if (!state.audioEnabled) return;
+    try {
+      const ctx = getAudioContext();
+      if (!ctx) return;
+      const t = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
 
-    floorState.events.forEach(evt => {
-      const row = document.createElement('div');
-      row.className = 'hive-event-row';
-      const icon = evt.type === 'tool_run' ? '🛠️' :
-                   evt.type === 'mailbox_act' ? '📬' :
-                   evt.type === 'render' ? '🎬' :
-                   evt.type === 'speech' ? '💬' :
-                   evt.type === 'task_created' ? '📋' : '⚡';
-      row.innerHTML = `
-        <span class="text-slate-500 shrink-0 font-mono text-[10px] pt-0.5">${evt.timestamp}</span>
-        <span class="text-sm shrink-0">${icon}</span>
-        <div class="flex-1">
-          <span class="text-amber-300 font-bold">${evt.actor || 'Hive Supervisor'}:</span>
-          <span class="text-slate-300 ml-1">${evt.summary || ''}</span>
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(baseFreq, t);
+      osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.35, t + 0.06);
+
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.exponentialRampToValueAtTime(0.15, t + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(t);
+      osc.stop(t + 0.14);
+    } catch (e) {}
+  }
+
+  function playSentenceBlips(text, pitchBase = 420) {
+    if (!state.audioEnabled || !text) return;
+    const words = text.split(/\s+/).slice(0, 14);
+    words.forEach((word, idx) => {
+      setTimeout(() => {
+        const charCodeSum = word.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+        const pitchVariation = (charCodeSum % 140) - 70;
+        playBlip(Math.max(220, pitchBase + pitchVariation));
+      }, idx * 110);
+    });
+  }
+
+  // ------------------------------------------------------------------------
+  // STATE MANAGEMENT
+  // ------------------------------------------------------------------------
+
+  const state = {
+    activeTab: 'standup',
+    theme: 'light',
+    audioEnabled: true,
+    agents: [],
+    standupSessions: [],
+    currentSessionIndex: 0,
+    currentStepIndex: 0,
+    isPlayingStandup: false,
+    playbackTimer: null,
+    searchQuery: '',
+    selectedDivision: 'ALL',
+    modalAgent: null,
+    tasks: [],
+    watercoolerMessages: []
+  };
+
+  const el = {};
+
+  function initElements() {
+    el.tabs = document.querySelectorAll('.tab-btn');
+    el.sections = document.querySelectorAll('.view-section');
+    el.audioToggle = document.getElementById('btn-audio-toggle');
+    el.themeToggle = document.getElementById('btn-theme-toggle');
+    el.activeAgentsCount = document.getElementById('stat-active-agents');
+    el.totalAgentsCount = document.getElementById('stat-total-agents');
+    el.tabAgentsBadge = document.getElementById('tab-agents-badge');
+
+    // Standup Elements
+    el.standupStage = document.getElementById('standup-stage');
+    el.standupPlayBtn = document.getElementById('btn-standup-play');
+    el.standupNextBtn = document.getElementById('btn-standup-next');
+    el.standupReplayBtn = document.getElementById('btn-standup-replay');
+    el.standupSessionSelect = document.getElementById('select-standup-session');
+    el.standupSpeakerLabel = document.getElementById('standup-speaker-label');
+    el.standupSubtitleText = document.getElementById('standup-subtitle-text');
+    el.sharedWindowBody = document.getElementById('shared-window-body');
+    el.presenterName = document.getElementById('presenter-name');
+    el.directiveInput = document.getElementById('directive-input');
+    el.directiveSubmitBtn = document.getElementById('btn-directive-submit');
+
+    // Agents Directory Elements
+    el.agentSearchInput = document.getElementById('agent-search-input');
+    el.divisionFilterPills = document.getElementById('division-filter-pills');
+    el.agentsCardsGrid = document.getElementById('agents-cards-grid');
+
+    // Modal
+    el.agentModal = document.getElementById('agent-modal-backdrop');
+    el.modalCloseBtn = document.getElementById('modal-close-btn');
+    el.modalBody = document.getElementById('modal-body-content');
+    el.modalTitle = document.getElementById('modal-agent-name');
+
+    // Kanban
+    el.kanbanCols = {
+      BACKLOG: document.getElementById('kanban-col-backlog'),
+      IN_PROGRESS: document.getElementById('kanban-col-inprogress'),
+      REVIEW: document.getElementById('kanban-col-review'),
+      COMPLETED: document.getElementById('kanban-col-completed')
+    };
+
+    // Watercooler
+    el.watercoolerFeed = document.getElementById('watercooler-feed-messages');
+    el.chatInput = document.getElementById('watercooler-input');
+    el.chatSendBtn = document.getElementById('btn-watercooler-send');
+
+    // Floor Canvas
+    el.floorContainer = document.getElementById('floor-canvas-container');
+  }
+
+  // ------------------------------------------------------------------------
+  // INITIALIZATION & DATA LOADING
+  // ------------------------------------------------------------------------
+
+  async function init() {
+    initElements();
+    attachEventListeners();
+    await loadInitialData();
+    renderAllViews();
+    startFloorSpeechAnimation();
+  }
+
+  async function loadInitialData() {
+    try {
+      // 1. Fetch all 363+ agents
+      const agentsRes = await fetch('/api/draft/agents');
+      if (agentsRes.ok) {
+        const data = await agentsRes.json();
+        state.agents = data.agents || [];
+      } else {
+        const legacyRes = await fetch('/api/agents');
+        if (legacyRes.ok) {
+          const lData = await legacyRes.json();
+          state.agents = lData.agents || [];
+        }
+      }
+
+      if (el.totalAgentsCount) el.totalAgentsCount.textContent = state.agents.length;
+      if (el.tabAgentsBadge) el.tabAgentsBadge.textContent = state.agents.length;
+      if (el.activeAgentsCount) {
+        const active = state.agents.filter(a => a.status === 'ONLINE' || a.status === 'WORKING').length;
+        el.activeAgentsCount.textContent = active;
+      }
+
+      // 2. Fetch Standup Sessions
+      const standupRes = await fetch('/api/draft/standup');
+      if (standupRes.ok) {
+        const sData = await standupRes.json();
+        state.standupSessions = sData.sessions || [];
+      }
+
+      // 3. Fetch Hive Tasks
+      const tasksRes = await fetch('/api/hive/tasks');
+      if (tasksRes.ok) {
+        const tData = await tasksRes.json();
+        state.tasks = tData.tasks || [];
+      }
+
+      // 4. Default Watercooler Conversation
+      state.watercoolerMessages = [
+        { sender_name: 'Arthur Pendelton (CEO)', time: '09:15 AM', text: 'Good morning executive team. The board ledger confirms 100% zero-cloud status for all four subsidiaries.' },
+        { sender_name: 'Dr. Vikram Shenoy (CTO)', time: '09:17 AM', text: 'Local Ollama on RTX GPU running at 11.2ms latency. 70 tools verified clean.' },
+        { sender_name: 'Thaddeus Stone (CFO)', time: '09:20 AM', text: 'Zero recurring SaaS fees verified. Treasury margin is expanding ahead of Q4.' },
+        { sender_name: 'Tariq Burhani (Fragrance)', time: '09:24 AM', text: 'Cambodian Oud Private Reserve crystal flacons sealed and ready for high-margin packaging.' },
+        { sender_name: 'Hiroshi Tanaka (TITAN)', time: '09:28 AM', text: 'Live price index tracker ingested 1,240 retailer rows. Daylight Prismatic loading screen is live.' },
+        { sender_name: 'Fatima Al-Burhani (Alfann)', time: '09:31 AM', text: 'WhatsApp concierge automated 42 personalized gifts today. 78.5% net margin.' }
+      ];
+
+    } catch (e) {
+      console.error('Error loading draft data:', e);
+    }
+  }
+
+  function attachEventListeners() {
+    // Navigation Tabs
+    el.tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const tabId = tab.getAttribute('data-tab');
+        switchTab(tabId);
+      });
+    });
+
+    // Theme Toggle
+    if (el.themeToggle) {
+      el.themeToggle.addEventListener('click', () => {
+        state.theme = state.theme === 'light' ? 'dark' : 'light';
+        document.body.classList.toggle('theme-dark', state.theme === 'dark');
+        el.themeToggle.textContent = state.theme === 'dark' ? '☀️ CREAM FLOOR' : '🌙 MIDNIGHT';
+      });
+    }
+
+    // Audio Toggle
+    if (el.audioToggle) {
+      el.audioToggle.addEventListener('click', () => {
+        state.audioEnabled = !state.audioEnabled;
+        el.audioToggle.textContent = state.audioEnabled ? '🔊 AUDIO: ON' : '🔇 AUDIO: OFF';
+        el.audioToggle.classList.toggle('btn-primary', state.audioEnabled);
+        if (state.audioEnabled) {
+          playBlip(540);
+        }
+      });
+    }
+
+    // Standup Controls
+    if (el.standupPlayBtn) {
+      el.standupPlayBtn.addEventListener('click', toggleStandupPlay);
+    }
+    if (el.standupNextBtn) {
+      el.standupNextBtn.addEventListener('click', advanceStandupStep);
+    }
+    if (el.standupReplayBtn) {
+      el.standupReplayBtn.addEventListener('click', replayStandup);
+    }
+    if (el.standupSessionSelect) {
+      el.standupSessionSelect.addEventListener('change', (e) => {
+        state.currentSessionIndex = parseInt(e.target.value, 10) || 0;
+        replayStandup();
+      });
+    }
+
+    // Directive Submission
+    if (el.directiveSubmitBtn) {
+      el.directiveSubmitBtn.addEventListener('click', handleDirectiveSubmit);
+    }
+    if (el.directiveInput) {
+      el.directiveInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') handleDirectiveSubmit();
+      });
+    }
+
+    // Search & Filter
+    if (el.agentSearchInput) {
+      el.agentSearchInput.addEventListener('input', (e) => {
+        state.searchQuery = e.target.value.toLowerCase().trim();
+        renderAgentsDirectory();
+      });
+    }
+
+    // Modal Close
+    if (el.modalCloseBtn) {
+      el.modalCloseBtn.addEventListener('click', closeModal);
+    }
+    if (el.agentModal) {
+      el.agentModal.addEventListener('click', (e) => {
+        if (e.target === el.agentModal) closeModal();
+      });
+    }
+
+    // Watercooler Chat
+    if (el.chatSendBtn) {
+      el.chatSendBtn.addEventListener('click', handleWatercoolerSend);
+    }
+    if (el.chatInput) {
+      el.chatInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') handleWatercoolerSend();
+      });
+    }
+  }
+
+  function switchTab(tabId) {
+    state.activeTab = tabId;
+    el.tabs.forEach(t => t.classList.toggle('active', t.getAttribute('data-tab') === tabId));
+    el.sections.forEach(s => {
+      s.classList.toggle('active', s.id === `view-${tabId}`);
+    });
+
+    if (tabId === 'standup' && !state.isPlayingStandup && state.currentStepIndex === 0) {
+      renderStandupStep();
+    }
+  }
+
+  function renderAllViews() {
+    renderStandupStage();
+    renderOfficeFloor();
+    renderAgentsDirectory();
+    renderKanbanBoard();
+    renderWatercooler();
+  }
+
+  // ------------------------------------------------------------------------
+  // STANDUP SYSTEM ENGINE (Exact agent-standup reproduction)
+  // ------------------------------------------------------------------------
+
+  function renderStandupStage() {
+    if (!el.standupStage) return;
+    el.standupStage.innerHTML = '';
+
+    const session = state.standupSessions[state.currentSessionIndex];
+    const participantIds = session ? session.participants : [];
+
+    let callAgents = state.agents.filter(a => participantIds.includes(a.id));
+    if (callAgents.length === 0) {
+      callAgents = state.agents.slice(0, 10);
+    }
+
+    callAgents.forEach(agent => {
+      const persona = getAgentPersona(agent);
+      const tile = document.createElement('div');
+      tile.className = 'agent-video-tile';
+      tile.id = `tile-${agent.id}`;
+      tile.onclick = () => openAgentModal(agent);
+
+      const svgContent = renderAgentStandupSVG(persona, false, agent.status === 'WORKING', false, `tile_${agent.id}_`);
+
+      tile.innerHTML = `
+        <div class="tile-top-bar">
+          <span class="tile-agent-name">${agent.name}</span>
+          <span class="tile-activity-tag" id="tag-${agent.id}">${agent.status}</span>
+        </div>
+        <div class="tile-svg-stage" id="svg-stage-${agent.id}">
+          ${svgContent}
+        </div>
+        <div class="bubble" id="bubble-${agent.id}">
+          <b>${agent.name.split(' ')[0]}:</b> Initializing standup...
+        </div>
+        <div class="tile-bottom-ticker">
+          <span class="ticker-tool" id="ticker-tool-${agent.id}">⚡ ${agent.active_tool || 'OmniRoute'}</span>
+          <span class="ticker-tokens">⚡ ${(agent.tokens?.input || 12000).toLocaleString()} tok</span>
         </div>
       `;
-      listEl.appendChild(row);
+
+      el.standupStage.appendChild(tile);
     });
-  } catch (err) {
-    console.error('Failed to load hive feed:', err);
+
+    renderStandupStep();
   }
-}
 
+  function renderStandupStep() {
+    const session = state.standupSessions[state.currentSessionIndex];
+    if (!session || !session.timeline) return;
 
+    const step = session.timeline[state.currentStepIndex];
+    if (!step) return;
 
+    // 1. Reset previous speaker highlights
+    document.querySelectorAll('.agent-video-tile').forEach(t => t.classList.remove('speaking'));
+
+    // 2. Identify speaker & highlight
+    const speakerId = step.agent;
+    const speakerAgent = state.agents.find(a => a.id === speakerId) || { name: 'Executive Leader', id: speakerId, title: 'Leader' };
+    const tile = document.getElementById(`tile-${speakerId}`);
+
+    if (tile) {
+      tile.classList.add('speaking');
+
+      // Update speech bubble text on tile
+      const bubble = document.getElementById(`bubble-${speakerId}`);
+      if (bubble) {
+        bubble.innerHTML = `<b>${speakerAgent.name.split(' ')[0]}:</b> ${step.text || (step.tool ? `Running ${step.tool}` : 'Reporting status...')}`;
+      }
+
+      // Re-render SVG with speaking state (mouth open)
+      const svgStage = document.getElementById(`svg-stage-${speakerId}`);
+      if (svgStage) {
+        const persona = getAgentPersona(speakerAgent);
+        svgStage.innerHTML = renderAgentStandupSVG(persona, true, step.kind === 'tools', step.kind === 'report', `tile_${speakerId}_`);
+      }
+    }
+
+    // 3. Update Subtitles & Speaker Label
+    if (el.standupSpeakerLabel) {
+      el.standupSpeakerLabel.innerHTML = `🎙️ ${speakerAgent.name} (${speakerAgent.title || 'Leader'}) <span class="pixel-badge badge-working">${step.kind.toUpperCase()}</span>`;
+    }
+    if (el.standupSubtitleText) {
+      typewriterEffect(el.standupSubtitleText, step.text || `Executing tool: ${step.tool || ''}`);
+    }
+
+    // 4. Update Shared Screen Stage (Terminal / Diff / Directive)
+    updateSharedScreen(step, speakerAgent);
+
+    // 5. Procedural Animal Crossing Speech Blips
+    if (state.audioEnabled && step.text) {
+      const pitch = 300 + (hashStr(speakerId) % 240);
+      playSentenceBlips(step.text, pitch);
+    }
+
+    // 6. Update Activity Tag on Tile
+    const tag = document.getElementById(`tag-${speakerId}`);
+    if (tag) {
+      if (step.kind === 'tools') tag.textContent = `Using ${step.tool}`;
+      else if (step.kind === 'say') tag.textContent = `Speaking`;
+      else if (step.kind === 'report') tag.textContent = `✓ Reported`;
+      else if (step.kind === 'order') tag.textContent = `Delegating`;
+    }
+  }
+
+  function updateSharedScreen(step, speaker) {
+    if (!el.sharedWindowBody) return;
+    if (el.presenterName) {
+      el.presenterName.textContent = speaker.name;
+    }
+
+    if (step.kind === 'tools' || step.tool) {
+      el.sharedWindowBody.innerHTML = `
+        <div class="terminal-window">
+          <div class="window-titlebar">
+            <div class="window-dots"><span></span><span></span><span></span></div>
+            <span>terminal — ${speaker.id} — tool: ${step.tool}</span>
+            <span style="color: #4ADE80;">bash 5.2</span>
+          </div>
+          <div class="terminal-content">
+            <div class="terminal-prompt-line">❯ ${step.command || step.tool}</div>
+            <div style="color: #4ADE80;">${step.output || 'Executing in local sovereign sandbox... ✓ Success (duration 1.2s)'}</div>
+          </div>
+        </div>
+      `;
+    } else if (step.diff || step.file) {
+      el.sharedWindowBody.innerHTML = `
+        <div class="diff-window">
+          <div class="window-titlebar">
+            <div class="window-dots"><span></span><span></span><span></span></div>
+            <span>diff — ${step.file || 'workspace/sync.json'}</span>
+            <span style="color: #4ADE80;">git diff</span>
+          </div>
+          <div class="diff-content">
+            <div class="diff-line-del">-  "cloud_inference_cost": "$450.00/mo"</div>
+            <div class="diff-line-add">+  "cloud_inference_cost": "$0.00 (100% Local Sovereign Ollama)"</div>
+            <div class="diff-line-add">+  "status": "UNANIMOUS_COUNCIL_RATIFICATION"</div>
+          </div>
+        </div>
+      `;
+    } else {
+      el.sharedWindowBody.innerHTML = `
+        <div class="pixel-panel-inset" style="padding: 14px; border-radius: 6px;">
+          <div style="font-family: var(--cth-font-display); font-size: 9.5px; color: var(--standup-gold); margin-bottom: 6px;">
+            📋 ACTIVE DIRECTIVE TRACKER
+          </div>
+          <div style="font-size: 14px; font-weight: 700; color: #FFF; margin-bottom: 8px;">
+            ${step.title || 'Conglomerate Milestone Sync'}
+          </div>
+          <div style="font-size: 13px; color: #CAD0E5; line-height: 1.5;">
+            ${step.text || 'Coordinating cross-venture execution across all subsidiaries and specialists.'}
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  function toggleStandupPlay() {
+    state.isPlayingStandup = !state.isPlayingStandup;
+    if (el.standupPlayBtn) {
+      el.standupPlayBtn.textContent = state.isPlayingStandup ? '⏸️ PAUSE' : '▶️ PLAY STANDUP';
+      el.standupPlayBtn.classList.toggle('btn-primary', state.isPlayingStandup);
+    }
+
+    if (state.isPlayingStandup) {
+      runStandupLoop();
+    } else {
+      clearTimeout(state.playbackTimer);
+    }
+  }
+
+  function runStandupLoop() {
+    if (!state.isPlayingStandup) return;
+    const session = state.standupSessions[state.currentSessionIndex];
+    if (!session || !session.timeline) return;
+
+    advanceStandupStep();
+
+    if (state.currentStepIndex >= session.timeline.length - 1) {
+      state.isPlayingStandup = false;
+      if (el.standupPlayBtn) el.standupPlayBtn.textContent = '▶️ REPLAY STANDUP';
+      return;
+    }
+
+    state.playbackTimer = setTimeout(runStandupLoop, 4500);
+  }
+
+  function advanceStandupStep() {
+    const session = state.standupSessions[state.currentSessionIndex];
+    if (!session || !session.timeline) return;
+
+    state.currentStepIndex = (state.currentStepIndex + 1) % session.timeline.length;
+    renderStandupStep();
+  }
+
+  function replayStandup() {
+    state.currentStepIndex = 0;
+    renderStandupStep();
+    if (state.isPlayingStandup) {
+      clearTimeout(state.playbackTimer);
+      runStandupLoop();
+    }
+  }
+
+  async function handleDirectiveSubmit() {
+    const text = el.directiveInput?.value.trim();
+    if (!text) return;
+    el.directiveInput.value = '';
+
+    const session = state.standupSessions[state.currentSessionIndex];
+    if (!session) return;
+
+    const newStep = {
+      step: session.timeline.length + 1,
+      agent: 'agent-ceo',
+      kind: 'order',
+      title: 'Chairperson Directive',
+      text: `Chairperson Order: "${text}". Delegating immediately across the swarm.`
+    };
+
+    const toolExecution = {
+      step: session.timeline.length + 2,
+      agent: 'agent-cto',
+      kind: 'tools',
+      tool: 'ast-grep / OmniRoute',
+      command: `dispatch_swarm_directive("${text.replace(/"/g, '\\"')}")`,
+      output: `[200 OK] Dispatched directive across 70 ecosystem tools. Zero cloud leak. Swarm executing.`
+    };
+
+    session.timeline.push(newStep, toolExecution);
+    state.currentStepIndex = session.timeline.length - 2;
+    renderStandupStep();
+
+    try {
+      await fetch('/api/draft/directive', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ directive: text })
+      });
+    } catch (e) {}
+  }
+
+  // ------------------------------------------------------------------------
+  // OFFICE FLOOR ENGINE (2D PIXEL SCENE)
+  // ------------------------------------------------------------------------
+
+  function renderOfficeFloor() {
+    if (!el.floorContainer) return;
+    el.floorContainer.innerHTML = '';
+
+    const zones = [
+      { name: 'EXECUTIVE BOARDROOM', x: 20, y: 20, w: 340, h: 230, color: '#D4AF37' },
+      { name: 'TECH R&D & CODE PIT', x: 380, y: 20, w: 340, h: 230, color: '#38BDF8' },
+      { name: 'MEDIA & MOTION STUDIO', x: 740, y: 20, w: 320, h: 230, color: '#C084FC' },
+      { name: 'SUBSIDIARY COMMERCE FLOOR', x: 20, y: 270, w: 700, h: 250, color: '#34D399' },
+      { name: 'EXECUTIVE LOUNGE & COFFEE', x: 740, y: 270, w: 320, h: 250, color: '#FB923C' }
+    ];
+
+    zones.forEach(z => {
+      const zDiv = document.createElement('div');
+      zDiv.className = 'office-zone-rect';
+      zDiv.style.left = `${z.x}px`;
+      zDiv.style.top = `${z.y}px`;
+      zDiv.style.width = `${z.w}px`;
+      zDiv.style.height = `${z.h}px`;
+      zDiv.style.borderColor = z.color;
+      zDiv.innerHTML = `<span class="zone-title" style="color: ${z.color}; border-color: ${z.color}">${z.name}</span>`;
+      el.floorContainer.appendChild(zDiv);
+    });
+
+    const deskPositions = [
+      { id: 'agent-ceo', x: 70, y: 75, bubble: 'Building sovereign conglomerate legacy.' },
+      { id: 'agent-cfo', x: 210, y: 75, bubble: 'Unit economics confirmed. $0.00 cloud burn.' },
+      { id: 'agent-coo', x: 140, y: 155, bubble: 'Military precision across all pipelines.' },
+      { id: 'agent-cto', x: 430, y: 75, bubble: '100% sovereign inference on RTX GPU.' },
+      { id: 'agent-specialist-qa', x: 570, y: 75, bubble: 'Regression suite passed: 106 clean.' },
+      { id: 'agent-cmo', x: 800, y: 75, bubble: 'Emotion drives conversion.' },
+      { id: 'agent-zuri-chen', x: 940, y: 75, bubble: 'Timing Remotion hooks to 60fps drops.' },
+      { id: 'agent-sub-fragrance', x: 70, y: 330, bubble: 'Artisanal Cambodian oud distillation.' },
+      { id: 'agent-sub-titan', x: 210, y: 330, bubble: 'Ingesting 1,240 retailer price rows.' },
+      { id: 'agent-sub-alfann', x: 350, y: 330, bubble: 'WhatsApp Arabic calligraphy concierge.' },
+      { id: 'agent-sub-adwell', x: 490, y: 330, bubble: 'Free spring water sponsor billboards.' }
+    ];
+
+    deskPositions.forEach(d => {
+      const agent = state.agents.find(a => a.id === d.id) || { name: d.id, id: d.id, tier: 'other' };
+      const persona = getAgentPersona(agent);
+      const desk = document.createElement('div');
+      desk.className = 'floor-desk-item';
+      desk.style.left = `${d.x}px`;
+      desk.style.top = `${d.y}px`;
+      desk.onclick = () => openAgentModal(agent);
+
+      const miniSvg = renderAgentStandupSVG(persona, false, true, false, `floor_${d.id}_`);
+
+      desk.innerHTML = `
+        <div class="floor-speech-bubble" id="bubble-${agent.id}">${d.bubble}</div>
+        <div class="floor-desk-svg">${miniSvg}</div>
+        <span class="floor-desk-name">${agent.name.split(' ')[0]}</span>
+      `;
+
+      el.floorContainer.appendChild(desk);
+    });
+  }
+
+  function startFloorSpeechAnimation() {
+    setInterval(() => {
+      const bubbles = document.querySelectorAll('.floor-speech-bubble');
+      if (bubbles.length === 0) return;
+      const target = bubbles[Math.floor(Math.random() * bubbles.length)];
+      target.style.display = 'block';
+      setTimeout(() => {
+        target.style.display = 'none';
+      }, 5000);
+    }, 4500);
+  }
+
+  // ------------------------------------------------------------------------
+  // ALL ECOSYSTEM AGENTS DIRECTORY (360+ SWARM)
+  // ------------------------------------------------------------------------
+
+  function renderAgentsDirectory() {
+    renderDivisionPills();
+    renderAgentCards();
+  }
+
+  function renderDivisionPills() {
+    if (!el.divisionFilterPills) return;
+    el.divisionFilterPills.innerHTML = '';
+
+    const divisions = [
+      'ALL', 'Executive Leadership', 'Subsidiaries', 'Autonomous Engineering',
+      'Autonomous Automation', 'Financial Intelligence', 'Specialist Engineering',
+      'Engineering', 'Marketing', 'Design', 'Security', 'Testing', 'Sales', 'Product',
+      'Academic', 'Game-Development', 'GIS', 'Healthcare', 'Research'
+    ];
+
+    divisions.forEach(div => {
+      const pill = document.createElement('span');
+      pill.className = `filter-pill ${state.selectedDivision === div ? 'active' : ''}`;
+      pill.textContent = div;
+      pill.onclick = () => {
+        state.selectedDivision = div;
+        renderAgentsDirectory();
+      };
+      el.divisionFilterPills.appendChild(pill);
+    });
+  }
+
+  function renderAgentCards() {
+    if (!el.agentsCardsGrid) return;
+    el.agentsCardsGrid.innerHTML = '';
+
+    let filtered = state.agents.filter(agent => {
+      if (state.selectedDivision !== 'ALL' && agent.division !== state.selectedDivision) {
+        return false;
+      }
+      if (state.searchQuery) {
+        const text = `${agent.name} ${agent.title} ${agent.division} ${agent.focus} ${agent.current_task} ${agent.active_tool}`.toLowerCase();
+        if (!text.includes(state.searchQuery)) return false;
+      }
+      return true;
+    });
+
+    if (filtered.length === 0) {
+      el.agentsCardsGrid.innerHTML = `
+        <div style="grid-column: 1/-1; padding: 40px; text-align: center; color: var(--cth-ink-500);">
+          <div style="font-size: 28px; margin-bottom: 10px;">🔍</div>
+          <b>No agents matched your filter.</b> Try a different keyword or reset division.
+        </div>
+      `;
+      return;
+    }
+
+    filtered.forEach(agent => {
+      const card = document.createElement('div');
+      card.className = 'munder-agent-card';
+      card.onclick = () => openAgentModal(agent);
+
+      const statusBadge = getStatusBadgeHtml(agent.status);
+      const persona = getAgentPersona(agent);
+      const avatarSvg = renderAgentStandupSVG(persona, false, agent.status === 'WORKING', false, `card_${agent.id}_`);
+
+      card.innerHTML = `
+        <div class="agent-card-header">
+          <div class="agent-card-avatar">
+            ${avatarSvg}
+          </div>
+          <div class="agent-card-info">
+            <div class="agent-card-name">${agent.name}</div>
+            <div class="agent-card-title">${agent.title}</div>
+          </div>
+          ${statusBadge}
+        </div>
+        <div class="agent-current-task-box">
+          <span class="task-box-label">CURRENT TASK (${agent.division})</span>
+          <span class="task-box-text">${agent.current_task || agent.focus || 'Autonomous execution in progress.'}</span>
+        </div>
+        <div class="agent-card-progress">
+          <div class="agent-card-progress-bar" style="width: ${agent.progress || 85}%;"></div>
+        </div>
+        <div class="agent-card-meta">
+          <span>🛠️ ${agent.active_tool || 'OmniRoute'}</span>
+          <span>⚡ ${(agent.tokens?.input || 14000).toLocaleString()} tok</span>
+        </div>
+      `;
+
+      el.agentsCardsGrid.appendChild(card);
+    });
+  }
+
+  function getStatusBadgeHtml(status) {
+    if (status === 'WORKING') return `<span class="pixel-badge badge-working">WORKING</span>`;
+    if (status === 'ONLINE') return `<span class="pixel-badge badge-online">ONLINE</span>`;
+    if (status === 'BLOCKED') return `<span class="pixel-badge badge-blocked">BLOCKED</span>`;
+    return `<span class="pixel-badge badge-standby">STANDBY</span>`;
+  }
+
+  // ------------------------------------------------------------------------
+  // MODAL INSPECTION DRAWER
+  // ------------------------------------------------------------------------
+
+  function openAgentModal(agent) {
+    state.modalAgent = agent;
+    const persona = getAgentPersona(agent);
+    const modalSvg = renderAgentStandupSVG(persona, false, true, false, `modal_${agent.id}_`);
+
+    if (el.modalTitle) el.modalTitle.textContent = agent.name;
+    if (el.modalBody) {
+      el.modalBody.innerHTML = `
+        <div style="display: flex; gap: 14px; align-items: center; border-bottom: var(--border-thin); padding-bottom: 12px;">
+          <div style="width: 72px; height: 56px; border: var(--border-thick); border-radius: 4px; overflow: hidden; background: #000;">
+            ${modalSvg}
+          </div>
+          <div>
+            <div style="font-size: 17px; font-weight: 800;">${agent.name}</div>
+            <div style="font-size: 13px; color: var(--cth-ink-500);">${agent.title} · ${agent.division}</div>
+          </div>
+          <div style="margin-left: auto;">${getStatusBadgeHtml(agent.status)}</div>
+        </div>
+
+        <div>
+          <div style="font-family: var(--cth-font-display); font-size: 8.5px; margin-bottom: 4px; color: var(--cth-ink-700);">WHAT AGENT IS CURRENTLY DOING:</div>
+          <div class="pixel-panel-inset" style="padding: 10px; font-weight: 600; font-size: 14px;">
+            ${agent.current_task || agent.focus}
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="pixel-panel-inset" style="padding: 8px;">
+            <div style="font-size: 10px; color: var(--cth-ink-500); font-family: var(--cth-font-display);">PRIMARY TOOL</div>
+            <div style="font-weight: 700; font-size: 13px; margin-top: 2px;">${agent.active_tool || 'OmniRoute'}</div>
+          </div>
+          <div class="pixel-panel-inset" style="padding: 8px;">
+            <div style="font-size: 10px; color: var(--cth-ink-500); font-family: var(--cth-font-display);">INFERENCE ENGINE</div>
+            <div style="font-weight: 700; font-size: 13px; margin-top: 2px;">${agent.model || 'qwen2.5-coder:7b-instruct'}</div>
+          </div>
+        </div>
+
+        <div>
+          <div style="font-family: var(--cth-font-display); font-size: 8.5px; margin-bottom: 4px; color: var(--cth-ink-700);">RECENT EXECUTION METRICS:</div>
+          <div style="font-family: var(--cth-font-mono); font-size: 13.5px; color: var(--cth-ink-700); background: var(--cth-cream-200); padding: 8px; border-radius: 4px;">
+            • Input Tokens: ${(agent.tokens?.input || 12000).toLocaleString()}<br>
+            • Output Tokens: ${(agent.tokens?.output || 3400).toLocaleString()}<br>
+            • Cache Hits: ${(agent.tokens?.cache || 45000).toLocaleString()}<br>
+            • Cloud Egress: $0.00 (Zero Recurring SaaS Burn)
+          </div>
+        </div>
+
+        <div style="margin-top: 8px;">
+          <div style="font-family: var(--cth-font-display); font-size: 8.5px; margin-bottom: 6px;">DISPATCH DIRECT TASK TO ${agent.name.toUpperCase()}:</div>
+          <div style="display: flex; gap: 6px;">
+            <input type="text" id="modal-task-input" class="agent-search-input" style="height: 36px; font-size: 13px;" placeholder="Assign task to this agent...">
+            <button class="pixel-btn btn-primary" onclick="alert('Task dispatched to ${agent.name}!')">DISPATCH</button>
+          </div>
+        </div>
+      `;
+    }
+
+    if (el.agentModal) el.agentModal.classList.add('open');
+  }
+
+  function closeModal() {
+    if (el.agentModal) el.agentModal.classList.remove('open');
+  }
+
+  // ------------------------------------------------------------------------
+  // KANBAN & TASK BOARD
+  // ------------------------------------------------------------------------
+
+  function renderKanbanBoard() {
+    Object.values(el.kanbanCols).forEach(c => { if (c) c.innerHTML = ''; });
+
+    state.tasks.forEach(t => {
+      const colKey = t.status in el.kanbanCols ? t.status : 'BACKLOG';
+      const container = el.kanbanCols[colKey];
+      if (!container) return;
+
+      const card = document.createElement('div');
+      card.className = 'kanban-card';
+      card.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span class="pixel-badge ${t.priority === 'CRITICAL' ? 'badge-blocked' : 'badge-working'}">${t.priority}</span>
+          <span style="font-size: 12px; font-family: var(--cth-font-mono); color: var(--cth-ink-500);">${t.business}</span>
+        </div>
+        <div style="font-size: 13.5px; font-weight: 700; color: var(--cth-ink-900);">${t.title}</div>
+        <div style="font-size: 12px; color: var(--cth-ink-500);">Assignee: <b>${t.assignee_name}</b></div>
+        <div class="agent-card-progress" style="margin-top: 4px;">
+          <div class="agent-card-progress-bar" style="width: ${t.progress || 50}%;"></div>
+        </div>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  // ------------------------------------------------------------------------
+  // WATERCOOLER CHAT FEED
+  // ------------------------------------------------------------------------
+
+  function renderWatercooler() {
+    if (!el.watercoolerFeed) return;
+    el.watercoolerFeed.innerHTML = '';
+
+    state.watercoolerMessages.forEach(msg => {
+      const row = document.createElement('div');
+      row.className = 'chat-bubble-row';
+
+      row.innerHTML = `
+        <div class="chat-avatar">🏢</div>
+        <div class="chat-bubble">
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+            <span class="chat-sender-name">${msg.sender_name}</span>
+            <span style="font-size: 11px; color: var(--cth-ink-300); font-family: var(--cth-font-mono);">${msg.time}</span>
+          </div>
+          <div class="chat-text">${msg.text}</div>
+        </div>
+      `;
+      el.watercoolerFeed.appendChild(row);
+    });
+
+    el.watercoolerFeed.scrollTop = el.watercoolerFeed.scrollHeight;
+  }
+
+  function handleWatercoolerSend() {
+    const text = el.chatInput?.value.trim();
+    if (!text) return;
+    el.chatInput.value = '';
+
+    state.watercoolerMessages.push({
+      sender_name: 'Chairperson',
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      text: text
+    });
+
+    renderWatercooler();
+
+    // Auto-reply after 1.5s
+    setTimeout(() => {
+      const responder = state.agents[Math.floor(Math.random() * Math.min(10, state.agents.length))] || { name: 'Arthur Pendelton (CEO)' };
+      state.watercoolerMessages.push({
+        sender_name: responder.name,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        text: `Received Chairperson: "${text}". Incorporating into our operational rhythm immediately.`
+      });
+      renderWatercooler();
+      if (state.audioEnabled) {
+        playSentenceBlips(text, 380);
+      }
+    }, 1200);
+  }
+
+  function typewriterEffect(element, text) {
+    if (!element) return;
+    element.textContent = '';
+    let idx = 0;
+    const timer = setInterval(() => {
+      if (idx < text.length) {
+        element.textContent += text.charAt(idx);
+        idx++;
+      } else {
+        clearInterval(timer);
+      }
+    }, 16);
+  }
+
+  // Auto-boot on load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+})();

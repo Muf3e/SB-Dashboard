@@ -30,6 +30,7 @@ import scheduler_engine
 import shorts_engine
 import settings_engine
 import hive_engine
+import ecosystem_agent_registry
 
 PORT = 8080
 PUBLIC_DIR = ECOSYSTEM_ROOT / "public" if (ECOSYSTEM_ROOT / "public").exists() else ECOSYSTEM_ROOT / "dashboard" / "public"
@@ -84,7 +85,7 @@ AGENT_ROSTER = [
         "avatar_img": "/assets/avatars/vikram.jpg",
         "focus": "Enterprise AI Architecture, Code Verification & Local RAG",
         "progress": 91,
-        "current_task": "Continuous verification of 69 ecosystem tools, local vector DBs & AST analyzers",
+        "current_task": "Continuous verification of 70 ecosystem tools, local vector DBs & AST analyzers",
         "last_active": "1m ago",
         "model": "qwen2.5-coder:7b-instruct (Local Ollama)"
     },
@@ -903,7 +904,7 @@ LIVE_LOGS = [
     {"time": "04:40:25", "agent": "Dr. Vikram Shenoy (CTO)", "level": "INFO", "msg": "Verified local Ollama engine throughput (qwen2.5-coder:7b-instruct @ 12ms latency)."},
     {"time": "04:40:32", "agent": "Hiroshi Tanaka (TITAN)", "level": "INFO", "msg": "Synced TITAN Product Intelligence master spec with web frontend repository."},
     {"time": "04:40:40", "agent": "Fatima Al-Burhani (Alfann)", "level": "SUCCESS", "msg": "Catalogued 5 physical product lines for WhatsApp concierge ordering."},
-    {"time": "04:40:48", "agent": "Thaddeus Stone (CFO)", "level": "SUCCESS", "msg": "Verified zero recurring cloud fee envelope across all 69 ecosystem tools."},
+    {"time": "04:40:48", "agent": "Thaddeus Stone (CFO)", "level": "SUCCESS", "msg": "Verified zero recurring cloud fee envelope across all 70 ecosystem tools."},
     {"time": "00:32:10", "agent": "Hiroshi Tanaka (TITAN)", "level": "SUCCESS", "msg": "TITAN Web v1.1.0: Light/Day mode live with official colorful logo and Dark/Night mode with cybernetic shield."},
     {"time": "00:32:30", "agent": "Hiroshi Tanaka (TITAN)", "level": "SUCCESS", "msg": "Dual animated loading screens deployed (Daylight Prismatic + Night Cybernetic) with direct Home launch."},
     {"time": "00:32:45", "agent": "Hiroshi Tanaka (TITAN)", "level": "INFO", "msg": "SB Group Executive Dashboard linked directly to live website build and telemetry controller."}
@@ -1118,6 +1119,14 @@ class SBGroupRequestHandler(BaseHTTPRequestHandler):
             self.handle_api_hive_tasks()
         elif path == "/api/hive/feed":
             self.handle_api_hive_feed()
+        elif path in ["/draft", "/draft/", "/draft.html", "/draft/index.html"]:
+            self.serve_draft()
+        elif path in ["/api/draft/agents", "/api/ecosystem/all-agents"]:
+            self.handle_api_draft_agents()
+        elif path == "/api/draft/summary":
+            self.handle_api_draft_summary()
+        elif path == "/api/draft/standup":
+            self.handle_api_draft_standup()
         else:
             self.serve_static(path)
 
@@ -1206,6 +1215,8 @@ class SBGroupRequestHandler(BaseHTTPRequestHandler):
             self.handle_api_hive_task_update(body)
         elif path == "/api/hive/dispatch":
             self.handle_api_hive_dispatch(body)
+        elif path == "/api/draft/directive":
+            self.handle_api_draft_directive(body)
         else:
             self.send_error(404, "Endpoint not found")
 
@@ -1262,6 +1273,63 @@ class SBGroupRequestHandler(BaseHTTPRequestHandler):
         except Exception:
             pass
 
+    def serve_draft(self):
+        draft_path = PUBLIC_DIR / "draft.html"
+        if not draft_path.exists():
+            draft_path = ECOSYSTEM_ROOT / "draft.html"
+        if not draft_path.exists():
+            draft_path = ECOSYSTEM_ROOT / "public" / "draft.html"
+        if not draft_path.exists():
+            self.send_error(404, "Draft File Not Found")
+            return
+        try:
+            with open(draft_path, "rb") as f:
+                content = f.read()
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Content-Length", str(len(content)))
+            self.end_headers()
+            self.wfile.write(content)
+        except Exception as e:
+            self.send_error(500, f"Error reading draft: {str(e)}")
+
+    def handle_api_draft_agents(self):
+        try:
+            agents = ecosystem_agent_registry.get_all_ecosystem_agents()
+            self.send_json({"agents": agents, "count": len(agents)})
+        except Exception as e:
+            self.send_json({"error": str(e)}, 500)
+
+    def handle_api_draft_summary(self):
+        try:
+            summary = ecosystem_agent_registry.get_agents_summary()
+            self.send_json(summary)
+        except Exception as e:
+            self.send_json({"error": str(e)}, 500)
+
+    def handle_api_draft_standup(self):
+        try:
+            sessions = ecosystem_agent_registry.get_standup_sessions()
+            self.send_json({"sessions": sessions})
+        except Exception as e:
+            self.send_json({"error": str(e)}, 500)
+
+    def handle_api_draft_directive(self, body):
+        directive = body.get("directive", "").strip()
+        try:
+            hive_engine.append_hive_event({
+                "type": "chairperson_directive",
+                "actor": "Chairperson",
+                "summary": f"Directive dispatched: {directive[:80]}"
+            })
+            self.send_json({
+                "status": "SUCCESS",
+                "message": "Directive dispatched to swarm",
+                "directive": directive
+            })
+        except Exception as e:
+            self.send_json({"status": "ERROR", "message": str(e)}, 500)
+
     def handle_api_status(self):
         uptime_seconds = int((datetime.now() - START_TIME).total_seconds())
         uptime_str = f"{uptime_seconds // 3600}h {(uptime_seconds % 3600) // 60}m {uptime_seconds % 60}s"
@@ -1296,7 +1364,7 @@ class SBGroupRequestHandler(BaseHTTPRequestHandler):
                 "active_agents": sum(1 for a in AGENT_ROSTER if a.get("status") == "ONLINE"),
                 "standby_agents": sum(1 for a in AGENT_ROSTER if a.get("status") == "STANDBY"),
                 "total_agents": len(AGENT_ROSTER),
-                "total_tools": 69,
+                "total_tools": 70,
                 "subsidiaries": 4,
                 "active_directives": active_directives,
                 "pending_decision_gates": pending_gates,
@@ -2187,7 +2255,7 @@ Reply to him casually, warmly, and naturally like a fellow colleague having a gr
             {"name": "n8n", "category": "Automation", "stars": "60k★", "path": "automation/n8n", "desc": "Self-hosted workflow automation platform with visual AI Agent and Ollama nodes."},
             {"name": "n8n-HeyGen-Node", "category": "Automation", "stars": "Node", "path": "automation/n8n-integration-heygen-node", "desc": "Community node for n8n integrating HeyGen video operations into automated pipelines."},
 
-            # 6. Harnesses & Meta-Orchestrators (11)
+            # 6. Harnesses & Meta-Orchestrators (12)
             {"name": "LangChain", "category": "Harnesses", "stars": "100k★", "path": "harnesses/langchain", "desc": "Standard framework for chaining LLMs, vector stores, and custom tools."},
             {"name": "ECC", "category": "Harnesses", "stars": "40k★", "path": "harnesses/ecc", "desc": "Everything Claude Code: 68 agents, 276 skills, 94 workflows for Antigravity & Claude."},
             {"name": "RuFlo", "category": "Harnesses", "stars": "v3.39.0", "path": "harnesses/ruflo", "desc": "Agent meta-harness for multi-agent swarms and SPARC."},
@@ -2199,6 +2267,7 @@ Reply to him casually, warmly, and naturally like a fellow colleague having a gr
             {"name": "Colibrì", "category": "Harnesses", "stars": "12.8k★", "path": "harnesses/colibri", "desc": "Pure-C high-performance MoE inference engine streaming 744B experts from disk on consumer hardware."},
             {"name": "OmniRoute", "category": "Harnesses", "stars": "3.8.50", "path": "harnesses/OmniRoute", "desc": "Free multi-provider AI gateway with 352 providers, 90+ free tiers, RTK+Caveman compression, and 19 combo strategies."},
             {"name": "Munder-Difflin", "category": "Harnesses", "stars": "1.5k★", "path": "harnesses/munder-difflin", "desc": "Local-first multi-agent harness simulating a 24/7 collaborative office for Claude Code, Codex, and local agents with approval gates."},
+            {"name": "Agent-Standup", "category": "Harnesses", "stars": "1.2k★", "path": "harnesses/agent-standup", "desc": "Live animated team-call visualization and observability harness for Claude Code and sub-agents on port 4747."},
 
             # 7. Skills & Reach (10)
             {"name": "HeyGen-Skills", "category": "Skills & Reach", "stars": "Official", "path": "skills-and-reach/heygen-skills", "desc": "Autonomous AI avatar creation, video generation, and translation skills."},
@@ -2675,7 +2744,7 @@ Reply to him casually, warmly, and naturally like a fellow colleague having a gr
                 "accent": "amber",
                 "metrics": {
                     "Corporate Personas": "10 Active Leaders",
-                    "Sovereign Tools": "69 Installed",
+                    "Sovereign Tools": "70 Installed",
                     "Cloud AI Cost": "$0.00 (100% Local)",
                     "Active Subsidiaries": "4 Units"
                 },

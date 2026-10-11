@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Munder-Difflin × Agent Standup — SB Group Draft Platform</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏢</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/draft.css">
+</head>
+<body>
+  <div id="app-container">
+    <!-- Top System Header -->
+    <header class="munder-header">
+      <div class="header-left">
+        <div class="header-logo-icon">MD</div>
+        <div class="header-title-block">
+          <h1>
+            MUNDER-DIFFLIN × AGENT STANDUP
+            <span class="pixel-badge badge-draft">DRAFT REVIEW MODE</span>
+          </h1>
+          <p>SB Group Autonomous Platform · 360+ Ecosystem Agents · Zero-Cloud Sovereignty</p>
+        </div>
+      </div>
+
+      <div class="header-center">
+        <div class="telemetry-chip">
+          <span class="pulse-dot"></span>
+          <span>OLLAMA LOCAL (qwen2.5-coder:7b-instruct)</span>
+        </div>
+        <div class="telemetry-chip">
+          <span>⚡ <b id="stat-active-agents">240</b> / <span id="stat-total-agents">363</span> ACTIVE AGENTS</span>
+        </div>
+        <div class="telemetry-chip">
+          <span>💰 $0.00 CLOUD BURN</span>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <button id="btn-audio-toggle" class="pixel-btn" title="Toggle Animal Crossing procedurally synthesized meeting voices & blips">
+          🔊 AUDIO: ON
+        </button>
+        <button id="btn-theme-toggle" class="pixel-btn">
+          🌙 MIDNIGHT
+        </button>
+        <a href="/" class="pixel-btn btn-primary" style="text-decoration: none;" title="Compare with original main dashboard">
+          🏛️ MAIN DASHBOARD
+        </a>
+      </div>
+    </header>
+
+    <!-- Munder-Difflin Navigation Tab Strip -->
+    <nav class="munder-tabs">
+      <button class="tab-btn active" data-tab="standup">
+        <span>🎥</span> AGENT STANDUP (LIVE CALL)
+      </button>
+      <button class="tab-btn" data-tab="floor">
+        <span>🏢</span> OFFICE FLOOR (2D SCENE)
+      </button>
+      <button class="tab-btn" data-tab="agents">
+        <span>👥</span> ALL ECOSYSTEM AGENTS <span class="tab-count" id="tab-agents-badge">363</span>
+      </button>
+      <button class="tab-btn" data-tab="kanban">
+        <span>📋</span> COMMAND CENTER & KANBAN
+      </button>
+      <button class="tab-btn" data-tab="watercooler">
+        <span>💬</span> WATERCOOLER CHAT
+      </button>
+    </nav>
+
+    <!-- Main Workspace Views -->
+    <main id="workspace">
+
+      <!-- ================================================================
+           VIEW 1: AGENT STANDUP (LIVE TEAM CALL & SCREEN SHARE)
+           Exact duplicate of agent-standup system UI
+           ================================================================ -->
+      <section id="view-standup" class="view-section active">
+        <div class="standup-layout">
+          <!-- Left Call Stage -->
+          <div class="standup-grid-panel">
+            <div class="standup-call-toolbar">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="standup-status-pill live">LIVE STANDUP</span>
+                <select id="select-standup-session" class="pixel-panel-inset" style="height: 30px; font-size: 13px; padding: 0 8px; font-family: var(--cth-font-ui); font-weight: 700;">
+                  <option value="0">1. Conglomerate Cross-Subsidiary Production</option>
+                  <option value="1">2. Autonomous Engineering Swarm Refactoring</option>
+                </select>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="standup-token-counter">⚡ 100% LOCAL INFERENCE</span>
+                <button id="btn-standup-play" class="pixel-btn btn-primary" style="padding: 4px 12px; font-size: 12px;">
+                  ▶️ PLAY STANDUP
+                </button>
+                <button id="btn-standup-next" class="pixel-btn" style="padding: 4px 10px; font-size: 12px;">
+                  ⏭️ NEXT
+                </button>
+                <button id="btn-standup-replay" class="pixel-btn" style="padding: 4px 10px; font-size: 12px;">
+                  🔄 REPLAY
+                </button>
+              </div>
+            </div>
+
+            <!-- Agent Video Tiles Grid -->
+            <div class="standup-stage" id="standup-stage">
+              <!-- Populated by draft.js with authentic SVG rooms & animated characters -->
+            </div>
+
+            <!-- Spoken Subtitles & Speech Bubble Ticker -->
+            <div class="standup-subtitles-bar">
+              <div class="subtitle-speaker-label" id="standup-speaker-label">
+                🎙️ Arthur Pendelton (CEO) <span class="pixel-badge badge-working">LEAD ORDER</span>
+              </div>
+              <div class="subtitle-text" id="standup-subtitle-text">
+                Initializing morning standup across all subsidiary leaders. Confirm our 100% zero-cloud status.
+              </div>
+            </div>
+
+            <!-- Chairperson Directive Input -->
+            <div class="standup-directive-bar">
+              <span style="font-family: var(--cth-font-display); font-size: 8.5px; color: var(--standup-gold); flex-shrink: 0;">
+                CHAIRPERSON DIRECTIVE:
+              </span>
+              <input type="text" id="directive-input" class="directive-input" placeholder="Type direct order to any agent (e.g. 'Audit unit profit margin on Oud flacons' or 'Run AST scan across 70 tools')...">
+              <button id="btn-directive-submit" class="pixel-btn btn-primary" style="height: 36px; padding: 0 14px;">
+                DISPATCH ORDER
+              </button>
+            </div>
+          </div>
+
+          <!-- Right Shared Screen Stage (Terminal, Code Diff, Tasks) -->
+          <div class="standup-shared-stage">
+            <div class="shared-stage-header">
+              <div class="presenter-badge">
+                <span class="sharing-tag">SHARING SCREEN</span>
+                <span id="presenter-name">Dr. Vikram Shenoy (CTO)</span>
+              </div>
+              <span class="pixel-badge badge-sovereign">LOCAL SANDBOX</span>
+            </div>
+
+            <div class="shared-window-body" id="shared-window-body">
+              <!-- Rendered dynamically (Terminal / Code Diff / Output) -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================
+           VIEW 2: OFFICE FLOOR (MUNDER-DIFFLIN 2D PIXEL SCENE)
+           ================================================================ -->
+      <section id="view-floor" class="view-section">
+        <div class="floor-toolbar">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="pixel-badge badge-online">24/7 ACTIVE FLOOR</span>
+            <span style="font-size: 13.5px; font-weight: 700; color: var(--cth-ink-700);">
+              Interactive Desks · Click any agent to inspect terminal or dispatch directives
+            </span>
+          </div>
+          <div style="font-family: var(--cth-font-mono); font-size: 13px;">
+            <span>Coffee Machine: <b>ACTIVE</b></span> · 
+            <span>Uptime: <b>100% SOVEREIGN</b></span>
+          </div>
+        </div>
+
+        <div class="floor-canvas-container" id="floor-canvas-container">
+          <!-- Rendered dynamically by draft.js -->
+        </div>
+      </section>
+
+      <!-- ================================================================
+           VIEW 3: ALL ECOSYSTEM AGENTS DIRECTORY (360+ SWARM)
+           ================================================================ -->
+      <section id="view-agents" class="view-section">
+        <div class="agents-directory-header">
+          <div class="agents-search-row">
+            <input type="text" id="agent-search-input" class="agent-search-input" placeholder="Search across all 360+ agents by name, title, division, task, or tool (e.g. 'security', 'cfo', 'ast-grep', 'engineer')...">
+            <span class="pixel-badge badge-working" style="padding: 8px 12px; font-size: 11px;">
+              ⚡ 363 SWARM MEMBERS
+            </span>
+          </div>
+
+          <div class="division-filter-pills" id="division-filter-pills">
+            <!-- Filter pills populated by draft.js -->
+          </div>
+        </div>
+
+        <div class="agents-cards-grid" id="agents-cards-grid">
+          <!-- Agent cards populated by draft.js -->
+        </div>
+      </section>
+
+      <!-- ================================================================
+           VIEW 4: COMMAND CENTER & TASK KANBAN
+           ================================================================ -->
+      <section id="view-kanban" class="view-section">
+        <div class="kanban-board">
+          <!-- Backlog -->
+          <div class="kanban-col">
+            <div class="kanban-col-header">
+              <span>BACKLOG</span>
+              <span class="pixel-badge badge-standby">PENDING</span>
+            </div>
+            <div class="kanban-col-cards" id="kanban-col-backlog"></div>
+          </div>
+
+          <!-- In Progress -->
+          <div class="kanban-col">
+            <div class="kanban-col-header">
+              <span>IN PROGRESS</span>
+              <span class="pixel-badge badge-working">ACTIVE</span>
+            </div>
+            <div class="kanban-col-cards" id="kanban-col-inprogress"></div>
+          </div>
+
+          <!-- Review -->
+          <div class="kanban-col">
+            <div class="kanban-col-header">
+              <span>REVIEW & VERIFICATION</span>
+              <span class="pixel-badge badge-online">QA GUARD</span>
+            </div>
+            <div class="kanban-col-cards" id="kanban-col-review"></div>
+          </div>
+
+          <!-- Completed -->
+          <div class="kanban-col">
+            <div class="kanban-col-header">
+              <span>COMPLETED</span>
+              <span class="pixel-badge badge-online">DONE</span>
+            </div>
+            <div class="kanban-col-cards" id="kanban-col-completed"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================
+           VIEW 5: WATERCOOLER & INTER-AGENT CHAT
+           ================================================================ -->
+      <section id="view-watercooler" class="view-section">
+        <div class="chat-thread-container">
+          <div style="padding: 10px 16px; background: var(--cth-cream-200); border-bottom: var(--border-thick); font-family: var(--cth-font-display); font-size: 9.5px;">
+            💬 EXECUTIVE WATERCOOLER & CROSS-SUBSIDIARY INTER-AGENT BUS
+          </div>
+
+          <div class="chat-feed-messages" id="watercooler-feed-messages">
+            <!-- Populated by draft.js -->
+          </div>
+
+          <div style="padding: 10px 16px; background: var(--cth-cream-200); border-top: var(--border-thick); display: flex; gap: 8px;">
+            <input type="text" id="watercooler-input" class="agent-search-input" style="height: 38px;" placeholder="Send message into the agent watercooler...">
+            <button id="btn-watercooler-send" class="pixel-btn btn-primary" style="height: 38px;">
+              SEND
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Agent Inspection Modal Drawer -->
+    <div class="agent-modal-backdrop" id="agent-modal-backdrop">
+      <div class="agent-modal-window">
+        <div class="modal-header">
+          <span style="font-family: var(--cth-font-display); font-size: 10px;" id="modal-agent-name">AGENT INSPECTION</span>
+          <button class="pixel-btn btn-danger" id="modal-close-btn" style="padding: 2px 8px; font-size: 12px;">✕ CLOSE</button>
+        </div>
+        <div class="modal-body" id="modal-body-content">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/draft.js"></script>
+</body>
+</html>

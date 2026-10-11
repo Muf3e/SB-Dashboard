@@ -1,3 +1,8 @@
 {"timestamp": "17:49:09", "iso": "2026-10-11T17:49:09.185735", "type": "task_created", "task_id": "TASK-261011174909", "actor": "Arthur Pendelton", "summary": "Task created: Test AI Agent Task"}
 {"timestamp": "17:49:18", "iso": "2026-10-11T17:49:18.598641", "type": "task_status_changed", "task_id": "TASK-261011174909", "status": "IN_PROGRESS", "summary": "Test AI Agent Task moved to IN_PROGRESS"}
 {"timestamp": "17:49:30", "iso": "2026-10-11T17:49:30.900071", "type": "agent_dispatch", "actor": "Chairperson", "recipient": "agent-ceo", "summary": "Chairperson -> agent-ceo: Priority Directive (...)"}
+{"timestamp": "18:58:59", "iso": "2026-10-11T18:58:59.273326", "type": "agent_dispatch", "actor": "Chairperson of the Board", "recipient": "agent-ceo", "summary": "Chairperson of the Board -> agent-ceo: Executive Floor Mandate (do you have the potential to start an actual busin...)"}
+{"timestamp": "22:19:35", "iso": "2026-10-11T22:19:35.463467", "type": "chairperson_directive", "actor": "Chairperson", "summary": "Directive dispatched: Audit Q4 unit margin for SB Fragrance Private Reserve"}
+{"timestamp": "22:25:51", "iso": "2026-10-11T22:25:51.053172", "type": "chairperson_directive", "actor": "Chairperson", "summary": "Directive dispatched: audit all the projects"}
+{"timestamp": "22:35:51", "iso": "2026-10-11T22:35:51.272208", "type": "chairperson_directive", "actor": "Chairperson", "summary": "Directive dispatched: Test directive: audit memory graph and ast tools"}
+{"timestamp": "22:38:36", "iso": "2026-10-11T22:38:36.636384", "type": "chairperson_directive", "actor": "Chairperson", "summary": "Directive dispatched: start the analysis"}
