@@ -1,0 +1,111 @@
+[
+  {
+    "id": "TASK-261011174909",
+    "title": "Test AI Agent Task",
+    "business": "SB Fragrance",
+    "assignee": "agent-sub-fragrance",
+    "assignee_name": "Arthur Pendelton",
+    "priority": "HIGH",
+    "status": "IN_PROGRESS",
+    "progress": 25,
+    "tags": "Test Automated",
+    "created_at": "2026-10-11 17:49:09",
+    "description": "Test task dispatch through Hive Engine"
+  },
+  {
+    "id": "TASK-SB-001",
+    "title": "Launch SB Fragrance Private Reserve Batch #04",
+    "business": "SB Fragrance",
+    "assignee": "agent-sub-fragrance",
+    "assignee_name": "Tariq Burhani",
+    "priority": "HIGH",
+    "status": "IN_PROGRESS",
+    "progress": 75,
+    "tags": [
+      "Luxury Attars",
+      "Inventory"
+    ],
+    "created_at": "2026-10-10 14:00:00",
+    "description": "Finalize 12ml crystal bottle packaging with gold foil box for pure Dehn Al Oud reserve."
+  },
+  {
+    "id": "TASK-TITAN-002",
+    "title": "Sync 25-Retailer Electronics Price Index",
+    "business": "TITAN Labs",
+    "assignee": "agent-sub-titan",
+    "assignee_name": "Hiroshi Tanaka",
+    "priority": "CRITICAL",
+    "status": "IN_PROGRESS",
+    "progress": 90,
+    "tags": [
+      "Arbitrage",
+      "Amazon tag=mufee-21"
+    ],
+    "created_at": "2026-10-11 09:30:00",
+    "description": "Auto-scrape price movements across Amazon India, Flipkart, and Croma for M3 / M4 MacBooks and OLED displays."
+  },
+  {
+    "id": "TASK-ALFANN-003",
+    "title": "Automated WhatsApp Concierge Catalog Sync",
+    "business": "Alfann Art",
+    "assignee": "agent-sub-alfann",
+    "assignee_name": "Fatima Al-Burhani",
+    "priority": "MEDIUM",
+    "status": "REVIEW",
+    "progress": 85,
+    "tags": [
+      "Gifting",
+      "WhatsApp API"
+    ],
+    "created_at": "2026-10-10 16:15:00",
+    "description": "Enable 1-click customer photo upload to ceramic mug and tote bag mockups."
+  },
+  {
+    "id": "TASK-ADWELL-004",
+    "title": "Tier-1 Gym Network Bottled Water Distribution",
+    "business": "AdWell Media",
+    "assignee": "agent-sub-adwell",
+    "assignee_name": "Jaxson Drake",
+    "priority": "HIGH",
+    "status": "BACKLOG",
+    "progress": 30,
+    "tags": [
+      "Free Water",
+      "QR Attribution"
+    ],
+    "created_at": "2026-10-11 11:00:00",
+    "description": "Secure captive distribution agreements for 5,000 free bottled water units in high-traffic fitness hubs."
+  },
+  {
+    "id": "TASK-CORTEX-005",
+    "title": "Render 4 AI Tech Debate Shorts (>=30s floor)",
+    "business": "Cortex AI Studio",
+    "assignee": "agent-zuri-chen",
+    "assignee_name": "Zuri Chen",
+    "priority": "HIGH",
+    "status": "IN_PROGRESS",
+    "progress": 65,
+    "tags": [
+      "Remotion",
+      "Viral Hook"
+    ],
+    "created_at": "2026-10-11 12:45:00",
+    "description": "Generate 9:16 vertical video renders with dynamic word pop-in highlights and sub-bass sync for AI debate clips."
+  },
+  {
+    "id": "TASK-GOV-006",
+    "title": "Dual-Rail Treasury Gateway Settlement Audit",
+    "business": "SB Group Treasury",
+    "assignee": "agent-cfo",
+    "assignee_name": "Thaddeus Stone",
+    "priority": "CRITICAL",
+    "status": "COMPLETED",
+    "progress": 100,
+    "tags": [
+      "Razorpay",
+      "PayPal"
+    ],
+    "created_at": "2026-10-09 10:00:00",
+    "description": "Verified real-time webhook validation and instant UPI / Global Card settlements with 0.00 dollar cloud overhead."
+  }
+]

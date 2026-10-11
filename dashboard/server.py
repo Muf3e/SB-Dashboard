@@ -29,6 +29,7 @@ import preference_learner
 import scheduler_engine
 import shorts_engine
 import settings_engine
+import hive_engine
 
 PORT = 8080
 PUBLIC_DIR = ECOSYSTEM_ROOT / "public" if (ECOSYSTEM_ROOT / "public").exists() else ECOSYSTEM_ROOT / "dashboard" / "public"
@@ -83,7 +84,7 @@ AGENT_ROSTER = [
         "avatar_img": "/assets/avatars/vikram.jpg",
         "focus": "Enterprise AI Architecture, Code Verification & Local RAG",
         "progress": 91,
-        "current_task": "Continuous verification of 58 ecosystem tools, local vector DBs & AST analyzers",
+        "current_task": "Continuous verification of 69 ecosystem tools, local vector DBs & AST analyzers",
         "last_active": "1m ago",
         "model": "qwen2.5-coder:7b-instruct (Local Ollama)"
     },
@@ -902,7 +903,7 @@ LIVE_LOGS = [
     {"time": "04:40:25", "agent": "Dr. Vikram Shenoy (CTO)", "level": "INFO", "msg": "Verified local Ollama engine throughput (qwen2.5-coder:7b-instruct @ 12ms latency)."},
     {"time": "04:40:32", "agent": "Hiroshi Tanaka (TITAN)", "level": "INFO", "msg": "Synced TITAN Product Intelligence master spec with web frontend repository."},
     {"time": "04:40:40", "agent": "Fatima Al-Burhani (Alfann)", "level": "SUCCESS", "msg": "Catalogued 5 physical product lines for WhatsApp concierge ordering."},
-    {"time": "04:40:48", "agent": "Thaddeus Stone (CFO)", "level": "SUCCESS", "msg": "Verified zero recurring cloud fee envelope across all 58 ecosystem tools."},
+    {"time": "04:40:48", "agent": "Thaddeus Stone (CFO)", "level": "SUCCESS", "msg": "Verified zero recurring cloud fee envelope across all 69 ecosystem tools."},
     {"time": "00:32:10", "agent": "Hiroshi Tanaka (TITAN)", "level": "SUCCESS", "msg": "TITAN Web v1.1.0: Light/Day mode live with official colorful logo and Dark/Night mode with cybernetic shield."},
     {"time": "00:32:30", "agent": "Hiroshi Tanaka (TITAN)", "level": "SUCCESS", "msg": "Dual animated loading screens deployed (Daylight Prismatic + Night Cybernetic) with direct Home launch."},
     {"time": "00:32:45", "agent": "Hiroshi Tanaka (TITAN)", "level": "INFO", "msg": "SB Group Executive Dashboard linked directly to live website build and telemetry controller."}
@@ -1111,6 +1112,12 @@ class SBGroupRequestHandler(BaseHTTPRequestHandler):
             self.handle_api_settings()
         elif path == "/api/ecosystem/hosts":
             self.handle_api_ecosystem_hosts()
+        elif path == "/api/floor/state":
+            self.handle_api_floor_state()
+        elif path == "/api/hive/tasks":
+            self.handle_api_hive_tasks()
+        elif path == "/api/hive/feed":
+            self.handle_api_hive_feed()
         else:
             self.serve_static(path)
 
@@ -1193,6 +1200,12 @@ class SBGroupRequestHandler(BaseHTTPRequestHandler):
             self.handle_api_settings_export_backup()
         elif path == "/api/ecosystem/action":
             self.handle_api_ecosystem_action(body)
+        elif path == "/api/hive/tasks/create":
+            self.handle_api_hive_task_create(body)
+        elif path == "/api/hive/tasks/update":
+            self.handle_api_hive_task_update(body)
+        elif path == "/api/hive/dispatch":
+            self.handle_api_hive_dispatch(body)
         else:
             self.send_error(404, "Endpoint not found")
 
@@ -1283,7 +1296,7 @@ class SBGroupRequestHandler(BaseHTTPRequestHandler):
                 "active_agents": sum(1 for a in AGENT_ROSTER if a.get("status") == "ONLINE"),
                 "standby_agents": sum(1 for a in AGENT_ROSTER if a.get("status") == "STANDBY"),
                 "total_agents": len(AGENT_ROSTER),
-                "total_tools": 58,
+                "total_tools": 69,
                 "subsidiaries": 4,
                 "active_directives": active_directives,
                 "pending_decision_gates": pending_gates,
@@ -2122,7 +2135,8 @@ Reply to him casually, warmly, and naturally like a fellow colleague having a gr
 
     def handle_api_tools(self):
         tools = [
-            # 1. Autonomous Agents (7)
+            # 1. Autonomous Agents (9)
+            {"name": "Agency-Agents", "category": "Autonomous Agents", "stars": "20.5k★", "path": "agents/agency-agents", "desc": "324 specialized production-grade AI agent personalities across 18 divisions (Engineering, Product, Marketing, Design, Finance, Security)."},
             {"name": "Browser-Use", "category": "Autonomous Agents", "stars": "113.4k★", "path": "agents/browser-use", "desc": "Direct browser automation for online research and workflows."},
             {"name": "OpenHands", "category": "Autonomous Agents", "stars": "53.5k★", "path": "agents/OpenHands", "desc": "Autonomous software development agent that writes code and browses docs."},
             {"name": "AutoGPT", "category": "Autonomous Agents", "stars": "172k★", "path": "agents/AutoGPT", "desc": "Autonomous agent platform, benchmark, and forge agent builder."},
@@ -2130,8 +2144,9 @@ Reply to him casually, warmly, and naturally like a fellow colleague having a gr
             {"name": "Hermes-Agent", "category": "Autonomous Agents", "stars": "4k★", "path": "agents/hermes-agent", "desc": "Persistent autonomous agent with self-improving skill loops."},
             {"name": "OpenClaw", "category": "Autonomous Agents", "stars": "200k★", "path": "agents/openclaw", "desc": "Personal AI assistant for local system workflows and messaging."},
             {"name": "AI-Assistant", "category": "Autonomous Agents", "stars": "Custom", "path": "agents/ai-assistant", "desc": "Local Python-based voice and desktop workflow assistant."},
+            {"name": "OpenManus", "category": "Autonomous Agents", "stars": "25k★", "path": "agents/OpenManus", "desc": "MetaGPT team's open-source autonomous general-purpose agent framework for multi-step task execution."},
 
-            # 2. Memory, Scraping & Context (7)
+            # 2. Memory, Scraping & Context (8)
             {"name": "Crawl4AI", "category": "Memory & Scraping", "stars": "82k★", "path": "memory-and-context/crawl4ai", "desc": "#1 LLM-friendly web crawler & scraper extracting clean markdown."},
             {"name": "Claude-Mem", "category": "Memory & Scraping", "stars": "93.5k★", "path": "memory-and-context/claude-mem", "desc": "Persistent memory across sessions for all coding agents."},
             {"name": "Mem0", "category": "Memory & Scraping", "stars": "65k★", "path": "memory-and-context/mem0", "desc": "Drop-in agent memory layer with user and session context."},
@@ -2139,13 +2154,14 @@ Reply to him casually, warmly, and naturally like a fellow colleague having a gr
             {"name": "Docling", "category": "Memory & Scraping", "stars": "30k★", "path": "memory-and-context/docling", "desc": "Local document parser (PDF, DOCX) into rich Markdown/JSON."},
             {"name": "OpenViking", "category": "Memory & Scraping", "stars": "ByteDance", "path": "memory-and-context/OpenViking", "desc": "Self-evolving context database using viking:// hierarchy."},
             {"name": "Distilly", "category": "Memory & Scraping", "stars": "titanwings", "path": "memory-and-context/distilly", "desc": "Local-first personal profile & decision distiller for AI coders."},
+            {"name": "MarkItDown", "category": "Memory & Scraping", "stars": "35k★", "path": "memory-and-context/markitdown", "desc": "Microsoft universal file-to-markdown converter for LLM and RAG pipelines (PDF, DOCX, XLSX, PPTX, HTML)."},
 
             # 3. Code Intelligence & AST (3)
             {"name": "OpenUI", "category": "Code Intelligence", "stars": "22.5k★", "path": "code-intelligence/openui", "desc": "Generative UI: describe UI in natural language and see live code."},
             {"name": "Aider", "category": "Code Intelligence", "stars": "35k★", "path": "code-intelligence/aider", "desc": "Terminal AI pair programming with git auto-commit."},
             {"name": "ast-grep", "category": "Code Intelligence", "stars": "14k★", "path": "code-intelligence/ast-grep", "desc": "Lightning-fast AST code search and structural rewriting."},
 
-            # 4. Media & Video Generation (12)
+            # 4. Media & Video Generation (18)
             {"name": "HyperFrames", "category": "Media Generation", "stars": "47.6k★", "path": "media-generation/hyperframes", "desc": "Turns HTML/CSS/JS animations into deterministic 60fps MP4."},
             {"name": "TITAN-Video", "category": "Media Generation", "stars": "Project", "path": "media-generation/titan-video", "desc": "Broadcast-quality 1080p 60fps launch reveal composition."},
             {"name": "Remotion", "category": "Media Generation", "stars": "22.5k★", "path": "media-generation/remotion", "desc": "Industry-standard React framework for creating programmatic 60fps video in code."},
@@ -2158,6 +2174,12 @@ Reply to him casually, warmly, and naturally like a fellow colleague having a gr
             {"name": "LongCat-Video", "category": "Media Generation", "stars": "13.6B DiT", "path": "media-generation/LongCat-Video", "desc": "Meituan 13.6B DiT video foundation model for minutes-long video continuation at 720p 30fps."},
             {"name": "SkyReels-V2", "category": "Media Generation", "stars": "Skywork", "path": "media-generation/SkyReels-V2", "desc": "Infinite-length autoregressive film generation architecture for cinematic scene synthesis."},
             {"name": "SkyReels-V3", "category": "Media Generation", "stars": "Skywork", "path": "media-generation/SkyReels-V3", "desc": "Multimodal video generation model supporting multi-subject reference and audio guidance."},
+            {"name": "Autocrop-Vertical", "category": "Media Generation", "stars": "1.2k★", "path": "media-generation/Autocrop-vertical", "desc": "Automated vertical video cropper using OpenCV face tracking to transform horizontal footage into 9:16 Shorts/Reels."},
+            {"name": "ShortsGenerator", "category": "Media Generation", "stars": "2.8k★", "path": "media-generation/ShortsGenerator", "desc": "End-to-end automated YouTube Shorts and TikTok video generation pipeline with AI voiceover and captions."},
+            {"name": "Autocrop", "category": "Media Generation", "stars": "1.9k★", "path": "media-generation/autocrop", "desc": "Face-aware automatic image and video cropping library with Haar cascade detection and CLI integration."},
+            {"name": "MoneyPrinter", "category": "Media Generation", "stars": "18.5k★", "path": "media-generation/MoneyPrinter", "desc": "Automate the creation of YouTube Shorts, TikTok, and Reels videos completely from text prompts."},
+            {"name": "YouTube-Shorts-Pipeline", "category": "Media Generation", "stars": "1.5k★", "path": "media-generation/youtube-shorts-pipeline", "desc": "Autonomous content creation and publishing pipeline for YouTube Shorts using automated rendering."},
+            {"name": "OpenMontage", "category": "Media Generation", "stars": "4.2k★", "path": "media-generation/OpenMontage", "desc": "Open-source intelligent video montage and editing automation engine with multi-track composition."},
 
             # 5. Workflow Automation (4)
             {"name": "Langflow", "category": "Automation", "stars": "154.5k★", "path": "automation/langflow", "desc": "Visual IDE and runtime for building multi-agent workflows."},
@@ -2165,7 +2187,7 @@ Reply to him casually, warmly, and naturally like a fellow colleague having a gr
             {"name": "n8n", "category": "Automation", "stars": "60k★", "path": "automation/n8n", "desc": "Self-hosted workflow automation platform with visual AI Agent and Ollama nodes."},
             {"name": "n8n-HeyGen-Node", "category": "Automation", "stars": "Node", "path": "automation/n8n-integration-heygen-node", "desc": "Community node for n8n integrating HeyGen video operations into automated pipelines."},
 
-            # 6. Harnesses & Meta-Orchestrators (10)
+            # 6. Harnesses & Meta-Orchestrators (11)
             {"name": "LangChain", "category": "Harnesses", "stars": "100k★", "path": "harnesses/langchain", "desc": "Standard framework for chaining LLMs, vector stores, and custom tools."},
             {"name": "ECC", "category": "Harnesses", "stars": "40k★", "path": "harnesses/ecc", "desc": "Everything Claude Code: 68 agents, 276 skills, 94 workflows for Antigravity & Claude."},
             {"name": "RuFlo", "category": "Harnesses", "stars": "v3.39.0", "path": "harnesses/ruflo", "desc": "Agent meta-harness for multi-agent swarms and SPARC."},
@@ -2176,8 +2198,9 @@ Reply to him casually, warmly, and naturally like a fellow colleague having a gr
             {"name": "LLM-Council", "category": "Harnesses", "stars": "24.7k★", "path": "harnesses/llm-council", "desc": "Karpathy's 3-stage multi-model council deliberation (opinions -> peer review -> Chairman synthesis)."},
             {"name": "Colibrì", "category": "Harnesses", "stars": "12.8k★", "path": "harnesses/colibri", "desc": "Pure-C high-performance MoE inference engine streaming 744B experts from disk on consumer hardware."},
             {"name": "OmniRoute", "category": "Harnesses", "stars": "3.8.50", "path": "harnesses/OmniRoute", "desc": "Free multi-provider AI gateway with 352 providers, 90+ free tiers, RTK+Caveman compression, and 19 combo strategies."},
+            {"name": "Munder-Difflin", "category": "Harnesses", "stars": "1.5k★", "path": "harnesses/munder-difflin", "desc": "Local-first multi-agent harness simulating a 24/7 collaborative office for Claude Code, Codex, and local agents with approval gates."},
 
-            # 7. Skills & Reach (9)
+            # 7. Skills & Reach (10)
             {"name": "HeyGen-Skills", "category": "Skills & Reach", "stars": "Official", "path": "skills-and-reach/heygen-skills", "desc": "Autonomous AI avatar creation, video generation, and translation skills."},
             {"name": "HeyGen-CLI", "category": "Skills & Reach", "stars": "v0.8.1", "path": "skills-and-reach/heygen-cli", "desc": "Official CLI for HeyGen video rendering API."},
             {"name": "OpenClaw-Plugin-HeyGen", "category": "Skills & Reach", "stars": "Official", "path": "skills-and-reach/openclaw-plugin-heygen", "desc": "HeyGen Video Agent provider plugin for OpenClaw."},
@@ -2187,6 +2210,7 @@ Reply to him casually, warmly, and naturally like a fellow colleague having a gr
             {"name": "Superpowers", "category": "Skills & Reach", "stars": "obra", "path": "skills-and-reach/superpowers", "desc": "Disciplined development methodology (brainstorming, strict TDD, code review)."},
             {"name": "Claude-Plugins-Official", "category": "Skills & Reach", "stars": "Anthropic", "path": "skills-and-reach/claude-plugins-official", "desc": "Anthropic's official collection of open-source plugins, tools, and hooks."},
             {"name": "Headroom", "category": "Skills & Reach", "stars": "0.37.0", "path": "skills-and-reach/headroom", "desc": "Context compression layer & MCP server for AI agents saving 60-95% tokens via AST CodeCompressor & SmartCrusher."},
+            {"name": "MCP-Servers", "category": "Skills & Reach", "stars": "Official", "path": "skills-and-reach/mcp-servers", "desc": "Official Model Context Protocol reference server implementations and modular tool ecosystem."},
 
             # 8. Algorithmic Trading & Financial Intelligence (6)
             {"name": "TradingAgents", "category": "Trading & Intelligence", "stars": "103.8k★", "path": "trading/TradingAgents", "desc": "Multi-agent financial trading framework simulating analyst teams."},
@@ -2651,7 +2675,7 @@ Reply to him casually, warmly, and naturally like a fellow colleague having a gr
                 "accent": "amber",
                 "metrics": {
                     "Corporate Personas": "10 Active Leaders",
-                    "Sovereign Tools": "58 Installed",
+                    "Sovereign Tools": "69 Installed",
                     "Cloud AI Cost": "$0.00 (100% Local)",
                     "Active Subsidiaries": "4 Units"
                 },
@@ -2797,6 +2821,62 @@ Reply to him casually, warmly, and naturally like a fellow colleague having a gr
             "msg": msg
         })
         self.send_json({"status": "SUCCESS" if success else "ERROR", "message": msg, "host_key": host_key})
+
+    def handle_api_floor_state(self):
+        try:
+            state = hive_engine.get_floor_state()
+            self.send_json(state)
+        except Exception as e:
+            self.send_json({"error": str(e)}, 500)
+
+    def handle_api_hive_tasks(self):
+        try:
+            tasks = hive_engine.load_hive_tasks()
+            self.send_json({"tasks": tasks, "total": len(tasks)})
+        except Exception as e:
+            self.send_json({"error": str(e), "tasks": []}, 500)
+
+    def handle_api_hive_feed(self):
+        try:
+            events = hive_engine.get_recent_hive_events(limit=30)
+            self.send_json({"events": events, "count": len(events)})
+        except Exception as e:
+            self.send_json({"error": str(e), "events": []}, 500)
+
+    def handle_api_hive_task_create(self, body):
+        try:
+            new_task = hive_engine.create_hive_task(body)
+            self.send_json({"status": "SUCCESS", "task": new_task})
+        except Exception as e:
+            self.send_json({"status": "ERROR", "message": str(e)}, 500)
+
+    def handle_api_hive_task_update(self, body):
+        try:
+            task_id = body.get("id")
+            new_status = body.get("status")
+            updated = hive_engine.update_hive_task_status(task_id, new_status)
+            if updated:
+                self.send_json({"status": "SUCCESS", "task": updated})
+            else:
+                self.send_json({"status": "ERROR", "message": "Task not found"}, 404)
+        except Exception as e:
+            self.send_json({"status": "ERROR", "message": str(e)}, 500)
+
+    def handle_api_hive_dispatch(self, body):
+        try:
+            from_agent = body.get("from", "Chairperson")
+            to_agent = body.get("to", "agent-ceo")
+            subject = body.get("subject", "Priority Directive")
+            message = body.get("message", "")
+            hive_engine.append_hive_event({
+                "type": "agent_dispatch",
+                "actor": from_agent,
+                "recipient": to_agent,
+                "summary": f"{from_agent} -> {to_agent}: {subject} ({message[:50]}...)"
+            })
+            self.send_json({"status": "SUCCESS", "message": "Dispatched to Hive mailbox successfully"})
+        except Exception as e:
+            self.send_json({"status": "ERROR", "message": str(e)}, 500)
 
 def main():
     if "--test-endpoints" in sys.argv:

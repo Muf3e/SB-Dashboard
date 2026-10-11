@@ -1,0 +1,3 @@
+{"timestamp": "17:49:09", "iso": "2026-10-11T17:49:09.185735", "type": "task_created", "task_id": "TASK-261011174909", "actor": "Arthur Pendelton", "summary": "Task created: Test AI Agent Task"}
+{"timestamp": "17:49:18", "iso": "2026-10-11T17:49:18.598641", "type": "task_status_changed", "task_id": "TASK-261011174909", "status": "IN_PROGRESS", "summary": "Test AI Agent Task moved to IN_PROGRESS"}
+{"timestamp": "17:49:30", "iso": "2026-10-11T17:49:30.900071", "type": "agent_dispatch", "actor": "Chairperson", "recipient": "agent-ceo", "summary": "Chairperson -> agent-ceo: Priority Directive (...)"}

@@ -312,7 +312,7 @@ function renderAllComponents() {
 function switchTab(tabId) {
   appState.activeTab = tabId;
   window.scrollTo({ top: 0, behavior: 'smooth' });
-  const tabs = ['progress', 'ecosystem', 'communication', 'roadmap', 'ventures', 'shorts', 'governance', 'tools', 'settings'];
+  const tabs = ['progress', 'floor', 'ecosystem', 'communication', 'roadmap', 'ventures', 'shorts', 'governance', 'tools', 'settings'];
   tabs.forEach(t => {
     const btn = document.getElementById(`tab-btn-${t}`);
     const content = document.getElementById(`tab-content-${t}`);
@@ -337,6 +337,8 @@ function switchTab(tabId) {
 
   if (tabId === 'progress') {
     renderAllComponents();
+  } else if (tabId === 'floor') {
+    initOfficeFloor();
   } else if (tabId === 'ecosystem') {
     loadEcosystemHosts();
   } else if (tabId === 'communication') {
@@ -1260,7 +1262,7 @@ function renderRightPanelDock() {
     `).join('');
   }
 
-  // 58-Tool Directory Quick List
+  // 69-Tool Directory Quick List
   const toolContainer = document.getElementById('quick-tools-list');
   if (toolContainer && appState.tools) {
     renderQuickToolList(appState.tools.slice(0, 6));
@@ -3822,5 +3824,603 @@ async function triggerAllStandbyEngines() {
     await startEcosystemService(h.key);
   }
 }
+
+// ============================================================================
+// MUNDER-DIFFLIN ADAPTATION: OFFICE FLOOR CANVAS & HIVE KANBAN ENGINE
+// ============================================================================
+
+let floorState = {
+  activeSubtab: 'canvas', // 'canvas' | 'kanban' | 'feed'
+  zones: [],
+  desks: {},
+  tasks: [],
+  events: [],
+  animFrameId: null,
+  tick: 0,
+  hoveredDeskId: null,
+  selectedDesk: null,
+  cachedAvatars: {}
+};
+
+function switchFloorSubtab(subtab) {
+  floorState.activeSubtab = subtab;
+  const canvasEl = document.getElementById('floor-view-canvas');
+  const kanbanEl = document.getElementById('floor-view-kanban');
+  const feedEl = document.getElementById('floor-view-feed');
+  const canvasBtn = document.getElementById('floor-subtab-canvas-btn');
+  const kanbanBtn = document.getElementById('floor-subtab-kanban-btn');
+  const feedBtn = document.getElementById('floor-subtab-feed-btn');
+
+  // Reset classes
+  [canvasBtn, kanbanBtn, feedBtn].forEach(b => {
+    b?.classList.remove('bg-amber-500/20', 'text-amber-300', 'border', 'border-amber-500/40', 'shadow-sm');
+    b?.classList.add('text-slate-400');
+  });
+
+  const activeBtn = subtab === 'canvas' ? canvasBtn : subtab === 'kanban' ? kanbanBtn : feedBtn;
+  activeBtn?.classList.remove('text-slate-400');
+  activeBtn?.classList.add('bg-amber-500/20', 'text-amber-300', 'border', 'border-amber-500/40', 'shadow-sm');
+
+  canvasEl?.classList.toggle('hidden', subtab !== 'canvas');
+  kanbanEl?.classList.toggle('hidden', subtab !== 'kanban');
+  feedEl?.classList.toggle('hidden', subtab !== 'feed');
+
+  if (subtab === 'canvas') {
+    startOfficeCanvasLoop();
+  } else if (subtab === 'kanban') {
+    loadHiveTasksData();
+  } else if (subtab === 'feed') {
+    loadHiveFeedData();
+  }
+}
+
+async function initOfficeFloor() {
+  try {
+    const res = await fetch('/api/floor/state');
+    const data = await res.json();
+    floorState.zones = data.zones || [];
+    floorState.desks = data.desks || {};
+    
+    // Update active tasks counter
+    const taskCountPill = document.getElementById('floor-task-count-pill');
+    if (taskCountPill) {
+      taskCountPill.textContent = data.active_tasks_count || 5;
+    }
+
+    preloadAvatarImages();
+    startOfficeCanvasLoop();
+    setupOfficeCanvasInteraction();
+    loadHiveTasksData();
+  } catch (err) {
+    console.error('Failed to init office floor:', err);
+  }
+}
+
+function preloadAvatarImages() {
+  Object.values(floorState.desks).forEach(desk => {
+    if (desk.sprite && !floorState.cachedAvatars[desk.sprite]) {
+      const img = new Image();
+      img.src = `/assets/avatars/${desk.sprite}.jpg`;
+      img.onerror = () => {
+        // Fallback to png or default
+        img.src = `/assets/avatars/${desk.sprite}.png`;
+      };
+      floorState.cachedAvatars[desk.sprite] = img;
+    }
+  });
+}
+
+function setupOfficeCanvasInteraction() {
+  const canvas = document.getElementById('office-floor-canvas');
+  if (!canvas || canvas.dataset.listenersBound) return;
+  canvas.dataset.listenersBound = 'true';
+
+  canvas.addEventListener('mousemove', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const mouseX = (e.clientX - rect.left) * scaleX;
+    const mouseY = (e.clientY - rect.top) * scaleY;
+
+    let found = null;
+    for (const [aid, desk] of Object.entries(floorState.desks)) {
+      const dx = desk.desk_x;
+      const dy = desk.desk_y;
+      if (mouseX >= dx && mouseX <= dx + 130 && mouseY >= dy && mouseY <= dy + 100) {
+        found = aid;
+        break;
+      }
+    }
+    floorState.hoveredDeskId = found;
+    canvas.style.cursor = found ? 'pointer' : 'default';
+  });
+
+  canvas.addEventListener('click', (e) => {
+    if (floorState.hoveredDeskId) {
+      const desk = floorState.desks[floorState.hoveredDeskId];
+      if (desk) {
+        openAgentDeskModal(desk);
+      }
+    }
+  });
+}
+
+function startOfficeCanvasLoop() {
+  if (floorState.animFrameId) cancelAnimationFrame(floorState.animFrameId);
+
+  const canvas = document.getElementById('office-floor-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  function renderLoop() {
+    if (appState.activeTab !== 'floor' || floorState.activeSubtab !== 'canvas') {
+      return;
+    }
+    floorState.tick++;
+    drawOfficeFloor(ctx, canvas.width, canvas.height);
+    floorState.animFrameId = requestAnimationFrame(renderLoop);
+  }
+  floorState.animFrameId = requestAnimationFrame(renderLoop);
+}
+
+function drawOfficeFloor(ctx, width, height) {
+  const isLight = document.body.classList.contains('light-theme');
+
+  // 1. Draw Wood / Tile Floor Grid
+  ctx.fillStyle = isLight ? '#f1f5f9' : '#080d1a';
+  ctx.fillRect(0, 0, width, height);
+
+  // Subtle isometric / floor tile grid
+  ctx.strokeStyle = isLight ? 'rgba(0,0,0,0.03)' : 'rgba(255,255,255,0.02)';
+  ctx.lineWidth = 1;
+  const tileSize = 24;
+  for (let x = 0; x < width; x += tileSize) {
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, height);
+    ctx.stroke();
+  }
+  for (let y = 0; y < height; y += tileSize) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(width, y);
+    ctx.stroke();
+  }
+
+  // 2. Draw Office Zones
+  (floorState.zones || []).forEach(zone => {
+    const b = zone.bounds;
+    ctx.save();
+    
+    // Zone floor tint
+    ctx.fillStyle = isLight ? 'rgba(255,255,255,0.85)' : 'rgba(15, 23, 42, 0.65)';
+    ctx.fillRect(b.x, b.y, b.w, b.h);
+
+    // Zone outer border (retro pixelated border feel)
+    ctx.strokeStyle = zone.color || '#d4af37';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(b.x, b.y, b.w, b.h);
+
+    // Zone Title Tag (Munder-Difflin room plate style)
+    ctx.fillStyle = zone.color || '#d4af37';
+    ctx.fillRect(b.x + 8, b.y + 8, 12, 12);
+    
+    ctx.fillStyle = isLight ? '#0f172a' : '#f8fafc';
+    ctx.font = 'bold 12px "Inter", sans-serif';
+    ctx.fillText(zone.name.toUpperCase(), b.x + 26, b.y + 19);
+
+    ctx.fillStyle = isLight ? '#64748b' : '#94a3b8';
+    ctx.font = '10px "Inter", sans-serif';
+    ctx.fillText(zone.description, b.x + 26, b.y + 34);
+
+    ctx.restore();
+  });
+
+  // 3. Draw Desks, Characters, and Monitors
+  for (const [aid, desk] of Object.entries(floorState.desks || {})) {
+    drawAgentDesk(ctx, aid, desk, isLight);
+  }
+}
+
+function drawAgentDesk(ctx, aid, desk, isLight) {
+  const x = desk.desk_x;
+  const y = desk.desk_y;
+  const w = 130;
+  const h = 88;
+  const isHovered = floorState.hoveredDeskId === aid;
+
+  ctx.save();
+
+  // Subtle breathing oscillation
+  const breath = Math.sin((floorState.tick + (x * 7)) * 0.05) * 1.5;
+
+  // Desk surface
+  ctx.fillStyle = isLight ? (isHovered ? '#e2e8f0' : '#ffffff') : (isHovered ? 'rgba(30, 41, 59, 0.95)' : 'rgba(18, 28, 54, 0.85)');
+  ctx.strokeStyle = isHovered ? '#f59e0b' : 'rgba(255, 255, 255, 0.15)';
+  ctx.lineWidth = isHovered ? 2 : 1;
+  
+  // Rounded desk rect
+  roundRect(ctx, x, y, w, h, 8);
+  ctx.fill();
+  ctx.stroke();
+
+  // Desk monitor / terminal screen
+  const screenX = x + 70;
+  const screenY = y + 15;
+  const screenW = 46;
+  const screenH = 34;
+
+  ctx.fillStyle = '#050811';
+  ctx.fillRect(screenX, screenY, screenW, screenH);
+  ctx.strokeStyle = '#38bdf8';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(screenX, screenY, screenW, screenH);
+
+  // Monitor glow / code scanlines
+  ctx.fillStyle = (floorState.tick % 60 < 30) ? '#38bdf8' : '#34d399';
+  ctx.fillRect(screenX + 4, screenY + 6, 18, 2);
+  ctx.fillRect(screenX + 4, screenY + 12, 28, 2);
+  ctx.fillRect(screenX + 4, screenY + 18, 22, 2);
+  ctx.fillRect(screenX + 4, screenY + 24, 12, 2);
+
+  // Monitor stand
+  ctx.fillStyle = '#475569';
+  ctx.fillRect(screenX + 18, screenY + screenH, 10, 4);
+  ctx.fillRect(screenX + 14, screenY + screenH + 4, 18, 2);
+
+  // Coffee Mug on desk (Munder-Difflin break room staple!)
+  const mugX = x + 105;
+  const mugY = y + 58;
+  ctx.fillStyle = '#f97316';
+  ctx.fillRect(mugX, mugY, 12, 14);
+  // Mug handle
+  ctx.strokeStyle = '#ea580c';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(mugX + 10, mugY + 2, 4, 10);
+  // Coffee steam
+  if (floorState.tick % 40 < 20) {
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+    ctx.beginPath();
+    ctx.moveTo(mugX + 6, mugY - 2);
+    ctx.quadraticCurveTo(mugX + 3, mugY - 6, mugX + 7, mugY - 10);
+    ctx.stroke();
+  }
+
+  // Draw Avatar / Character
+  const avatarImg = floorState.cachedAvatars[desk.sprite];
+  const charX = x + 12;
+  const charY = y + 14 + breath;
+  const charSize = 44;
+
+  if (avatarImg && avatarImg.complete && avatarImg.naturalWidth > 0) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(charX + charSize / 2, charY + charSize / 2, charSize / 2, 0, Math.PI * 2);
+    ctx.clip();
+    ctx.drawImage(avatarImg, charX, charY, charSize, charSize);
+    ctx.restore();
+    // Avatar border ring
+    ctx.strokeStyle = isHovered ? '#f59e0b' : '#38bdf8';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(charX + charSize / 2, charY + charSize / 2, charSize / 2, 0, Math.PI * 2);
+    ctx.stroke();
+  } else {
+    // Pixel/Retro placeholder
+    ctx.fillStyle = '#0284c7';
+    ctx.beginPath();
+    ctx.arc(charX + charSize / 2, charY + charSize / 2, charSize / 2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 16px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(desk.name ? desk.name[0] : 'A', charX + charSize / 2, charY + charSize / 2 + 6);
+  }
+
+  // Live Status Beacon dot on avatar
+  ctx.fillStyle = '#10b981';
+  ctx.beginPath();
+  ctx.arc(charX + charSize - 4, charY + charSize - 4, 4, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = '#022c22';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // Agent Nameplate below desk
+  ctx.fillStyle = isLight ? '#0f172a' : '#f8fafc';
+  ctx.font = 'bold 10px "Inter", sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText(desk.name || 'Agent', x + 10, y + 74);
+
+  ctx.fillStyle = isLight ? '#64748b' : '#94a3b8';
+  ctx.font = '9px "Inter", sans-serif';
+  ctx.fillText(desk.role ? desk.role.split('—')[0].trim() : 'Worker', x + 10, y + 84);
+
+  // Floating Speech / Thought Bubble (Munder-Difflin Character Style)
+  if (desk.speech_bubble) {
+    drawSpeechBubble(ctx, x + 65, y - 8, desk.speech_bubble, isLight);
+  }
+
+  ctx.restore();
+}
+
+function drawSpeechBubble(ctx, x, y, text, isLight) {
+  ctx.save();
+  ctx.font = '9px "Inter", sans-serif';
+  const truncated = text.length > 32 ? text.substring(0, 30) + '...' : text;
+  const metrics = ctx.measureText(truncated);
+  const bubbleW = metrics.width + 16;
+  const bubbleH = 20;
+  const bx = x - (bubbleW / 2);
+  const by = y - bubbleH;
+
+  // Bubble background
+  ctx.fillStyle = isLight ? '#ffffff' : '#1e293b';
+  ctx.strokeStyle = 'rgba(212, 175, 55, 0.7)';
+  ctx.lineWidth = 1;
+  roundRect(ctx, bx, by, bubbleW, bubbleH, 6);
+  ctx.fill();
+  ctx.stroke();
+
+  // Little bubble pointer downward
+  ctx.beginPath();
+  ctx.moveTo(x - 4, by + bubbleH);
+  ctx.lineTo(x, by + bubbleH + 4);
+  ctx.lineTo(x + 4, by + bubbleH);
+  ctx.fillStyle = isLight ? '#ffffff' : '#1e293b';
+  ctx.fill();
+  ctx.stroke();
+
+  // Text
+  ctx.fillStyle = isLight ? '#0f172a' : '#fde68a';
+  ctx.textAlign = 'center';
+  ctx.fillText(truncated, x, by + 13);
+
+  ctx.restore();
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+// ----------------------------------------------------------------------------
+// AGENT DESK INSPECTOR MODAL
+// ----------------------------------------------------------------------------
+function openAgentDeskModal(desk) {
+  floorState.selectedDesk = desk;
+  const modal = document.getElementById('modal-agent-desk-inspector');
+  if (!modal) return;
+
+  const avatarEl = document.getElementById('desk-modal-avatar');
+  const nameEl = document.getElementById('desk-modal-name');
+  const badgeEl = document.getElementById('desk-modal-badge');
+  const roleEl = document.getElementById('desk-modal-role');
+  const zoneEl = document.getElementById('desk-modal-zone');
+  const statusEl = document.getElementById('desk-modal-status');
+  const coffeeEl = document.getElementById('desk-modal-coffee');
+  const activityEl = document.getElementById('desk-modal-activity');
+  const bubbleEl = document.getElementById('desk-modal-bubble');
+  const targetIdInput = document.getElementById('dispatch-target-agent-id');
+
+  if (avatarEl) avatarEl.src = `/assets/avatars/${desk.sprite}.jpg`;
+  if (nameEl) nameEl.textContent = desk.name;
+  if (badgeEl) badgeEl.textContent = desk.agent_key ? desk.agent_key.toUpperCase() : 'AGENT';
+  if (roleEl) roleEl.textContent = desk.role;
+  if (zoneEl) zoneEl.textContent = `Workstation Zone: ${desk.zone ? desk.zone.replace('_', ' ').toUpperCase() : 'OFFICE'}`;
+  if (statusEl) statusEl.textContent = desk.status || 'BUSY';
+  if (coffeeEl) coffeeEl.textContent = `${desk.coffee_level || 85}% Full`;
+  if (activityEl) activityEl.textContent = desk.current_activity || 'Autonomous execution in progress';
+  if (bubbleEl) bubbleEl.textContent = `"${desk.speech_bubble || 'Autonomous operations running.'}"`;
+  if (targetIdInput) targetIdInput.value = desk.id || desk.agent_key;
+
+  modal.classList.remove('hidden');
+}
+
+function closeAgentDeskModal() {
+  document.getElementById('modal-agent-desk-inspector')?.classList.add('hidden');
+}
+
+async function handleDispatchToAgent(e) {
+  e.preventDefault();
+  const targetId = document.getElementById('dispatch-target-agent-id')?.value;
+  const msgInput = document.getElementById('dispatch-message-input');
+  const msg = msgInput?.value.trim();
+  if (!msg) return;
+
+  try {
+    const res = await fetch('/api/hive/dispatch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: 'Chairperson of the Board',
+        to: targetId,
+        subject: 'Executive Floor Mandate',
+        message: msg
+      })
+    });
+    const data = await res.json();
+    alert(`[Hive Router]: Delivered message to ${floorState.selectedDesk?.name || 'Agent'} outbox.`);
+    msgInput.value = '';
+    closeAgentDeskModal();
+    loadHiveFeedData();
+  } catch (err) {
+    alert(`Failed to dispatch message: ${err.message}`);
+  }
+}
+
+// ----------------------------------------------------------------------------
+// HIVE KANBAN TASKS & FEED
+// ----------------------------------------------------------------------------
+async function loadHiveTasksData() {
+  try {
+    const res = await fetch('/api/hive/tasks');
+    const data = await res.json();
+    floorState.tasks = data.tasks || [];
+    renderHiveKanbanBoard(floorState.tasks);
+  } catch (err) {
+    console.error('Failed to load hive tasks:', err);
+  }
+}
+
+function renderHiveKanbanBoard(tasks) {
+  const cols = {
+    BACKLOG: document.getElementById('kanban-col-backlog'),
+    IN_PROGRESS: document.getElementById('kanban-col-in-progress'),
+    REVIEW: document.getElementById('kanban-col-review'),
+    COMPLETED: document.getElementById('kanban-col-completed')
+  };
+
+  const counts = {
+    BACKLOG: 0,
+    IN_PROGRESS: 0,
+    REVIEW: 0,
+    COMPLETED: 0
+  };
+
+  Object.values(cols).forEach(col => { if (col) col.innerHTML = ''; });
+
+  tasks.forEach(task => {
+    const status = task.status || 'BACKLOG';
+    if (counts[status] !== undefined) counts[status]++;
+
+    const colEl = cols[status];
+    if (!colEl) return;
+
+    const card = document.createElement('div');
+    card.className = 'kanban-task-card flex flex-col gap-2';
+
+    const prioColor = task.priority === 'CRITICAL' ? 'text-red-400 border-red-500/40 bg-red-500/10' :
+                      task.priority === 'HIGH' ? 'text-amber-400 border-amber-500/40 bg-amber-500/10' :
+                      'text-slate-400 border-slate-700 bg-slate-800';
+
+    card.innerHTML = `
+      <div class="flex items-center justify-between gap-1 text-[10px]">
+        <span class="font-mono font-bold text-slate-400">${task.id}</span>
+        <span class="px-1.5 py-0.5 rounded font-mono border ${prioColor}">${task.priority || 'MED'}</span>
+      </div>
+      <h4 class="text-xs font-bold text-white leading-tight">${task.title}</h4>
+      <p class="text-[11px] text-slate-400 line-clamp-2">${task.description || ''}</p>
+      
+      <!-- Progress Bar -->
+      <div class="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden my-0.5">
+        <div class="bg-gradient-to-r from-amber-500 to-emerald-400 h-full rounded-full" style="width: ${task.progress || 0}%"></div>
+      </div>
+
+      <div class="flex items-center justify-between text-[10px] pt-1 border-t border-slate-800/80">
+        <span class="text-amber-300 font-medium">👤 ${task.assignee_name || 'Autonomous'}</span>
+        <div class="flex gap-1">
+          ${status !== 'BACKLOG' ? `<button onclick="moveTask('${task.id}', 'BACKLOG')" class="hover:text-amber-300" title="Move to Backlog">⏮️</button>` : ''}
+          ${status !== 'IN_PROGRESS' ? `<button onclick="moveTask('${task.id}', 'IN_PROGRESS')" class="hover:text-sky-300" title="Move to In Progress">▶️</button>` : ''}
+          ${status !== 'REVIEW' ? `<button onclick="moveTask('${task.id}', 'REVIEW')" class="hover:text-amber-300" title="Move to Board Review">⚖️</button>` : ''}
+          ${status !== 'COMPLETED' ? `<button onclick="moveTask('${task.id}', 'COMPLETED')" class="hover:text-emerald-300" title="Complete Task">✅</button>` : ''}
+        </div>
+      </div>
+    `;
+    colEl.appendChild(card);
+  });
+
+  // Update counts
+  document.getElementById('kanban-count-backlog').textContent = counts.BACKLOG;
+  document.getElementById('kanban-count-in-progress').textContent = counts.IN_PROGRESS;
+  document.getElementById('kanban-count-review').textContent = counts.REVIEW;
+  document.getElementById('kanban-count-completed').textContent = counts.COMPLETED;
+}
+
+async function moveTask(taskId, newStatus) {
+  try {
+    const res = await fetch('/api/hive/tasks/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: taskId, status: newStatus })
+    });
+    const data = await res.json();
+    if (data.status === 'SUCCESS') {
+      loadHiveTasksData();
+    }
+  } catch (err) {
+    alert('Failed to update task status: ' + err.message);
+  }
+}
+
+function openNewHiveTaskModal() {
+  document.getElementById('modal-new-hive-task')?.classList.remove('hidden');
+}
+
+function closeNewHiveTaskModal() {
+  document.getElementById('modal-new-hive-task')?.classList.add('hidden');
+}
+
+async function handleCreateHiveTask(e) {
+  e.preventDefault();
+  const title = document.getElementById('hive-task-title')?.value;
+  const business = document.getElementById('hive-task-business')?.value;
+  const assigneeSelect = document.getElementById('hive-task-assignee');
+  const assignee = assigneeSelect?.value;
+  const assignee_name = assigneeSelect?.options[assigneeSelect.selectedIndex]?.text?.split('(')[0]?.trim();
+  const priority = document.getElementById('hive-task-priority')?.value;
+  const status = document.getElementById('hive-task-status')?.value;
+  const description = document.getElementById('hive-task-desc')?.value;
+
+  try {
+    const res = await fetch('/api/hive/tasks/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title, business, assignee, assignee_name, priority, status, description
+      })
+    });
+    const data = await res.json();
+    if (data.status === 'SUCCESS') {
+      closeNewHiveTaskModal();
+      loadHiveTasksData();
+      alert(`[Hive Ledger]: Dispatched "${title}" to ${assignee_name}.`);
+    }
+  } catch (err) {
+    alert('Failed to create task: ' + err.message);
+  }
+}
+
+async function loadHiveFeedData() {
+  try {
+    const res = await fetch('/api/hive/feed');
+    const data = await res.json();
+    floorState.events = data.events || [];
+    const listEl = document.getElementById('hive-feed-list');
+    if (!listEl) return;
+    listEl.innerHTML = '';
+
+    floorState.events.forEach(evt => {
+      const row = document.createElement('div');
+      row.className = 'hive-event-row';
+      const icon = evt.type === 'tool_run' ? '🛠️' :
+                   evt.type === 'mailbox_act' ? '📬' :
+                   evt.type === 'render' ? '🎬' :
+                   evt.type === 'speech' ? '💬' :
+                   evt.type === 'task_created' ? '📋' : '⚡';
+      row.innerHTML = `
+        <span class="text-slate-500 shrink-0 font-mono text-[10px] pt-0.5">${evt.timestamp}</span>
+        <span class="text-sm shrink-0">${icon}</span>
+        <div class="flex-1">
+          <span class="text-amber-300 font-bold">${evt.actor || 'Hive Supervisor'}:</span>
+          <span class="text-slate-300 ml-1">${evt.summary || ''}</span>
+        </div>
+      `;
+      listEl.appendChild(row);
+    });
+  } catch (err) {
+    console.error('Failed to load hive feed:', err);
+  }
+}
+
 
 
