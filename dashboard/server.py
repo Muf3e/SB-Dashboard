@@ -1127,6 +1127,8 @@ class SBGroupRequestHandler(BaseHTTPRequestHandler):
             self.handle_api_draft_summary()
         elif path == "/api/draft/standup":
             self.handle_api_draft_standup()
+        elif path == "/api/draft/conversation/turn":
+            self.handle_api_draft_conversation_turn()
         else:
             self.serve_static(path)
 
@@ -1311,6 +1313,17 @@ class SBGroupRequestHandler(BaseHTTPRequestHandler):
         try:
             sessions = ecosystem_agent_registry.get_standup_sessions()
             self.send_json({"sessions": sessions})
+        except Exception as e:
+            self.send_json({"error": str(e)}, 500)
+
+    def handle_api_draft_conversation_turn(self):
+        try:
+            query = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
+            prev_id = query.get("prev_agent_id", [None])[0]
+            step_str = query.get("step", [None])[0]
+            step_num = int(step_str) if step_str and step_str.isdigit() else None
+            turn = ecosystem_agent_registry.generate_dynamic_conversation_step(step_num=step_num, prev_agent_id=prev_id)
+            self.send_json({"turn": turn, "status": "ok"})
         except Exception as e:
             self.send_json({"error": str(e)}, 500)
 

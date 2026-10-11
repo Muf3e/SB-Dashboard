@@ -943,6 +943,48 @@ main#workspace {
   border-radius: 4px;
 }
 
+/* Live Floor Chatter Ticker Bar */
+.floor-chatter-ticker-bar {
+  background: var(--cth-cream-100);
+  border: var(--border-thick);
+  border-bottom: none;
+  box-shadow: var(--cth-shadow-sm);
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--cth-font-ui);
+  font-size: 13px;
+  color: var(--cth-ink-900);
+  overflow: hidden;
+}
+
+.chatter-speaker-tag {
+  font-family: var(--cth-font-display);
+  font-size: 8px;
+  color: #D97706;
+  background: #FEF3C7;
+  padding: 2px 6px;
+  border: 1px solid #D97706;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.chatter-speaker-name {
+  font-weight: 800;
+  color: var(--cth-ink-900);
+  flex-shrink: 0;
+}
+
+.chatter-speaker-text {
+  color: var(--cth-ink-700);
+  font-style: italic;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
 .floor-canvas-container {
   flex: 1;
   background-color: #E8D9A0;
@@ -956,94 +998,292 @@ main#workspace {
   border: var(--border-thick);
   box-shadow: var(--cth-shadow-hard);
   position: relative;
-  min-height: 580px;
+  min-height: 600px;
   overflow: auto;
+  scroll-behavior: smooth;
+  padding: 24px;
 }
 
-.office-zone-rect {
-  position: absolute;
-  border: 2px dashed;
-  border-radius: 6px;
-  background: rgba(255, 253, 245, 0.65);
-  pointer-events: none;
+/* Floor Zoom Wrapper */
+.floor-world-stage {
+  transform-origin: top left;
+  transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  min-width: 1300px;
 }
 
-.zone-title {
-  position: absolute;
-  top: -12px;
-  left: 14px;
+.floor-world-stage.zoom-50 {
+  transform: scale(0.5);
+}
+.floor-world-stage.zoom-75 {
+  transform: scale(0.75);
+}
+.floor-world-stage.zoom-100 {
+  transform: scale(1);
+}
+.floor-world-stage.zoom-fit {
+  transform: scale(0.65);
+}
+
+/* 10 Departmental Wings */
+.floor-wing-pod {
   background: var(--cth-cream-50);
-  padding: 2px 8px;
-  font-family: var(--cth-font-display);
-  font-size: 8.5px;
-  border: 1.5px solid;
-  border-radius: 3px;
-  box-shadow: 1px 1px 0 var(--cth-ink-900);
+  border: 2.5px solid var(--cth-ink-900);
+  border-radius: 8px;
+  box-shadow: 4px 4px 0 var(--cth-ink-900);
+  padding: 14px;
+  position: relative;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
 }
 
-.floor-desk-item {
-  position: absolute;
-  width: 90px;
-  height: 90px;
+.floor-wing-pod:hover {
+  box-shadow: 6px 6px 0 var(--cth-ink-900);
+}
+
+.floor-wing-pod.wing-focus-highlight {
+  box-shadow: 0 0 0 4px #F59E0B, 6px 8px 0 var(--cth-ink-900);
+  transform: translateY(-3px);
+  transition: all 0.25s ease;
+}
+
+.wing-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px dashed var(--cth-ink-300);
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+}
+
+.wing-title-block {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wing-icon {
+  font-size: 18px;
+}
+
+.wing-name {
+  font-family: var(--cth-font-display);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--cth-ink-900);
+  letter-spacing: 0.5px;
+}
+
+.wing-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--cth-font-mono);
+  font-size: 13px;
+  color: var(--cth-ink-500);
+}
+
+.wing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+
+/* 363 Workstation Desks */
+.floor-workstation {
+  position: relative;
+  background: #FCF8E8;
+  border: 1.5px solid var(--cth-ink-900);
+  border-radius: 6px;
+  box-shadow: 2px 2px 0 var(--cth-ink-900);
+  padding: 6px 4px 4px 4px;
   display: flex;
   flex-direction: column;
   align-items: center;
   cursor: pointer;
-  transition: transform 0.1s ease;
-  z-index: 10;
-}
-.floor-desk-item:hover {
-  transform: scale(1.08);
+  user-select: none;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, border-color 0.1s ease;
+  min-height: 96px;
 }
 
-.floor-desk-svg {
-  width: 68px;
-  height: 52px;
-  filter: drop-shadow(2px 2px 0 rgba(26,19,32,0.35));
+.floor-workstation:hover {
+  transform: translateY(-2px);
+  box-shadow: 3px 4px 0 var(--cth-ink-900);
+  border-color: #3B82F6;
+  background: #FFFDF5;
 }
 
-.floor-desk-name {
+/* Speaking State on Floor */
+.floor-workstation.speaking-active {
+  border-color: #F59E0B;
+  box-shadow: 0 0 0 2px #F59E0B, 3px 4px 0 var(--cth-ink-900);
+  animation: workstation-pulse 1s infinite alternate;
+}
+
+@keyframes workstation-pulse {
+  from { transform: translateY(-2px) scale(1.02); }
+  to { transform: translateY(-4px) scale(1.04); }
+}
+
+/* Search Highlight Beacon */
+.floor-workstation.search-match {
+  border-color: #EF4444;
+  box-shadow: 0 0 0 3px #EF4444, 4px 5px 0 var(--cth-ink-900);
+  background: #FEF2F2;
+  animation: search-beacon 0.8s infinite alternate;
+}
+
+@keyframes search-beacon {
+  from { filter: drop-shadow(0 0 4px #EF4444); }
+  to { filter: drop-shadow(0 0 12px #EF4444); }
+}
+
+/* Workstation Top Bar: LED + Coffee + Monitor */
+.workstation-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 2px 3px 2px;
+}
+
+.desk-led {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: 1px solid var(--cth-ink-900);
+  display: inline-block;
+}
+.desk-led.online { background: #10B981; box-shadow: 0 0 4px #10B981; }
+.desk-led.working { background: #F59E0B; box-shadow: 0 0 4px #F59E0B; animation: led-blink 1s infinite; }
+.desk-led.standby { background: #9CA3AF; }
+
+@keyframes led-blink {
+  50% { opacity: 0.3; }
+}
+
+.desk-coffee {
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+.desk-coffee .steam {
+  position: absolute;
+  top: -6px;
+  left: 2px;
+  font-size: 8px;
+  animation: coffee-steam 1.8s infinite;
+  opacity: 0.7;
+}
+
+@keyframes coffee-steam {
+  0% { transform: translateY(0); opacity: 0.8; }
+  100% { transform: translateY(-5px); opacity: 0; }
+}
+
+.desk-tool-icon {
+  font-size: 10px;
+}
+
+/* Avatar Sprite in Desk */
+.workstation-avatar-box {
+  width: 48px;
+  height: 38px;
+  border: 1px solid var(--cth-ink-900);
+  border-radius: 4px;
+  overflow: hidden;
+  background: #11131E;
+  margin: 2px 0;
+}
+.workstation-avatar-box svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Desk Nameplate & Role */
+.workstation-nameplate {
   font-family: var(--cth-font-display);
-  font-size: 7.5px;
+  font-size: 6.5px;
   color: var(--cth-ink-900);
-  background: var(--cth-cream-50);
-  padding: 1px 4px;
+  background: #FFF;
   border: 1px solid var(--cth-ink-900);
   border-radius: 2px;
-  margin-top: 2px;
+  padding: 1px 3px;
+  max-width: 82px;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
+  text-align: center;
+  margin-top: 2px;
 }
 
-.floor-speech-bubble {
+.workstation-tool-pill {
+  font-family: var(--cth-font-mono);
+  font-size: 10px;
+  color: var(--cth-ink-500);
+  max-width: 82px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-top: 1px;
+}
+
+/* Floor Speech Bubble */
+.desk-speech-bubble {
   display: none;
   position: absolute;
-  top: -46px;
+  bottom: 102%;
   left: 50%;
   transform: translateX(-50%);
   background: var(--cth-cream-50);
   color: var(--cth-ink-900);
   border: 1.5px solid var(--cth-ink-900);
-  box-shadow: 2px 2px 0 var(--cth-ink-900);
-  padding: 4px 8px;
-  border-radius: 4px;
+  box-shadow: 2px 3px 0 var(--cth-ink-900);
+  padding: 5px 8px;
+  border-radius: 5px;
+  font-family: var(--cth-font-ui);
   font-size: 11px;
   font-weight: 700;
-  white-space: nowrap;
+  line-height: 1.25;
+  white-space: normal;
+  width: 160px;
+  text-align: center;
   pointer-events: none;
-  z-index: 50;
+  z-index: 100;
+  animation: bubble-pop-in 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
-.floor-speech-bubble::after {
+
+.desk-speech-bubble::after {
   content: "";
   position: absolute;
-  bottom: -6px;
+  top: 100%;
   left: 50%;
   transform: translateX(-50%);
-  border-width: 6px 6px 0;
+  border-width: 5px 5px 0;
   border-style: solid;
   border-color: var(--cth-ink-900) transparent;
   display: block;
   width: 0;
 }
+
+.floor-workstation.speaking-active .desk-speech-bubble {
+  display: block;
+}
+
+@keyframes bubble-pop-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(4px) scale(0.9); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+
+/* Legacy support */
+.office-zone-rect { display: none; }
+.floor-desk-item { display: none; }
+
+/* ==========================================================================
 
 /* ==========================================================================
    VIEW 3: ALL ECOSYSTEM AGENTS DIRECTORY (360+ SWARM)

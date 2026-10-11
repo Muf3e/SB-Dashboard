@@ -85,14 +85,20 @@
               <div style="display: flex; align-items: center; gap: 8px;">
                 <span class="standup-status-pill live">LIVE STANDUP</span>
                 <select id="select-standup-session" class="pixel-panel-inset" style="height: 30px; font-size: 13px; padding: 0 8px; font-family: var(--cth-font-ui); font-weight: 700;">
-                  <option value="0">1. Conglomerate Cross-Subsidiary Production</option>
-                  <option value="1">2. Autonomous Engineering Swarm Refactoring</option>
+                  <option value="0">1. Conglomerate Cross-Subsidiary Production (10 agents)</option>
+                  <option value="1">2. Autonomous Engineering Swarm Refactoring (8 agents)</option>
+                  <option value="2">3. Financial Intelligence & Algorithmic Trading (6 agents)</option>
+                  <option value="3">4. ECC Architectural Council & Security (6 agents)</option>
+                  <option value="4">5. Creative Motion, Remotion & Visual Production (5 agents)</option>
+                  <option value="continuous">🌟 6. Continuous 363-Agent Swarm (All 363 Agents Live & Dynamic)</option>
                 </select>
               </div>
 
               <div style="display: flex; align-items: center; gap: 8px;">
-                <span class="standup-token-counter">⚡ 100% LOCAL INFERENCE</span>
-                <button id="btn-standup-play" class="pixel-btn btn-primary" style="padding: 4px 12px; font-size: 12px;">
+                <button id="btn-standup-autopilot" class="pixel-btn btn-primary" style="padding: 4px 10px; font-size: 12px;" title="Automatically cycles through continuous inter-agent conversations">
+                  ⚡ SWARM STREAM: ON
+                </button>
+                <button id="btn-standup-play" class="pixel-btn" style="padding: 4px 12px; font-size: 12px;">
                   ▶️ PLAY STANDUP
                 </button>
                 <button id="btn-standup-next" class="pixel-btn" style="padding: 4px 10px; font-size: 12px;">
@@ -149,24 +155,52 @@
       </section>
 
       <!-- ================================================================
-           VIEW 2: OFFICE FLOOR (MUNDER-DIFFLIN 2D PIXEL SCENE)
+           VIEW 2: OFFICE FLOOR (MUNDER-DIFFLIN 2D PIXEL SCENE - ALL 363 AGENTS)
            ================================================================ -->
       <section id="view-floor" class="view-section">
         <div class="floor-toolbar">
-          <div style="display: flex; align-items: center; gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
             <span class="pixel-badge badge-online">24/7 ACTIVE FLOOR</span>
-            <span style="font-size: 13.5px; font-weight: 700; color: var(--cth-ink-700);">
-              Interactive Desks · Click any agent to inspect terminal or dispatch directives
-            </span>
+            <span class="pixel-badge badge-working" id="floor-agents-count-badge">363 DESKS ACTIVE</span>
+            <select id="select-floor-wing" class="pixel-panel-inset" style="height: 30px; font-size: 12.5px; padding: 0 8px; font-family: var(--cth-font-ui); font-weight: 700;">
+              <option value="all">🏢 View All 10 Wings (All 363 Agents)</option>
+              <option value="wing-exec">👑 Wing 1: Executive Suite (11 desks)</option>
+              <option value="wing-auto">🤖 Wing 2: Autonomous Engine Cluster (8 desks)</option>
+              <option value="wing-trade">📈 Wing 3: Financial Trading & Treasury (9 desks)</option>
+              <option value="wing-ecc">⚡ Wing 4: ECC Specialists & Core Architecture (68 desks)</option>
+              <option value="wing-eng">💻 Wing 5: Software Engineering Wings (64 desks)</option>
+              <option value="wing-media">🎨 Wing 6: Media, Video & Design Studio (53 desks)</option>
+              <option value="wing-sec">🛡️ Wing 7: Security, QA & Verification (21 desks)</option>
+              <option value="wing-sales">🎯 Wing 8: Sales, Growth & Relations (18 desks)</option>
+              <option value="wing-spatial">🗺️ Wing 9: Spatial Computing, GIS & Healthcare (22 desks)</option>
+              <option value="wing-ops">📦 Wing 10: Operations, Academic & Swarm (89 desks)</option>
+            </select>
+            <input type="text" id="floor-search-input" class="agent-search-input" style="height: 30px; width: 220px; font-size: 13px; padding: 0 8px;" placeholder="🔍 Find agent desk...">
           </div>
-          <div style="font-family: var(--cth-font-mono); font-size: 13px;">
-            <span>Coffee Machine: <b>ACTIVE</b></span> · 
-            <span>Uptime: <b>100% SOVEREIGN</b></span>
+
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <button id="btn-zoom-out" class="pixel-btn" title="Zoom Out" style="padding: 2px 8px; font-size: 12px;">🔍−</button>
+            <button id="btn-zoom-reset" class="pixel-btn" title="Reset Zoom" style="padding: 2px 8px; font-size: 12px;">75%</button>
+            <button id="btn-zoom-in" class="pixel-btn" title="Zoom In" style="padding: 2px 8px; font-size: 12px;">🔍+</button>
+            <button id="btn-zoom-fit" class="pixel-btn" title="Fit Entire Office Floor" style="padding: 2px 8px; font-size: 12px;">⛶ FIT</button>
           </div>
         </div>
 
+        <!-- Live Swarm Audio/Speech Chatter Bar on the Floor -->
+        <div class="floor-chatter-ticker-bar" id="floor-chatter-ticker-bar">
+          <div class="chatter-speaker-tag" id="floor-chatter-tag">🎙️ LIVE CHATTER:</div>
+          <div class="chatter-speaker-name" id="floor-chatter-name">Arthur Pendelton (CEO)</div>
+          <div class="chatter-speaker-text" id="floor-chatter-text">Building multi-generational conglomerate legacy with 100% zero-cloud sovereignty.</div>
+          <button id="btn-locate-speaker" class="pixel-btn btn-primary" style="padding: 2px 8px; font-size: 11px; flex-shrink: 0;">
+            📍 LOCATE ON FLOOR
+          </button>
+          <button id="btn-auto-follow" class="pixel-btn" style="padding: 2px 8px; font-size: 11px; flex-shrink: 0;" title="Automatically glide floor view to speaking agent">
+            🎥 AUTO-CAM: OFF
+          </button>
+        </div>
+
         <div class="floor-canvas-container" id="floor-canvas-container">
-          <!-- Rendered dynamically by draft.js -->
+          <!-- Rendered dynamically by draft.js with all 363 agent desks across 10 wings -->
         </div>
       </section>
 

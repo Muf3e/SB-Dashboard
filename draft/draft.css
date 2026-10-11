@@ -2,12 +2,13 @@
    MUNDER-DIFFLIN × AGENT STANDUP (SB GROUP DRAFT PLATFORM)
    Design System: Animal Crossing × Earthbound × SNES Menu UI
    Chunky, pixel-snapped, retro-tactile with Live Team Call Stage
+   Strictly adheres to munder-difflin/DESIGN.md & agent-standup specifications
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Press+Start+2P&family=VT323&display=swap');
 
 :root {
-  /* Munder-Difflin Canonical Base Tokens */
+  /* Munder-Difflin Canonical Base Tokens (DESIGN.md 3.1) */
   --cth-cream-50:  #FFFDF5;
   --cth-cream-100: #FFF8E7;
   --cth-cream-200: #F4E9C7;
@@ -15,51 +16,58 @@
   --cth-paper-100: #FCFAF0;
   --cth-paper-200: #F0EAD2;
 
-  /* Ink */
+  /* Ink Tokens (DESIGN.md 3.2) - Never pure #000 */
   --cth-ink-900: #1A1320;
   --cth-ink-700: #3D2E4A;
   --cth-ink-500: #6B5878;
   --cth-ink-300: #A899B5;
   --cth-ink-100: #D9CFE0;
 
-  /* Accents */
-  --cth-coral:       #D96A62;
-  --cth-coral-light: #F3D3CD;
-  --cth-mint:        #5CA97A;
-  --cth-mint-light:  #D2E7DA;
-  --cth-sky:         #4F9FAF;
-  --cth-sky-light:   #CFE5E9;
-  --cth-lemon:       #DCAB3C;
-  --cth-lemon-light: #F3E4BC;
-  --cth-lilac:       #9482D3;
-  --cth-lilac-light: #E0DAF2;
-  --cth-peach:       #D99168;
-  --cth-peach-light: #F3DACA;
+  /* Character & Agent Accents (DESIGN.md 3.3) */
+  --cth-coral:       #FF6B6B;
+  --cth-coral-light: #FFB4B4;
+  --cth-mint:        #6BCF7F;
+  --cth-mint-light:  #B4E5BD;
+  --cth-sky:         #4ECDC4;
+  --cth-sky-light:   #A8E6E0;
+  --cth-lemon:       #FFD93D;
+  --cth-lemon-light: #FFEC99;
+  --cth-lilac:       #B197FC;
+  --cth-lilac-light: #D6C5FF;
+  --cth-peach:       #FFA07A;
+  --cth-peach-light: #FFD0B5;
 
-  /* Status Tokens */
-  --cth-status-idle:      #A199AB;
-  --cth-status-thinking:  #4F9FAF;
-  --cth-status-working:   #DCAB3C;
-  --cth-status-waiting:   #6D87D6;
-  --cth-status-blocked:   #D96A62;
-  --cth-status-success:   #5CA97A;
+  /* Status Tokens (DESIGN.md 3.4) */
+  --cth-status-idle:      #A899B5;
+  --cth-status-thinking:  #4ECDC4;
+  --cth-status-working:   #FFD93D;
+  --cth-status-waiting:   #6C8EF5;
+  --cth-status-blocked:   #FF6B6B;
+  --cth-status-success:   #6BCF7F;
 
-  /* Typography */
+  /* World Floor Tokens (DESIGN.md 3.5) */
+  --cth-grass-light: #D4EAB0;
+  --cth-grass-dark:  #B5D589;
+  --cth-wood-light:  #E5C896;
+  --cth-wood-dark:   #C9A66B;
+  --cth-path:        #E8D8B0;
+  --cth-wall:        #8B6F47;
+
+  /* Canonical Typography (DESIGN.md Section 4) */
   --cth-font-display: "Press Start 2P", monospace;
-  --cth-font-ui:      "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --cth-font-mono:    "JetBrains Mono", monospace;
+  --cth-font-ui:      "Pixelify Sans", cursive, sans-serif;
+  --cth-font-mono:    "VT323", monospace;
 
-  /* Chunky Shadows */
+  /* Chunky Retro Shadows & Borders */
   --cth-shadow-hard:   3px 3px 0 var(--cth-ink-900);
   --cth-shadow-sm:     2px 2px 0 var(--cth-ink-900);
   --cth-shadow-lg:     5px 5px 0 var(--cth-ink-900);
 
-  /* Borders */
   --border-thick: 2px solid var(--cth-ink-900);
   --border-thin:  1px solid var(--cth-ink-900);
   --border-light: 1px solid var(--cth-ink-300);
 
-  /* Stage / Standup Dark Tokens */
+  /* Agent Standup Stage Dark Tokens (from agent-standup) */
   --standup-bg:     #12131A;
   --standup-tile:   #1C1E2A;
   --standup-tile-hover: #26293A;
@@ -69,7 +77,7 @@
   --standup-gold:   #F5C04A;
 }
 
-/* Dark theme variation */
+/* Dark Theme Variation */
 body.theme-dark {
   --cth-cream-50:  #201B27;
   --cth-cream-100: #17131D;
@@ -102,12 +110,13 @@ html, body {
   background-color: var(--cth-cream-100);
   color: var(--cth-ink-900);
   font-family: var(--cth-font-ui);
-  font-size: 13.5px;
+  font-size: 14.5px;
   line-height: 1.45;
   overflow: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Authentic Munder-Difflin cream diagonal hatch background */
+/* Munder-Difflin Diagonal Hatch Background */
 body {
   background-image: repeating-linear-gradient(
     45deg,
@@ -116,7 +125,7 @@ body {
   );
 }
 
-/* Custom Chunky Pixel Scrollbars */
+/* Chunky Pixel Scrollbars */
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -157,7 +166,7 @@ body {
   gap: 6px;
   font-family: var(--cth-font-ui);
   font-weight: 700;
-  font-size: 12px;
+  font-size: 13.5px;
   text-transform: uppercase;
   letter-spacing: 0.03em;
   padding: 7px 14px;
@@ -186,7 +195,7 @@ body {
   color: #FFFDF5;
 }
 .pixel-btn.btn-primary:hover {
-  background: #4E9B6C;
+  background: #549A62;
 }
 
 .pixel-btn.btn-danger {
@@ -208,7 +217,7 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 2px 8px;
+  padding: 3px 8px;
   font-size: 10px;
   font-weight: 700;
   font-family: var(--cth-font-display);
@@ -249,8 +258,24 @@ body {
   50% { opacity: 0.85; transform: scale(0.98); }
 }
 
+/* Blue sticky note for active tasks (from Munder-Difflin AgentCard) */
+.task-note-tag {
+  background: #3B82F6;
+  color: #FFF;
+  font-family: var(--cth-font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 2px;
+  box-shadow: 1.5px 1.5px 0 var(--cth-ink-900);
+  border: 1px solid var(--cth-ink-900);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
 /* ==========================================================================
-   APP SHELL LAYOUT
+   APP SHELL & LAYOUT
    ========================================================================== */
 
 #app-container {
@@ -266,7 +291,7 @@ header.munder-header {
   height: 52px;
   background: var(--cth-cream-50);
   border-bottom: var(--border-thick);
-  box-shadow: 0 3px 0 rgba(26, 19, 32, 0.08);
+  box-shadow: var(--cth-shadow-sm);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -284,14 +309,14 @@ header.munder-header {
 .header-logo-icon {
   width: 32px;
   height: 32px;
-  background: var(--cth-coral);
-  border: var(--border-thick);
-  box-shadow: 2px 2px 0 var(--cth-ink-900);
+  background: var(--cth-ink-900);
+  color: var(--cth-cream-50);
   display: grid;
   place-items: center;
   font-family: var(--cth-font-display);
-  font-size: 14px;
-  color: #FFFDF5;
+  font-size: 13px;
+  box-shadow: 2px 2px 0 var(--cth-coral);
+  border: 1.5px solid var(--cth-ink-900);
 }
 
 .header-title-block h1 {
@@ -307,7 +332,7 @@ header.munder-header {
 
 .header-title-block p {
   margin: 2px 0 0 0;
-  font-size: 10.5px;
+  font-size: 12px;
   color: var(--cth-ink-500);
   font-weight: 600;
 }
@@ -327,7 +352,7 @@ header.munder-header {
   border: var(--border-thin);
   border-radius: 4px;
   font-family: var(--cth-font-mono);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--cth-ink-700);
 }
@@ -353,7 +378,7 @@ header.munder-header {
   gap: 8px;
 }
 
-/* Tab Bar (Munder-Difflin Style) */
+/* Tab Bar */
 nav.munder-tabs {
   height: 44px;
   background: var(--cth-cream-200);
@@ -377,7 +402,7 @@ nav.munder-tabs {
   border-bottom: none;
   font-family: var(--cth-font-ui);
   font-weight: 700;
-  font-size: 12px;
+  font-size: 13.5px;
   color: var(--cth-ink-700);
   cursor: pointer;
   user-select: none;
@@ -407,7 +432,7 @@ nav.munder-tabs {
   border-radius: 2px;
 }
 
-/* Main Content Workspace */
+/* Main Workspace */
 main#workspace {
   flex: 1;
   position: relative;
@@ -431,8 +456,8 @@ main#workspace {
 }
 
 /* ==========================================================================
-   VIEW 1: AGENT STANDUP (LIVE TEAM CALL)
-   Exact replicate of agent-standup system UI
+   VIEW 1: AGENT STANDUP (LIVE TEAM CALL & SCREEN SHARE)
+   Exact match to agent-standup system UI
    ========================================================================== */
 
 #view-standup {
@@ -470,7 +495,7 @@ main#workspace {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   padding: 3px 10px;
   border-radius: 99px;
@@ -490,7 +515,7 @@ main#workspace {
 
 .standup-token-counter {
   font-family: var(--cth-font-mono);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--standup-gold);
   background: #232635;
@@ -504,16 +529,16 @@ main#workspace {
   padding: 14px;
   display: grid;
   gap: 12px;
-  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   align-content: start;
 }
 
-/* Agent Video Tile */
+/* Agent Video Tile — Animated SVG Desk & Character */
 .agent-video-tile {
   background: var(--standup-tile);
   border: 2px solid var(--standup-border);
   border-radius: 8px;
-  height: 180px;
+  height: 185px;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -529,19 +554,20 @@ main#workspace {
 
 .agent-video-tile.speaking {
   border-color: var(--standup-gold) !important;
-  box-shadow: 0 0 16px rgba(245, 192, 74, 0.45);
+  box-shadow: 0 0 18px rgba(245, 192, 74, 0.55);
 }
 
 .tile-top-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px;
-  z-index: 2;
+  padding: 6px 8px;
+  z-index: 5;
+  background: linear-gradient(180deg, rgba(14,15,24,0.85) 0%, rgba(14,15,24,0) 100%);
 }
 
 .tile-agent-name {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   color: #FFF;
   overflow: hidden;
@@ -550,7 +576,7 @@ main#workspace {
 }
 
 .tile-activity-tag {
-  font-size: 9.5px;
+  font-size: 11px;
   font-family: var(--cth-font-mono);
   padding: 2px 6px;
   border-radius: 4px;
@@ -559,56 +585,130 @@ main#workspace {
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.tile-avatar-stage {
+/* Standup Animated SVG Canvas Container */
+.tile-svg-stage {
   flex: 1;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  position: relative;
 }
 
-.tile-avatar-img {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  border: 2px solid var(--standup-border);
-  object-fit: cover;
-  background: #252839;
-  image-rendering: pixelated;
-  transition: transform 0.1s ease;
+.tile-svg-stage svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
-.agent-video-tile.speaking .tile-avatar-img {
-  border-color: var(--standup-gold);
-  transform: scale(1.06);
+/* Character Animation Tokens (from agent-standup) */
+.fig {
+  transform-origin: 50px 76px;
+  animation: standup-bob 4.4s ease-in-out infinite;
+}
+@keyframes standup-bob {
+  50% { transform: translateY(-0.9px); }
 }
 
-.tile-audio-wave {
+.agent-video-tile.speaking .fig {
+  animation: standup-talk 0.46s ease-in-out infinite;
+}
+@keyframes standup-talk {
+  50% { transform: scale(1.025, 0.985) translateY(-0.5px); }
+}
+
+.eye {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: standup-blink 4.6s infinite;
+}
+@keyframes standup-blink {
+  0%, 94%, 100% { transform: scaleY(1); }
+  97% { transform: scaleY(0.08); }
+}
+
+.brow {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 0.25s;
+}
+.agent-video-tile.speaking .brow {
+  animation: standup-brow 0.7s ease-in-out infinite;
+}
+@keyframes standup-brow {
+  50% { transform: translateY(-1.1px); }
+}
+
+.arm.l { transform-origin: 27px 48px; }
+.arm.r { transform-origin: 73px 48px; }
+.agent-video-tile.speaking .arm.r {
+  animation: standup-wave 0.7s ease-in-out infinite;
+}
+@keyframes standup-wave {
+  50% { transform: rotate(-34deg); }
+}
+
+.hand {
+  animation: standup-type 0.34s ease-in-out infinite;
+}
+.hand.r {
+  animation-delay: -0.17s;
+}
+@keyframes standup-type {
+  50% { transform: translateY(-1.3px); }
+}
+
+.tw {
+  animation: standup-tw 3.2s ease-in-out infinite;
+}
+@keyframes standup-tw {
+  50% { opacity: 0.25; }
+}
+
+.steam {
+  animation: standup-steam 2.6s ease-in-out infinite;
+}
+@keyframes standup-steam {
+  50% { transform: translateY(-1.4px); opacity: 0.25; }
+}
+
+/* Comic Speech Bubble Over Head (from agent-standup) */
+.bubble {
   display: none;
-  gap: 3px;
-  height: 12px;
-  align-items: center;
-  margin-top: 6px;
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  right: 6px;
+  background: #FFF;
+  color: #1A1320;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-family: var(--cth-font-ui);
+  font-size: 12px;
+  line-height: 1.35;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+  max-height: 58%;
+  overflow: hidden;
+  z-index: 10;
+  border: 1.5px solid var(--cth-ink-900);
 }
 
-.agent-video-tile.speaking .tile-audio-wave {
-  display: flex;
+.agent-video-tile.speaking .bubble {
+  display: block;
+  animation: bubble-pop 0.25s cubic-bezier(.2,.8,.2,1);
 }
 
-.tile-audio-wave span {
-  width: 3px;
-  background: var(--standup-gold);
-  border-radius: 1px;
-  animation: wave-bar 0.8s infinite ease-in-out alternate;
+@keyframes bubble-pop {
+  from { opacity: 0; transform: translateY(4px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
-.tile-audio-wave span:nth-child(2) { animation-delay: 0.15s; }
-.tile-audio-wave span:nth-child(3) { animation-delay: 0.3s; }
-.tile-audio-wave span:nth-child(4) { animation-delay: 0.45s; }
 
-@keyframes wave-bar {
-  0% { height: 3px; }
-  100% { height: 14px; }
+.bubble small {
+  display: block;
+  color: #6A6F85;
+  font-size: 10px;
 }
 
 .tile-bottom-ticker {
@@ -616,11 +716,12 @@ main#workspace {
   padding: 5px 8px;
   border-top: 1px solid var(--standup-border);
   font-family: var(--cth-font-mono);
-  font-size: 10px;
+  font-size: 13px;
   color: #A3A8BC;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  z-index: 5;
 }
 
 .tile-bottom-ticker .ticker-tool {
@@ -636,9 +737,63 @@ main#workspace {
   flex-shrink: 0;
 }
 
-/* Right Stage: Screen Sharing (Terminal / Diff Editor / Tasks) */
+/* Subtitles & Spoken Text Bar */
+.standup-subtitles-bar {
+  background: #151620;
+  border-top: 1px solid var(--standup-border);
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.subtitle-speaker-label {
+  font-family: var(--cth-font-display);
+  font-size: 9.5px;
+  color: var(--standup-gold);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.subtitle-text {
+  font-family: var(--cth-font-ui);
+  font-size: 14px;
+  line-height: 1.4;
+  color: #E9EAF0;
+  min-height: 22px;
+}
+
+/* Chairperson Directive Bar */
+.standup-directive-bar {
+  background: #1A1C29;
+  border-top: 2px solid var(--standup-gold);
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.directive-input {
+  flex: 1;
+  height: 36px;
+  background: #0F1018;
+  border: 1px solid var(--standup-border);
+  border-radius: 4px;
+  padding: 0 12px;
+  color: #FFF;
+  font-family: var(--cth-font-ui);
+  font-size: 13px;
+  outline: none;
+}
+.directive-input:focus {
+  border-color: var(--standup-gold);
+  box-shadow: 0 0 6px rgba(245, 192, 74, 0.4);
+}
+
+/* Right Stage: Screen Sharing (Terminal / Diff / Report) */
 .standup-shared-stage {
-  width: 480px;
+  width: 490px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -660,7 +815,7 @@ main#workspace {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 12px;
+  font-size: 13.5px;
   font-weight: 700;
   color: #FFF;
 }
@@ -668,7 +823,7 @@ main#workspace {
 .presenter-badge .sharing-tag {
   background: #2563EB;
   color: #FFF;
-  font-size: 9.5px;
+  font-size: 10px;
   padding: 2px 6px;
   border-radius: 4px;
   font-weight: 700;
@@ -701,7 +856,7 @@ main#workspace {
   justify-content: space-between;
   border-bottom: 1px solid #282C3F;
   font-family: var(--cth-font-mono);
-  font-size: 11px;
+  font-size: 13px;
   color: #8E95AA;
 }
 
@@ -715,16 +870,19 @@ main#workspace {
   border-radius: 50%;
   background: #3E4359;
 }
+.window-dots span:nth-child(1) { background: #FF5F56; }
+.window-dots span:nth-child(2) { background: #FFBD2E; }
+.window-dots span:nth-child(3) { background: #27C93F; }
 
 .terminal-content {
   padding: 12px;
   font-family: var(--cth-font-mono);
-  font-size: 12px;
+  font-size: 14.5px;
   color: #C5CBDD;
-  line-height: 1.55;
+  line-height: 1.5;
   white-space: pre-wrap;
   word-break: break-all;
-  max-height: 220px;
+  max-height: 250px;
   overflow-y: auto;
 }
 
@@ -747,221 +905,388 @@ main#workspace {
 .diff-content {
   padding: 10px;
   font-family: var(--cth-font-mono);
-  font-size: 11.5px;
-  line-height: 1.5;
-  max-height: 180px;
+  font-size: 13.5px;
+  line-height: 1.45;
+  max-height: 250px;
   overflow-y: auto;
 }
 
 .diff-line-del {
-  background: rgba(239, 68, 68, 0.15);
-  color: #F87171;
-  padding: 1px 4px;
+  background: rgba(239, 68, 68, 0.18);
+  color: #FCA5A5;
+  padding: 2px 6px;
 }
 
 .diff-line-add {
-  background: rgba(34, 197, 94, 0.15);
-  color: #4ADE80;
-  padding: 1px 4px;
-}
-
-/* Standup Subtitles & Speech Bubble */
-.standup-subtitles-bar {
-  height: 74px;
-  background: #11121A;
-  border-top: 1px solid var(--standup-border);
-  padding: 10px 16px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.subtitle-speaker-label {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--standup-gold);
-  margin-bottom: 3px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.subtitle-text {
-  font-size: 13.5px;
-  color: #FFF;
-  line-height: 1.35;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-
-/* Chairperson Directive Input Bar */
-.standup-directive-bar {
-  height: 54px;
-  background: #181924;
-  border-top: 1px solid var(--standup-border);
-  padding: 8px 14px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.directive-input {
-  flex: 1;
-  height: 36px;
-  background: #0F1018;
-  border: 1px solid #35394F;
-  border-radius: 4px;
-  padding: 0 12px;
-  color: #FFF;
-  font-family: var(--cth-font-ui);
-  font-size: 13px;
-}
-.directive-input:focus {
-  outline: 2px solid #38BDF8;
+  background: rgba(34, 197, 94, 0.18);
+  color: #86EFAC;
+  padding: 2px 6px;
 }
 
 /* ==========================================================================
-   VIEW 2: OFFICE FLOOR (MUNDER-DIFFLIN 2D SCENE)
-   Interactive 2D office floor with animated desks and zones
+   VIEW 2: OFFICE FLOOR (MUNDER-DIFFLIN 2D PIXEL SCENE)
    ========================================================================== */
 
 #view-floor {
-  padding: 16px;
-  gap: 14px;
+  background: var(--cth-cream-100);
+  padding: 14px;
+  gap: 12px;
 }
 
 .floor-toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 14px;
-  background: var(--cth-cream-50);
+  padding: 8px 12px;
+  background: var(--cth-cream-200);
   border: var(--border-thick);
+  border-radius: 4px;
+}
+
+/* Live Floor Chatter Ticker Bar */
+.floor-chatter-ticker-bar {
+  background: var(--cth-cream-100);
+  border: var(--border-thick);
+  border-bottom: none;
   box-shadow: var(--cth-shadow-sm);
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--cth-font-ui);
+  font-size: 13px;
+  color: var(--cth-ink-900);
+  overflow: hidden;
+}
+
+.chatter-speaker-tag {
+  font-family: var(--cth-font-display);
+  font-size: 8px;
+  color: #D97706;
+  background: #FEF3C7;
+  padding: 2px 6px;
+  border: 1px solid #D97706;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.chatter-speaker-name {
+  font-weight: 800;
+  color: var(--cth-ink-900);
+  flex-shrink: 0;
+}
+
+.chatter-speaker-text {
+  color: var(--cth-ink-700);
+  font-style: italic;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
 }
 
 .floor-canvas-container {
   flex: 1;
-  background: #EFE6CD;
+  background-color: #E8D9A0;
+  background-image: 
+    linear-gradient(45deg, #DFCE93 25%, transparent 25%), 
+    linear-gradient(-45deg, #DFCE93 25%, transparent 25%), 
+    linear-gradient(45deg, transparent 75%, #DFCE93 75%), 
+    linear-gradient(-45deg, transparent 75%, #DFCE93 75%);
+  background-size: 24px 24px;
+  background-position: 0 0, 0 12px, 12px -12px, -12px 0px;
   border: var(--border-thick);
   box-shadow: var(--cth-shadow-hard);
   position: relative;
-  overflow: hidden;
-  border-radius: 2px;
+  min-height: 600px;
+  overflow: auto;
+  scroll-behavior: smooth;
+  padding: 24px;
 }
 
-/* Floor Grid Tiles */
-.floor-canvas-container::before {
-  content: "";
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background-image: 
-    linear-gradient(to right, rgba(61, 46, 74, 0.08) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(61, 46, 74, 0.08) 1px, transparent 1px);
-  background-size: 32px 32px;
-  pointer-events: none;
+/* Floor Zoom Wrapper */
+.floor-world-stage {
+  transform-origin: top left;
+  transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  min-width: 1300px;
 }
 
-.office-zone-rect {
-  position: absolute;
-  border: 2px dashed rgba(61, 46, 74, 0.35);
-  background: rgba(255, 255, 255, 0.25);
-  padding: 8px;
-  border-radius: 4px;
-  pointer-events: none;
+.floor-world-stage.zoom-50 {
+  transform: scale(0.5);
+}
+.floor-world-stage.zoom-75 {
+  transform: scale(0.75);
+}
+.floor-world-stage.zoom-100 {
+  transform: scale(1);
+}
+.floor-world-stage.zoom-fit {
+  transform: scale(0.65);
 }
 
-.zone-title {
-  font-family: var(--cth-font-display);
-  font-size: 8.5px;
-  color: var(--cth-ink-700);
-  background: var(--cth-cream-100);
-  display: inline-block;
-  padding: 2px 6px;
-  border: var(--border-thin);
-  border-radius: 2px;
-}
-
-/* Interactive Desk Element */
-.floor-desk-item {
-  position: absolute;
-  width: 90px;
-  height: 80px;
+/* 10 Departmental Wings */
+.floor-wing-pod {
   background: var(--cth-cream-50);
-  border: var(--border-thick);
+  border: 2.5px solid var(--cth-ink-900);
+  border-radius: 8px;
+  box-shadow: 4px 4px 0 var(--cth-ink-900);
+  padding: 14px;
+  position: relative;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.floor-wing-pod:hover {
+  box-shadow: 6px 6px 0 var(--cth-ink-900);
+}
+
+.floor-wing-pod.wing-focus-highlight {
+  box-shadow: 0 0 0 4px #F59E0B, 6px 8px 0 var(--cth-ink-900);
+  transform: translateY(-3px);
+  transition: all 0.25s ease;
+}
+
+.wing-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px dashed var(--cth-ink-300);
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+}
+
+.wing-title-block {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wing-icon {
+  font-size: 18px;
+}
+
+.wing-name {
+  font-family: var(--cth-font-display);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--cth-ink-900);
+  letter-spacing: 0.5px;
+}
+
+.wing-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--cth-font-mono);
+  font-size: 13px;
+  color: var(--cth-ink-500);
+}
+
+.wing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+
+/* 363 Workstation Desks */
+.floor-workstation {
+  position: relative;
+  background: #FCF8E8;
+  border: 1.5px solid var(--cth-ink-900);
+  border-radius: 6px;
   box-shadow: 2px 2px 0 var(--cth-ink-900);
-  border-radius: 4px;
+  padding: 6px 4px 4px 4px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   cursor: pointer;
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
-  z-index: 10;
+  user-select: none;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, border-color 0.1s ease;
+  min-height: 96px;
 }
 
-.floor-desk-item:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 4px 4px 0 var(--cth-ink-900);
-  background: #FFF;
+.floor-workstation:hover {
+  transform: translateY(-2px);
+  box-shadow: 3px 4px 0 var(--cth-ink-900);
+  border-color: #3B82F6;
+  background: #FFFDF5;
 }
 
-.floor-desk-avatar {
-  width: 38px;
-  height: 38px;
+/* Speaking State on Floor */
+.floor-workstation.speaking-active {
+  border-color: #F59E0B;
+  box-shadow: 0 0 0 2px #F59E0B, 3px 4px 0 var(--cth-ink-900);
+  animation: workstation-pulse 1s infinite alternate;
+}
+
+@keyframes workstation-pulse {
+  from { transform: translateY(-2px) scale(1.02); }
+  to { transform: translateY(-4px) scale(1.04); }
+}
+
+/* Search Highlight Beacon */
+.floor-workstation.search-match {
+  border-color: #EF4444;
+  box-shadow: 0 0 0 3px #EF4444, 4px 5px 0 var(--cth-ink-900);
+  background: #FEF2F2;
+  animation: search-beacon 0.8s infinite alternate;
+}
+
+@keyframes search-beacon {
+  from { filter: drop-shadow(0 0 4px #EF4444); }
+  to { filter: drop-shadow(0 0 12px #EF4444); }
+}
+
+/* Workstation Top Bar: LED + Coffee + Monitor */
+.workstation-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 2px 3px 2px;
+}
+
+.desk-led {
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  border: 1.5px solid var(--cth-ink-900);
-  object-fit: cover;
-  image-rendering: pixelated;
+  border: 1px solid var(--cth-ink-900);
+  display: inline-block;
+}
+.desk-led.online { background: #10B981; box-shadow: 0 0 4px #10B981; }
+.desk-led.working { background: #F59E0B; box-shadow: 0 0 4px #F59E0B; animation: led-blink 1s infinite; }
+.desk-led.standby { background: #9CA3AF; }
+
+@keyframes led-blink {
+  50% { opacity: 0.3; }
 }
 
-.floor-desk-name {
-  font-size: 9.5px;
-  font-weight: 700;
+.desk-coffee {
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+.desk-coffee .steam {
+  position: absolute;
+  top: -6px;
+  left: 2px;
+  font-size: 8px;
+  animation: coffee-steam 1.8s infinite;
+  opacity: 0.7;
+}
+
+@keyframes coffee-steam {
+  0% { transform: translateY(0); opacity: 0.8; }
+  100% { transform: translateY(-5px); opacity: 0; }
+}
+
+.desk-tool-icon {
+  font-size: 10px;
+}
+
+/* Avatar Sprite in Desk */
+.workstation-avatar-box {
+  width: 48px;
+  height: 38px;
+  border: 1px solid var(--cth-ink-900);
+  border-radius: 4px;
+  overflow: hidden;
+  background: #11131E;
+  margin: 2px 0;
+}
+.workstation-avatar-box svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Desk Nameplate & Role */
+.workstation-nameplate {
+  font-family: var(--cth-font-display);
+  font-size: 6.5px;
   color: var(--cth-ink-900);
-  margin-top: 4px;
-  text-align: center;
+  background: #FFF;
+  border: 1px solid var(--cth-ink-900);
+  border-radius: 2px;
+  padding: 1px 3px;
   max-width: 82px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  text-align: center;
+  margin-top: 2px;
+}
+
+.workstation-tool-pill {
+  font-family: var(--cth-font-mono);
+  font-size: 10px;
+  color: var(--cth-ink-500);
+  max-width: 82px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-top: 1px;
 }
 
 /* Floor Speech Bubble */
-.floor-speech-bubble {
+.desk-speech-bubble {
+  display: none;
   position: absolute;
-  bottom: 84px;
-  background: #FFF;
-  border: var(--border-thick);
-  box-shadow: 2px 2px 0 var(--cth-ink-900);
-  padding: 4px 8px;
-  font-size: 10px;
-  font-weight: 600;
-  max-width: 150px;
-  border-radius: 4px;
-  pointer-events: none;
+  bottom: 102%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--cth-cream-50);
+  color: var(--cth-ink-900);
+  border: 1.5px solid var(--cth-ink-900);
+  box-shadow: 2px 3px 0 var(--cth-ink-900);
+  padding: 5px 8px;
+  border-radius: 5px;
+  font-family: var(--cth-font-ui);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.25;
   white-space: normal;
-  z-index: 25;
+  width: 160px;
+  text-align: center;
+  pointer-events: none;
+  z-index: 100;
+  animation: bubble-pop-in 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
-.floor-speech-bubble::after {
+
+.desk-speech-bubble::after {
   content: "";
   position: absolute;
-  bottom: -6px;
-  left: 20px;
-  width: 8px;
-  height: 8px;
-  background: #FFF;
-  border-right: var(--border-thick);
-  border-bottom: var(--border-thick);
-  transform: rotate(45deg);
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px 5px 0;
+  border-style: solid;
+  border-color: var(--cth-ink-900) transparent;
+  display: block;
+  width: 0;
 }
+
+.floor-workstation.speaking-active .desk-speech-bubble {
+  display: block;
+}
+
+@keyframes bubble-pop-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(4px) scale(0.9); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+
+/* Legacy support */
+.office-zone-rect { display: none; }
+.floor-desk-item { display: none; }
+
+/* ==========================================================================
 
 /* ==========================================================================
    VIEW 3: ALL ECOSYSTEM AGENTS DIRECTORY (360+ SWARM)
-   Comprehensive Munder-Difflin catalog with live tasks
    ========================================================================== */
 
 #view-agents {
@@ -970,115 +1295,113 @@ main#workspace {
 }
 
 .agents-directory-header {
-  padding: 14px 18px;
-  background: var(--cth-cream-50);
-  border: var(--border-thick);
-  box-shadow: var(--cth-shadow-sm);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .agents-search-row {
   display: flex;
+  gap: 10px;
   align-items: center;
-  gap: 12px;
 }
 
 .agent-search-input {
   flex: 1;
-  height: 40px;
-  background: var(--cth-cream-200);
+  height: 42px;
+  background: var(--cth-cream-50);
   border: var(--border-thick);
+  box-shadow: var(--cth-shadow-sm);
   padding: 0 14px;
   font-family: var(--cth-font-ui);
-  font-size: 13.5px;
-  font-weight: 600;
+  font-size: 15px;
   color: var(--cth-ink-900);
+  outline: none;
 }
 .agent-search-input:focus {
-  outline: none;
-  background: #FFF;
-  box-shadow: inset 2px 2px 0 rgba(26, 19, 32, 0.1);
+  border-color: var(--cth-coral);
+  box-shadow: 3px 3px 0 var(--cth-ink-900);
 }
 
 .division-filter-pills {
   display: flex;
   gap: 6px;
-  overflow-x: auto;
-  padding-bottom: 4px;
+  flex-wrap: wrap;
 }
 
 .filter-pill {
-  padding: 4px 12px;
-  font-size: 11px;
-  font-weight: 700;
-  background: var(--cth-cream-200);
-  border: var(--border-thin);
-  border-radius: 99px;
-  cursor: pointer;
-  white-space: nowrap;
-  user-select: none;
-  transition: all 0.1s ease;
-}
-
-.filter-pill:hover {
+  padding: 4px 10px;
   background: var(--cth-cream-300);
+  border: var(--border-thin);
+  box-shadow: 1px 1px 0 var(--cth-ink-900);
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--cth-ink-700);
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.08s ease;
 }
-
+.filter-pill:hover {
+  background: var(--cth-cream-200);
+  color: var(--cth-ink-900);
+}
 .filter-pill.active {
   background: var(--cth-ink-900);
-  color: #FFFDF5;
-  border-color: var(--cth-ink-900);
+  color: var(--cth-cream-50);
+  box-shadow: 2px 2px 0 var(--cth-coral);
 }
 
-/* Agents Grid */
 .agents-cards-grid {
   flex: 1;
-  overflow-y: auto;
   display: grid;
-  gap: 12px;
   grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 14px;
+  overflow-y: auto;
   align-content: start;
-  padding-right: 4px;
+  padding-bottom: 24px;
 }
 
+/* Canonical Munder-Difflin Agent Card */
 .munder-agent-card {
   background: var(--cth-cream-50);
   border: var(--border-thick);
-  box-shadow: var(--cth-shadow-sm);
+  box-shadow: var(--cth-shadow-hard);
   padding: 12px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
+  cursor: pointer;
   position: relative;
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
 }
 
 .munder-agent-card:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: var(--cth-shadow-hard);
-  background: #FFF;
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--cth-ink-900);
 }
 
 .agent-card-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 10px;
 }
 
 .agent-card-avatar {
   width: 44px;
   height: 44px;
-  border-radius: 6px;
+  border-radius: 4px;
   border: var(--border-thick);
-  object-fit: cover;
   background: var(--cth-cream-200);
-  flex-shrink: 0;
-  image-rendering: pixelated;
   display: grid;
   place-items: center;
-  font-size: 20px;
+  font-size: 22px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.agent-card-avatar svg {
+  width: 100%;
+  height: 100%;
 }
 
 .agent-card-info {
@@ -1087,7 +1410,7 @@ main#workspace {
 }
 
 .agent-card-name {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 800;
   color: var(--cth-ink-900);
   overflow: hidden;
@@ -1096,16 +1419,16 @@ main#workspace {
 }
 
 .agent-card-title {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--cth-ink-500);
-  margin-top: 2px;
+  margin-top: 1px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-/* Live Task Box */
+/* Live Task Box ("What each and every agent is currently doing") */
 .agent-current-task-box {
   background: var(--cth-cream-200);
   border: var(--border-thin);
@@ -1124,7 +1447,7 @@ main#workspace {
 }
 
 .task-box-text {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--cth-ink-900);
   line-height: 1.35;
@@ -1138,7 +1461,7 @@ main#workspace {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 10.5px;
+  font-size: 13px;
   color: var(--cth-ink-700);
   font-family: var(--cth-font-mono);
 }
@@ -1159,7 +1482,6 @@ main#workspace {
 
 /* ==========================================================================
    VIEW 4: COMMAND CENTER & TASK KANBAN
-   Munder-Difflin columnar workflow board
    ========================================================================== */
 
 #view-kanban {
@@ -1258,13 +1580,17 @@ main#workspace {
 }
 
 .chat-avatar {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   border: var(--border-thick);
   object-fit: cover;
   flex-shrink: 0;
   image-rendering: pixelated;
+  background: var(--cth-cream-200);
+  display: grid;
+  place-items: center;
+  font-size: 20px;
 }
 
 .chat-bubble {
@@ -1279,13 +1605,13 @@ main#workspace {
 }
 
 .chat-sender-name {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 800;
   color: var(--cth-ink-900);
 }
 
 .chat-text {
-  font-size: 12.5px;
+  font-size: 14px;
   line-height: 1.4;
   color: var(--cth-ink-700);
 }
