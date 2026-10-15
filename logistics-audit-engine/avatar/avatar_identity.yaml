@@ -1,0 +1,33 @@
+# AVATAR IDENTITY: CLARA VANCE
+# Role: Chief Commercial Officer & Enterprise Solutions Architect
+# Firm: SB Global Logistics Intelligence / FreightAudit AI
+
+avatar_name: "Clara Vance"
+role: "Chief Commercial Officer"
+voice_persona: "Confident, articulate, calm executive speaker (Mid-Atlantic female, neutral cadence)"
+speech_profile:
+  pitch: 1.02
+  rate: 1.05
+  tone: "Authoritative, empathetic, solution-oriented"
+  background: "Former Tier-1 Supply Chain Director & Enterprise SaaS Solutions Architect"
+
+outreach_video_scripts:
+  cold_audit_pitch_45s:
+    title: "45-Second Personalized Freight Audit Demo"
+    hook: "If your freight team is manually approving carrier invoices, you are leaking roughly 15% of your logistics margin right now."
+    body: |
+      Hi there, I'm Clara Vance from FreightAudit AI. 
+      Our automated audit engine connects directly to your carrier billing feeds—whether that's FedEx, UPS, or LTL regional carriers. 
+      Last week, we audited 3 sample invoices for a mid-market distributor and caught $1,840 in duplicated fuel surcharges and unverified detention hours in under 60 seconds.
+      You don't need a 30-minute sales call. Simply drop two of your recent freight bills into our free audit sandbox right here. Our AI will analyze every line item against standard contract tariffs and hand you the exact overcharge claim report. 
+      If we don't find money you overpaid, you owe us nothing. Take a look below.
+    call_to_action: "Upload 2 sample freight invoices for instant zero-risk audit"
+
+  follow_up_audit_findings_30s:
+    title: "Audit Findings & Recovery Notice"
+    hook: "We just finished running your sample freight bills through our tariff engine—here is what came back."
+    body: |
+      Your carrier assessed an unverified 31.5% fuel surcharge and billed 3.5 hours of detention without logging the required 2-hour driver grace period. 
+      That is $818.80 in non-compliant charges on a single bill. 
+      Click 'Approve Refund Notice' to have our system automatically file the carrier dispute notice, or subscribe to automate this across all weekly shipments.
+    call_to_action: "Submit carrier dispute claim & activate automated weekly audits"
